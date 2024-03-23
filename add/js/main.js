@@ -6,9 +6,28 @@ $(document).ready(function () {
                 initmultiselect('pers_tag');
                 initmultiselect('pers_tem');
             }
+            if (event.target.hash ==='#tabs-4'){
+                let data=load_tag();
+                let tbl = $("#tbl_tag");
+                tbl.html('');
+                $.each(data, function (i, v) {
+                    tbl.append('<tr><td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delTag('+v.id+')"><i class="bi bi-trash"></i></button></td><td>'+v.Name+'</td></tr>')
+                })
+            }
+            if (event.target.hash ==='#tabs-5'){
+                let data=load_sci_field()
+                let tbl = $("#tbl_sci_field");
+                tbl.html('');
+                $.each(data, function (i, v) {
+                    tbl.append('<tr><td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delSci_field('+v.id+')"><i class="bi bi-trash"></i></button></td><td>'+v.Name+'</td></tr>')
+                })
+
+            }
         }
     })
-    /*EVENT*/
+    /*******************
+    /*     EVENT
+    /********************/
     let ev_tem = 'ev_tem';
     let ev_tag = 'ev_tag';
     let ev_pers = 'ev_pers';
@@ -26,12 +45,32 @@ $(document).ready(function () {
         }
         $('#ev_Desc_short_COUNT').html(text.length+'/'+'300')
     })
+
     inittag('ev');
+    initTagAjax('#ev_tag',load_tag());
+
     $('#ev_btn_send').on('click',function (e){
         e.preventDefault();
-        /*TODO ВАЛИДАЦИЯ
-        *  +  datepic.datepicker("option", "dateFormat", "dd.mm.yy");  "yy-mm-dd"
+        /* ВАЛИДАЦИЯ
+        *
         * */
+        /*проверка на заполнение обязательных полей*/
+        let ret = false;
+        $('#event input, #event textarea, #event select').each(function (){
+            console.log(this);
+            if ($(this).prop('required')) {
+                let temp = $(this).val();
+                if (temp ==='' ||temp.length<2){
+                    ret=true;
+                }
+            }
+        })
+        if (ret)  {
+            alert('Заполните обязательные поля!');
+            return;
+        }
+        /**/
+
         let data=$('#event').serialize();
         $.ajax({
             type: 'POST',
@@ -47,7 +86,9 @@ $(document).ready(function () {
             }
         });
     })
-    /*PERS*/
+    /***********************
+    /*PERS
+    /***********************/
     $('#pers_date1,#pers_date2').datepicker({
         showOtherMonths: true,
         selectOtherMonths: true,
@@ -58,6 +99,7 @@ $(document).ready(function () {
     initmultiselect('pers_tag');
     initmultiselect('pers_tem');
     inittag('pers');
+    initTagAjax('#pers_tag',load_tag());
     $('#pers_Desc').on('keyup',function (e){
         let text=$(this).val();
         if (text.length> 1000) {
@@ -67,10 +109,35 @@ $(document).ready(function () {
     })
     $('#pers_btn_send').on('click',function (e){
         e.preventDefault();
-        /*TODO ВАЛИДАЦИЯ
-        * + datepic.datepicker("option", "dateFormat", "dd.mm.yy");
-        * */
+
+        /*ВАЛИДАЦИЯ
+        /*Валидация даты*/
+        let chek=/^\d{2}[./-]\d{2}[./-]\d{4}$/.test($('#pers_date1').val())
+        if (!chek) {alert('Заполните дату правильно!');return;}
+        let date2=$('#pers_date2').val();
+        if (date2.length > 0 ) {
+            chek=/^\d{2}[./-]\d{2}[./-]\d{4}$/.test(date2)
+            if(!chek) {alert('Заполните дату правильно!');return;}
+        }
+        let ret=false;
+        /*проверка на заполнение обязательных полей*/
+        $('#pers input, #pers textarea').each(function (){
+             if ($(this).prop('required')) {
+                let temp = $(this).val();
+                if (temp ==='' ||temp.length<2){
+                    ret=true;
+                }
+            }
+        })
+        if (ret)  {
+            alert('Заполните обязательные поля!');
+            return;
+        }
+        /**/
+        let datepic = $('#pers_date1,#pers_date2');
+        datepic.datepicker("option", "dateFormat", "yy-mm-dd");
         let data=$('#pers').serialize();
+        datepic.datepicker("option", "dateFormat", "dd.mm.yy");
         $.ajax({
             type: 'POST',
             url: 'set.php?pers',
@@ -86,8 +153,94 @@ $(document).ready(function () {
             }
         });
     })
-
+    /***********************
+     /*TAG
+     /***********************/
+    $("#tag_add_btn").on('click', function (e){
+        e.preventDefault();
+        let tag=$('#tag_add').val();
+        if (tag.length >3) {
+            $.ajax({
+                type: 'POST',
+                url: 'set.php?tag',
+                data: 'tag='+tag,
+                dataType: 'json',
+                cache: false,
+                success: function(data) {
+                    console.log(data);
+                    if (typeof data.err ==='undefined') {
+                        let tbl = $("#tbl_tag");
+                        tbl.html('');
+                        $.each(data, function (i, v) {
+                            tbl.append('<tr><td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delTag('+v.id+')"><i class="bi bi-trash"></i></button></td><td>'+v.Name+'</td></tr>')
+                        })
+                    } else alert(data.err);
+                    // do something with ajax data
+                }
+            })
+        } else alert('Длинна ключевого солова должна быть больше 2')
+    })
+    /***********************
+     /*sci_field // Научное напрвление
+     /***********************/
+    $("#sci_field_add_btn").on('click', function (e){
+        e.preventDefault();
+        let sci_field=$('#sci_field_add').val();
+        if (sci_field.length >3) {
+            $.ajax({
+                type: 'POST',
+                url: 'set.php?sci_field',
+                data: 'sci_field='+sci_field,
+                dataType: 'json',
+                cache: false,
+                success: function(data) {
+                    console.log(data);
+                    if (typeof data.err ==='undefined') {
+                        let tbl = $("#sci_field");
+                        tbl.html('');
+                        $.each(data, function (i, v) {
+                            tbl.append('<tr><td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delSci_field('+v.id+')"><i class="bi bi-trash"></i></button></td><td>'+v.Name+'</td></tr>')
+                        })
+                    } else alert(data.err);
+                }
+            })
+        } else alert('Длинна ключевого солова должна быть больше 2')
+    })
 })
+function delTag(tag){
+    /*TODO !*/
+}
+function delSci_field(tag){
+    /*TODO !*/
+}
+function load_tag(){
+    return $.ajax({
+        async:false,
+        type: 'POST',
+        url: 'get.php?tag',
+        //data: 'tag='+tag,
+        dataType: 'json',
+        cache: false,
+        success: function(data) {
+            //console.log(data);
+            // do something with ajax data
+        }
+    }).responseJSON;
+}
+function load_sci_field(){
+    return $.ajax({
+        async:false,
+        type: 'POST',
+        url: 'get.php?sci_field',
+        //data: 'tag='+tag,
+        dataType: 'json',
+        cache: false,
+        success: function(data) {
+            //console.log(data);
+            // do something with ajax data
+        }
+    }).responseJSON;
+}
 function update_person() {
     let html='';
     $.ajax({
@@ -127,6 +280,16 @@ function inittag(elem) {
         tag.val('');
     })
 }
+function initTagAjax(elem,data) {
+        //let data=load_tag();
+        let elem_g=$(elem)
+        elem_g.html('');
+        $.each(data,function (i,v){
+            $(elem).append('<option value="'+v.id+'">' + v.Name + '</option>');
+        });
+        elem_g.multiselect('refresh');
+}
+
 function initmultiselect(elem) {
     let buttonW='80%';
     let menuWidth='80%';

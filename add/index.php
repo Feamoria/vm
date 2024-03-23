@@ -98,7 +98,8 @@
 		<li><a href="#tabs-1">События</a></li>
 		<li><a href="#tabs-2">Персоналии</a></li>
 		<li><a href="#tabs-3">Файлы</a></li>
-
+        <li><a href="#tabs-4">Ключевые слова</a></li>
+        <li><a href="#tabs-5">Научная тематика</a></li>
 	</ul>
 	<div id="tabs-1">
 		<form class="row" id="event">
@@ -108,7 +109,7 @@
 			</div>
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success">Дата начала</span>
-				<input type="text" id='ev_Y_n' name="ev_Y_n" aria-label="" class="form-control" placeholder="Год">
+				<input type="text" id='ev_Y_n' required name="ev_Y_n" aria-label="" class="form-control" placeholder="Год (обязательно)">
 				<input type="text" id='ev_M_n' name="ev_M_n" aria-label="" class="form-control" placeholder="Месяц (1-12)">
 				<input type="text" id='ev_D_n' name="ev_D_n" aria-label="" class="form-control" placeholder="День (1-31)">
 			</div>
@@ -120,7 +121,7 @@
 			</div>
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success">Событие кратко</span>
-				<textarea id="ev_Desc_short" name="ev_Desc_short" class="form-control" aria-label=""></textarea>
+				<textarea id="ev_Desc_short" required name="ev_Desc_short" class="form-control" aria-label=""></textarea>
 				<span class="input-group-text" id="ev_Desc_short_COUNT"></span>
 			</div>
 			<div class="input-group">
@@ -134,7 +135,7 @@
 
 				</select>
 			</div>
-			<!--Файлы -->
+			<!-- TODO Файлы -->
 			<!--Структурное подразделение -->
 			<div class="col-auto input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success" id="ev_SP">Структурное подразделение</span>
@@ -161,7 +162,7 @@
 			<!--Важность события -->
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success" id="">Важность события </span>
-				<select id="" name="" class="form-select" aria-label="">
+				<select id="" name="" required class="form-select" aria-label="">
 					<option selected disabled>--</option>
 					<option value="1">1е</option>
 					<option value="2">2е</option>
@@ -202,20 +203,19 @@
 	<div id="tabs-2">
 		<form class="row" method="post" id="pers">
 			<div class="input-group">
-				<span style="width: 20%" class="input-group-text text-bg-success">Название события</span>
-				<input id="pers_F" name="pers_F" type="text" class="form-control" placeholder="Фамилия" aria-label="Фамилия">
-				<input id="pers_I" name="pers_I" type="text" class="form-control" placeholder="Имя" aria-label="Имя">
-				<input id="pers_O" name="pers_O" type="text" class="form-control" placeholder="Отчество" aria-label="Отчество">
+                <span style="width: 20%" class="input-group-text text-bg-success">ФИО персоны<span style="color: red">*</span></span>
+				<input id="pers_F" name="pers_F" required type="text" class="form-control" placeholder="Фамилия" aria-label="Фамилия">
+				<input id="pers_I" name="pers_I" required type="text" class="form-control" placeholder="Имя" aria-label="Имя">
+				<input id="pers_O" name="pers_O" required type="text" class="form-control" placeholder="Отчество" aria-label="Отчество">
 			</div>
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success">Годы жизни</span>
-				<input id="pers_date1" name="pers_date1" type="text" class="form-control" placeholder="c" aria-label="">
-				<input id="pers_date2" name="pers_date2" type="text" class="form-control" placeholder="по" aria-label="">
-
+				<input id="pers_date1" required name="pers_date1" type="text" class="form-control" placeholder="c (обязательное)" aria-label="">
+				<input id="pers_date2"  name="pers_date2" type="text" class="form-control" placeholder="по" aria-label="">
 			</div>
 			<div class="input-group">
-				<span style="width: 20%" class="input-group-text text-bg-success">Должность</span>
-				<input id="pers_dol" name="pers_dol" type="text" class="form-control" placeholder="" aria-label="">
+				<span style="width: 20%" class="input-group-text text-bg-success">Должность<span style="color: red">*</span></span>
+				<input id="pers_dol" name="pers_dol" required type="text" class="form-control" placeholder="" aria-label="">
 			</div>
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success">Аннотация</span>
@@ -231,7 +231,7 @@
 					<option value="3">3я</option>
 				</select>
 				<input style="width: 10%" type="text" id='pers_tag_add' aria-label="" class="form-control" placeholder="">
-				<button class="btn btn-primary"  id='pers_tag_add_btn'>Добавить</button>
+				<button class="btn btn-primary"  id='pers_tag_add_btn'>+</button>
 			</div>
 			<!--Структурное подразделение -->
 			<div class="col-auto input-group">
@@ -253,12 +253,36 @@
 				</select>
 			</div>
 			<div class="input-group">
-				<button class="btn btn-primary"  id='pers_btn_send'>Отправить</button>
+				<button class="btn btn-primary"  id='pers_btn_send'>Сохранить персоналию</button>
 			</div>
 		</form>
 	</div>
 	<div id="tabs-3">
 
 	</div>
+    <div id="tabs-4">
+        <form class="row" method="post" id="tag">
+            <div class="input-group">
+                <span style="width: 30%" class="input-group-text text-bg-success">Ключевое слово</span>
+                <input style="width: 30%" type="text" id='tag_add' aria-label="" class="form-control" placeholder="">
+                <button class="btn btn-primary"  id='tag_add_btn'>Добавить</button>
+            </div>
+        </form>
+        <table class="" id="tbl_tag">
+
+        </table>
+    </div>
+    <div id="tabs-5">
+        <form class="row" method="post" id="sci_field">
+            <div class="input-group">
+                <span style="width: 30%" class="input-group-text text-bg-success">Научная тематика</span>
+                <input style="width: 30%" type="text" id='sci_field_add' aria-label="" class="form-control" placeholder="">
+                <button class="btn btn-primary"  id='sci_field_add_btn'>Добавить</button>
+            </div>
+        </form>
+        <table class="" id="tbl_sci_field">
+
+        </table>
+    </div>
 </div>
 </body>
