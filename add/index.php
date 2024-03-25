@@ -108,7 +108,7 @@
 				<input id="ev_Name" name="ev_Name" type="text" class="form-control" placeholder="Название" aria-label="Название">
 			</div>
 			<div class="input-group">
-				<span style="width: 20%" class="input-group-text text-bg-success">Дата начала</span>
+				<span style="width: 20%" class="input-group-text text-bg-success">Дата начала<span style="color: red">*</span></span>
 				<input type="text" id='ev_Y_n' required name="ev_Y_n" aria-label="" class="form-control" placeholder="Год (обязательно)">
 				<input type="text" id='ev_M_n' name="ev_M_n" aria-label="" class="form-control" placeholder="Месяц (1-12)">
 				<input type="text" id='ev_D_n' name="ev_D_n" aria-label="" class="form-control" placeholder="День (1-31)">
@@ -120,7 +120,7 @@
 				<input type="text" id='ev_D_e' name="ev_D_e" aria-label="" class="form-control" placeholder="День (1-31)">
 			</div>
 			<div class="input-group">
-				<span style="width: 20%" class="input-group-text text-bg-success">Событие кратко</span>
+				<span style="width: 20%" class="input-group-text text-bg-success">Событие кратко<span style="color: red">*</span></span>
 				<textarea id="ev_Desc_short" required name="ev_Desc_short" class="form-control" aria-label=""></textarea>
 				<span class="input-group-text" id="ev_Desc_short_COUNT"></span>
 			</div>
@@ -161,9 +161,9 @@
 			</div>
 			<!--Важность события -->
 			<div class="input-group">
-				<span style="width: 20%" class="input-group-text text-bg-success" id="">Важность события </span>
+				<span style="width: 20%" class="input-group-text text-bg-success" id="">Важность события<span style="color: red">*</span></span>
 				<select id="" name="" required class="form-select" aria-label="">
-					<option selected disabled>--</option>
+					<option selected value="" disabled>--</option>
 					<option value="1">1е</option>
 					<option value="2">2е</option>
 					<option value="3">3е</option>
@@ -258,7 +258,64 @@
 		</form>
 	</div>
 	<div id="tabs-3">
+		<form class="row" method="post" id="file">
+			<div class="input-group">
+				<span style="width: 20%" class="input-group-text text-bg-success">Файл<span style="color: red">*</span></span>
+				<input id="file_F" name="file_F" required type="file" class="form-control" placeholder="" aria-label="">
+				</div>
+			<div class="input-group">
+				<span style="width: 20%" class="input-group-text text-bg-success">Дата</span>
+				<input id="pers_date1" required name="file_date" type="text" class="form-control" placeholder="(обязательное) 1947.01.01 или 1947.02.01  если неизвестна точная дата или месяц" aria-label="">
+			</div>
+			<div class="input-group">
+				<span style="width: 20%" class="input-group-text text-bg-success">Название файла<span style="color: red">*</span></span>
+				<input id="pers_dol" name="file_name" required type="text" class="form-control" placeholder="" aria-label="">
+			</div>
+			<div class="input-group">
+				<span style="width: 20%" class="input-group-text text-bg-success">Аннотация</span>
+				<textarea id="pers_Desc" name="file_Desc" class="form-control" aria-label=""></textarea>
+				<span class="input-group-text" id="file_Desc_short_COUNT"></span>
+			</div>
+			<!--Пероналии TODO -->
+			<div class="col-auto input-group">
+				<span style="width: 20%" class="input-group-text text-bg-success" id="">Пероналии</span>
 
+			</div>
+			<!--Структурное подразделение -->
+			<div class="col-auto input-group">
+				<span style="width: 20%" class="input-group-text text-bg-success" id="">Структурное подразделение</span>
+				<select id="file_SP" name="file_SP" class="form-select" aria-label="">
+					<option selected disabled>--</option>
+					<option value="1">1е</option>
+					<option value="2">2е</option>
+					<option value="3">3е</option>
+				</select>
+			</div>
+			<!--Научная тематика -->
+			<div class="input-group">
+				<span style="width: 20%" class="input-group-text text-bg-success">Научная тематика</span>
+				<select id="file_tem" name="file_tem[]" class="form-select" multiple aria-label="">
+
+				</select>
+			</div>
+			<!--Ссылки на архивный документ -->
+			<div class="input-group">
+				<span style="width: 20%" class="input-group-text text-bg-success">Ссылки на архивный документ</span>
+				<input style="width: 10%" type="text" id='file_doc' aria-label="" class="form-control" placeholder="">
+			</div>
+			<!--Ключевые слова -->
+			<div class="input-group">
+				<span style="width: 20%" class="input-group-text text-bg-success">Ключевые слова</span>
+				<select id="file_tag" name="file_tag[]" class="form-select" multiple aria-label="">
+
+				</select>
+				<input style="width: 10%" type="text" id='file_tag_add' aria-label="" class="form-control" placeholder="">
+				<button class="btn btn-primary"  id='file_tag_add_btn'>+</button>
+			</div>
+			<div class="input-group">
+				<button class="btn btn-primary"  id='file_btn_send'>Сохранить файл</button>
+			</div>
+		</form>
 	</div>
     <div id="tabs-4">
         <form class="row" method="post" id="tag">

@@ -2,6 +2,11 @@ $(document).ready(function () {
     $('#tabs').tabs().bind('click', function (event) {	// Событие при переключении на таб
         if (typeof event.target.hash !=='undefined') {
             console.log(event.target.hash);
+            if (event.target.hash ==='#tabs-1') {
+                initmultiselect('ev_pers');
+                initmultiselect('ev_tag');
+                initmultiselect('ev_tem');
+            }
             if (event.target.hash ==='#tabs-2') {
                 initmultiselect('pers_tag');
                 initmultiselect('pers_tem');
@@ -28,13 +33,10 @@ $(document).ready(function () {
     /*******************
     /*     EVENT
     /********************/
-    let ev_tem = 'ev_tem';
-    let ev_tag = 'ev_tag';
-    let ev_pers = 'ev_pers';
-    initmultiselect(ev_tem);
-    initmultiselect(ev_tag);
-    initmultiselect(ev_pers)
-    update_person();
+    initmultiselect('ev_tem');
+    initmultiselect('ev_tag');
+    initmultiselect('ev_pers')
+    update_person('ev_pers');
     $('#ev_Y_n,#ev_M_n,#ev_D_n,#ev_Y_e,#ev_M_e,#ev_D_e').on('keyup',function (e){
         this.value = this.value.replace(/\D/g,'');
     })
@@ -48,13 +50,11 @@ $(document).ready(function () {
 
     inittag('ev');
     initTagAjax('#ev_tag',load_tag());
-
+    initTagAjax('#ev_tem',load_sci_field());
     $('#ev_btn_send').on('click',function (e){
         e.preventDefault();
         /* ВАЛИДАЦИЯ
-        *
-        * */
-        /*проверка на заполнение обязательных полей*/
+         проверка на заполнение обязательных полей*/
         let ret = false;
         $('#event input, #event textarea, #event select').each(function (){
             console.log(this);
@@ -100,6 +100,8 @@ $(document).ready(function () {
     initmultiselect('pers_tem');
     inittag('pers');
     initTagAjax('#pers_tag',load_tag());
+    initTagAjax('#pers_tem',load_sci_field());
+
     $('#pers_Desc').on('keyup',function (e){
         let text=$(this).val();
         if (text.length> 1000) {
@@ -141,15 +143,11 @@ $(document).ready(function () {
         $.ajax({
             type: 'POST',
             url: 'set.php?pers',
-            //data: JSON.stringify(parameters),
             data: data,
-            //contentType: 'application/json;',
             dataType: 'json',
             cache: false,
             success: function(data) {
-                update_person();
-                // do something with ajax data
-
+                update_person('ev_pers');
             }
         });
     })
@@ -169,16 +167,17 @@ $(document).ready(function () {
                 success: function(data) {
                     console.log(data);
                     if (typeof data.err ==='undefined') {
+                        initTagAjax('#ev_tag',data);
+                        initTagAjax('#pers_tag',data);
                         let tbl = $("#tbl_tag");
                         tbl.html('');
                         $.each(data, function (i, v) {
                             tbl.append('<tr><td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delTag('+v.id+')"><i class="bi bi-trash"></i></button></td><td>'+v.Name+'</td></tr>')
                         })
                     } else alert(data.err);
-                    // do something with ajax data
                 }
             })
-        } else alert('Длинна ключевого солова должна быть больше 2')
+        } else alert('Длинна ключевого слова должна быть больше 3')
     })
     /***********************
      /*sci_field // Научное напрвление
@@ -194,9 +193,10 @@ $(document).ready(function () {
                 dataType: 'json',
                 cache: false,
                 success: function(data) {
-                    console.log(data);
                     if (typeof data.err ==='undefined') {
-                        let tbl = $("#sci_field");
+                        initTagAjax('#pers_tem',data);
+                        initTagAjax('#ev_tem',data);
+                        let tbl = $("#tbl_sci_field");
                         tbl.html('');
                         $.each(data, function (i, v) {
                             tbl.append('<tr><td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delSci_field('+v.id+')"><i class="bi bi-trash"></i></button></td><td>'+v.Name+'</td></tr>')
@@ -204,14 +204,49 @@ $(document).ready(function () {
                     } else alert(data.err);
                 }
             })
-        } else alert('Длинна ключевого солова должна быть больше 2')
+        } else alert('Длинна ключевого слова должна быть больше 3')
     })
 })
 function delTag(tag){
-    /*TODO !*/
+    /* !*/
+    $.ajax({
+        type: 'POST',
+        url: 'set.php?tag&del',
+        data: 'tag='+tag,
+        dataType: 'json',
+        cache: false,
+        success: function(data) {
+            console.log(data);
+            if (typeof data.err ==='undefined') {
+                let tbl = $("#tbl_tag");
+                tbl.html('');
+                $.each(data, function (i, v) {
+                    tbl.append('<tr><td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delTag('+v.id+')"><i class="bi bi-trash"></i></button></td><td>'+v.Name+'</td></tr>')
+                })
+            } else alert(data.err);
+            // do something with ajax data
+        }
+    })
 }
-function delSci_field(tag){
+function delSci_field(sci_field){
     /*TODO !*/
+    $.ajax({
+        type: 'POST',
+        url: 'set.php?sci_field&del',
+        data: 'sci_field='+sci_field,
+        dataType: 'json',
+        cache: false,
+        success: function(data) {
+            console.log(data);
+            if (typeof data.err ==='undefined') {
+                let tbl = $("#tbl_sci_field");
+                tbl.html('');
+                $.each(data, function (i, v) {
+                    tbl.append('<tr><td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delSci_field('+v.id+')"><i class="bi bi-trash"></i></button></td><td>'+v.Name+'</td></tr>')
+                })
+            } else alert(data.err);
+        }
+    })
 }
 function load_tag(){
     return $.ajax({
@@ -241,7 +276,7 @@ function load_sci_field(){
         }
     }).responseJSON;
 }
-function update_person() {
+function update_person(elem) {
     let html='';
     $.ajax({
         type: 'POST',
@@ -251,11 +286,8 @@ function update_person() {
         cache: false,
         success: function(data) {
             console.log(data);
-            $.each(data, function(key, value){
-                html+='<option value="'+value.id+'">'+value.F+' '+value.I+' '+value.O+'</option>';
-            })
-            $('#ev_pers').html(html).multiselect('refresh');
-            // do something with ajax data
+            initTagAjax('#'+elem,data)
+
         }
     });
 
@@ -281,8 +313,7 @@ function inittag(elem) {
     })
 }
 function initTagAjax(elem,data) {
-        //let data=load_tag();
-        let elem_g=$(elem)
+        let elem_g=$(elem);
         elem_g.html('');
         $.each(data,function (i,v){
             $(elem).append('<option value="'+v.id+'">' + v.Name + '</option>');
