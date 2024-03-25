@@ -1,97 +1,132 @@
 $(document).ready(function () {
     $('#tabs').tabs().bind('click', function (event) {	// Событие при переключении на таб
-        if (typeof event.target.hash !=='undefined') {
+        if (typeof event.target.hash !== 'undefined') {
             console.log(event.target.hash);
-            if (event.target.hash ==='#tabs-1') {
+            if (event.target.hash === '#tabs-1') {
                 initmultiselect('ev_pers');
                 initmultiselect('ev_tag');
                 initmultiselect('ev_tem');
             }
-            if (event.target.hash ==='#tabs-2') {
+            if (event.target.hash === '#tabs-2') {
                 initmultiselect('pers_tag');
                 initmultiselect('pers_tem');
+                initmultiselect('pers_sci_department');
+                let data = load_person();
+                let tbl = $("#tbl_person");
+                tbl.html('<thead><tr>' +
+                    '<th></th>' +
+                    '<th>Фамилия</th>' +
+                    '<th>Имя</th>' +
+                    '<th>Отчество</th>' +
+                    '<th>Должность</th>' +
+                    '<th>Даты жизни</th>' +
+                    '<th>Аннотация</th>' +
+                    '<th>Ключевые</th>' +
+                    '<th>подразделение</th>' +
+                    '<th>тематика</th>' +
+                    '<th>файлы</th>' +
+                    '</tr></thead>');
+                $.each(data, function (i, v) {
+                    tbl.append('<tr>' +
+                        '<td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delPerson(' + v.id + ')"><i class="bi bi-trash"></i></button></td>' +
+                        '<td>' + v.F + '</td>' +
+                        '<td>' + v.I + '</td>' +
+                        '<td>' + v.O + '</td>' +
+                        '<td>' + v.DOL + '</td>' +
+                        '<td>c ' + v.DAYN + ' по '+v.DAYD+'</td>' +
+                        '<td><textarea style="width: 100%" class="form-control">' + v.COMMENT +'</textarea></td>' +
+                        '<td>' + v.tag + '</td>' +
+                        '<td>' + v.sci_department + '</td>' +
+                        '<td>' + v.sci_theme + '</td>' +
+                        '<td>' + v.file + '</td>' +
+                        '</tr>')
+                })
+
             }
-            if (event.target.hash ==='#tabs-3') {
+            if (event.target.hash === '#tabs-3') {
                 initmultiselect('file_tag');
                 initmultiselect('file_tem');
                 initmultiselect('file_pers');
             }
-            if (event.target.hash ==='#tabs-4'){
-                let data=load_tag();
+            if (event.target.hash === '#tabs-4') {
+                let data = load_tag();
                 let tbl = $("#tbl_tag");
                 tbl.html('');
                 $.each(data, function (i, v) {
-                    tbl.append('<tr><td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delTag('+v.id+')"><i class="bi bi-trash"></i></button></td><td>'+v.Name+'</td></tr>')
+                    tbl.append('<tr><td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delTag(' + v.id + ')"><i class="bi bi-trash"></i></button></td><td>' + v.Name + '</td></tr>')
                 })
             }
-            if (event.target.hash ==='#tabs-5'){
-                let data=load_sci_field()
+            if (event.target.hash === '#tabs-5') {
+                let data = load_sci_field()
                 let tbl = $("#tbl_sci_field");
                 tbl.html('');
                 $.each(data, function (i, v) {
-                    tbl.append('<tr><td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delSci_field('+v.id+')"><i class="bi bi-trash"></i></button></td><td>'+v.Name+'</td></tr>')
+                    tbl.append('<tr><td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delSci_field(' + v.id + ')"><i class="bi bi-trash"></i></button></td><td>' + v.Name + '</td></tr>')
                 })
 
             }
-            if (event.target.hash ==='#tabs-6'){
+            if (event.target.hash === '#tabs-6') {
                 initmultiselect('sci_department_owner');
-                let data=load_sci_department()
+                let data = load_sci_department()
                 let tbl = $("#tbl_sci_department");
                 tbl.html('');
                 $.each(data, function (i, v) {
-                    tbl.append('<tr><td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delSci_field('+v.id+')"><i class="bi bi-trash"></i></button></td><td>'+v.Name+'</td></tr>')
+                    tbl.append('<tr><td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delSciDepartment(' + v.id + ')"><i class="bi bi-trash"></i></button></td><td>' + v.Name + '</td></tr>')
                 })
 
             }
         }
     })
     /*LOAD DATA*/
-    let data_tag=load_tag();
-    let data_pers=load_person();
-    let data_sci_field=load_sci_field();
+    let data_tag = load_tag();
+    let data_pers = load_person();
+    let data_sci_field = load_sci_field();
+    let data_sci_department = load_sci_department();
     /*******************
-    /*     EVENT
-    /********************/
+     /*     EVENT
+     /********************/
     initmultiselect('ev_tem');
     initmultiselect('ev_tag');
     initmultiselect('ev_pers')
+    initmultiselect('ev_sci_department');
     //update_person('ev_pers');
-    $('#ev_Y_n,#ev_M_n,#ev_D_n,#ev_Y_e,#ev_M_e,#ev_D_e').on('keyup',function (e){
-        this.value = this.value.replace(/\D/g,'');
+    $('#ev_Y_n,#ev_M_n,#ev_D_n,#ev_Y_e,#ev_M_e,#ev_D_e').on('keyup', function (e) {
+        this.value = this.value.replace(/\D/g, '');
     })
-    $('#ev_Desc_short').on('keyup',function (e){
-        let text=$(this).val();
-        if (text.length> 300) {
+    $('#ev_Desc_short').on('keyup', function (e) {
+        let text = $(this).val();
+        if (text.length > 300) {
             $(this).val(text.substring(0, 300));
         }
-        $('#ev_Desc_short_COUNT').html(text.length+'/'+'300')
+        $('#ev_Desc_short_COUNT').html(text.length + '/' + '300')
     })
 
     inittag('ev');
-    initTagAjax('#ev_tag',data_tag);
-    initTagAjax('#ev_tem',data_sci_field);
-    initTagAjax('#ev_pers',data_pers);
-    $('#ev_btn_send').on('click',function (e){
+    initTagAjax('#ev_tag', data_tag);
+    initTagAjax('#ev_tem', data_sci_field);
+    initTagAjax('#ev_pers', data_pers);
+    initTagAjax('#ev_sci_department', data_sci_department);
+    $('#ev_btn_send').on('click', function (e) {
         e.preventDefault();
         /* ВАЛИДАЦИЯ
          проверка на заполнение обязательных полей*/
         let ret = false;
-        $('#event input, #event textarea, #event select').each(function (){
+        $('#event input, #event textarea, #event select').each(function () {
             console.log(this);
             if ($(this).prop('required')) {
                 let temp = $(this).val();
-                if (temp ==='' ||temp.length<2){
-                    ret=true;
+                if (temp === '' || temp.length < 2) {
+                    ret = true;
                 }
             }
         })
-        if (ret)  {
+        if (ret) {
             alert('Заполните обязательные поля!');
             return;
         }
         /**/
 
-        let data=$('#event').serialize();
+        let data = $('#event').serialize();
         $.ajax({
             type: 'POST',
             url: 'set.php?event',
@@ -100,15 +135,15 @@ $(document).ready(function () {
             //contentType: 'application/json;',
             dataType: 'json',
             cache: false,
-            success: function(data) {
+            success: function (data) {
                 // do something with ajax data
 
             }
         });
     })
     /***********************
-    /*PERS
-    /***********************/
+     /*PERS
+     /***********************/
     $('#pers_date1,#pers_date2').datepicker({
         showOtherMonths: true,
         selectOtherMonths: true,
@@ -118,48 +153,56 @@ $(document).ready(function () {
     });
     initmultiselect('pers_tag');
     initmultiselect('pers_tem');
+    initmultiselect('pers_sci_department');
     inittag('pers');
-    initTagAjax('#pers_tag',data_tag);
-    initTagAjax('#pers_tem',data_sci_field);
+    initTagAjax('#pers_tag', data_tag);
+    initTagAjax('#pers_tem', data_sci_field);
+    initTagAjax('#pers_sci_department', data_sci_department);
     // initTagAjax('#pers_file',data_sci_field); TODO
 
-    $('#pers_Desc').on('keyup',function (e){
-        let text=$(this).val();
-        if (text.length> 1000) {
+    $('#pers_Desc').on('keyup', function (e) {
+        let text = $(this).val();
+        if (text.length > 1000) {
             $(this).val(text.substring(0, 1000));
         }
-        $('#pers_Desc_short_COUNT').html(text.length+'/'+'1000')
+        $('#pers_Desc_short_COUNT').html(text.length + '/' + '1000')
     })
     /*ЗАГРУЗКА НА СЕРВЕР*/
-    $('#pers_btn_send').on('click',function (e){
+    $('#pers_btn_send').on('click', function (e) {
         e.preventDefault();
         /*ВАЛИДАЦИЯ
         /*Валидация даты*/
-        let chek=/^\d{2}[./-]\d{2}[./-]\d{4}$/.test($('#pers_date1').val())
-        if (!chek) {alert('Заполните дату правильно!');return;}
-        let date2=$('#pers_date2').val();
-        if (date2.length > 0 ) {
-            chek=/^\d{2}[./-]\d{2}[./-]\d{4}$/.test(date2)
-            if(!chek) {alert('Заполните дату правильно!');return;}
+        let chek = /^\d{2}[./-]\d{2}[./-]\d{4}$/.test($('#pers_date1').val())
+        if (!chek) {
+            alert('Заполните дату правильно!');
+            return;
         }
-        let ret=false;
+        let date2 = $('#pers_date2').val();
+        if (date2.length > 0) {
+            chek = /^\d{2}[./-]\d{2}[./-]\d{4}$/.test(date2)
+            if (!chek) {
+                alert('Заполните дату правильно!');
+                return;
+            }
+        }
+        let ret = false;
         /*проверка на заполнение обязательных полей*/
-        $('#pers input, #pers textarea').each(function (){
-             if ($(this).prop('required')) {
+        $('#pers input, #pers textarea').each(function () {
+            if ($(this).prop('required')) {
                 let temp = $(this).val();
-                if (temp ==='' ||temp.length<2){
-                    ret=true;
+                if (temp === '' || temp.length < 2) {
+                    ret = true;
                 }
             }
         })
-        if (ret)  {
+        if (ret) {
             alert('Заполните обязательные поля!');
             return;
         }
         /**/
         let datepic = $('#pers_date1,#pers_date2');
         datepic.datepicker("option", "dateFormat", "yy-mm-dd");
-        let data=$('#pers').serialize();
+        let data = $('#pers').serialize();
         datepic.datepicker("option", "dateFormat", "dd.mm.yy");
         $.ajax({
             type: 'POST',
@@ -167,7 +210,7 @@ $(document).ready(function () {
             data: data,
             dataType: 'json',
             cache: false,
-            success: function(data) {
+            success: function (data) {
                 update_person('ev_pers');
             }
         });
@@ -175,25 +218,25 @@ $(document).ready(function () {
     /***********************
      /*TAG
      /***********************/
-    $("#tag_add_btn").on('click', function (e){
+    $("#tag_add_btn").on('click', function (e) {
         e.preventDefault();
-        let tag=$('#tag_add').val();
-        if (tag.length >3) {
+        let tag = $('#tag_add').val();
+        if (tag.length > 3) {
             $.ajax({
                 type: 'POST',
                 url: 'set.php?tag',
-                data: 'tag='+tag,
+                data: 'tag=' + tag,
                 dataType: 'json',
                 cache: false,
-                success: function(data) {
+                success: function (data) {
                     console.log(data);
-                    if (typeof data.err ==='undefined') {
-                        initTagAjax('#ev_tag',data);
-                        initTagAjax('#pers_tag',data);
+                    if (typeof data.err === 'undefined') {
+                        initTagAjax('#ev_tag', data);
+                        initTagAjax('#pers_tag', data);
                         let tbl = $("#tbl_tag");
                         tbl.html('');
                         $.each(data, function (i, v) {
-                            tbl.append('<tr><td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delTag('+v.id+')"><i class="bi bi-trash"></i></button></td><td>'+v.Name+'</td></tr>')
+                            tbl.append('<tr><td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delTag(' + v.id + ')"><i class="bi bi-trash"></i></button></td><td>' + v.Name + '</td></tr>')
                         })
                     } else alert(data.err);
                 }
@@ -203,24 +246,24 @@ $(document).ready(function () {
     /***********************
      /*sci_theme // Научное напрвление
      /***********************/
-    $("#sci_field_add_btn").on('click', function (e){
+    $("#sci_field_add_btn").on('click', function (e) {
         e.preventDefault();
-        let sci_theme=$('#sci_field_add').val();
-        if (sci_theme.length >3) {
+        let sci_theme = $('#sci_field_add').val();
+        if (sci_theme.length > 3) {
             $.ajax({
                 type: 'POST',
                 url: 'set.php?sci_theme',
-                data: 'sci_theme='+sci_theme,
+                data: 'sci_theme=' + sci_theme,
                 dataType: 'json',
                 cache: false,
-                success: function(data) {
-                    if (typeof data.err ==='undefined') {
-                        initTagAjax('#pers_tem',data);
-                        initTagAjax('#ev_tem',data);
+                success: function (data) {
+                    if (typeof data.err === 'undefined') {
+                        initTagAjax('#pers_tem', data);
+                        initTagAjax('#ev_tem', data);
                         let tbl = $("#tbl_sci_field");
                         tbl.html('');
                         $.each(data, function (i, v) {
-                            tbl.append('<tr><td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delSci_field('+v.id+')"><i class="bi bi-trash"></i></button></td><td>'+v.Name+'</td></tr>')
+                            tbl.append('<tr><td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delSci_field(' + v.id + ')"><i class="bi bi-trash"></i></button></td><td>' + v.Name + '</td></tr>')
                         })
                     } else alert(data.err);
                 }
@@ -238,40 +281,44 @@ $(document).ready(function () {
         dateFormat: 'dd.mm.yy',
     });
     initmultiselect('sci_department_owner');
-    //initTagAjax('#pers_tag',data_tag); //TODO
-
-
+    initTagAjax('#sci_department_owner', data_sci_department); //TODO
 
     /*ЗАГРУЗКА НА СЕРВЕР*/
-    $('#sci_department_add_btn').on('click',function (e){
+    $('#sci_department_add_btn').on('click', function (e) {
         e.preventDefault();
         /*ВАЛИДАЦИЯ
         /*Валидация даты*/
-        let chek=/^\d{2}[./-]\d{2}[./-]\d{4}$/.test($('#sci_department_date1').val())
-        if (!chek) {alert('Заполните дату правильно!');return;}
-        let date2=$('#sci_department_date2').val();
-        if (date2.length > 0 ) {
-            chek=/^\d{2}[./-]\d{2}[./-]\d{4}$/.test(date2)
-            if(!chek) {alert('Заполните дату правильно!');return;}
+        let chek = /^\d{2}[./-]\d{2}[./-]\d{4}$/.test($('#sci_department_date1').val())
+        if (!chek) {
+            alert('Заполните дату правильно!');
+            return;
         }
-        let ret=false;
+        let date2 = $('#sci_department_date2').val();
+        if (date2.length > 0) {
+            chek = /^\d{2}[./-]\d{2}[./-]\d{4}$/.test(date2)
+            if (!chek) {
+                alert('Заполните дату правильно!');
+                return;
+            }
+        }
+        let ret = false;
         /*проверка на заполнение обязательных полей*/
-        $('#sci_department input, #sci_department textarea').each(function (){
+        $('#sci_department input, #sci_department textarea').each(function () {
             if ($(this).prop('required')) {
                 let temp = $(this).val();
-                if (temp ==='' ||temp.length<2){
-                    ret=true;
+                if (temp === '' || temp.length < 2) {
+                    ret = true;
                 }
             }
         })
-        if (ret)  {
+        if (ret) {
             alert('Заполните обязательные поля!');
             return;
         }
         /**/
         let datepic = $('#sci_department_date1,#sci_department_date2');
         datepic.datepicker("option", "dateFormat", "yy-mm-dd");
-        let data=$('#sci_department').serialize();
+        let data = $('#sci_department').serialize();
         datepic.datepicker("option", "dateFormat", "dd.mm.yy");
         $.ajax({
             type: 'POST',
@@ -279,10 +326,16 @@ $(document).ready(function () {
             data: data,
             dataType: 'json',
             cache: false,
-            success: function(data) {
+            success: function (data) {
                 console.log(data);
-                if (typeof data.err ==='undefined') {
-                    initTagAjax('#sci_department_owner',data);
+                if (typeof data.err === 'undefined') {
+                    data_sci_department = data;
+                    initTagAjax('#sci_department_owner', data);
+                    let tbl = $("#tbl_sci_department");
+                    tbl.html('');
+                    $.each(data, function (i, v) {
+                        tbl.append('<tr><td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delSciDepartment(' + v.id + ')"><i class="bi bi-trash"></i></button></td><td>' + v.Name + '</td></tr>')
+                    })
                 } else alert(data.err);
                 //update_person('ev_pers');
             }
@@ -302,41 +355,44 @@ $(document).ready(function () {
     initmultiselect('file_tem');
     initmultiselect('file_pers');
     inittag('file');
-    initTagAjax('#file_tag',data_tag);
-    initTagAjax('#file_tem',data_sci_field);
-    initTagAjax('#file_pers',data_pers);
+    initTagAjax('#file_tag', data_tag);
+    initTagAjax('#file_tem', data_sci_field);
+    initTagAjax('#file_pers', data_pers);
 
-    $('#file_Desc').on('keyup',function (e){
-        let text=$(this).val();
-        if (text.length> 1000) {
+    $('#file_Desc').on('keyup', function (e) {
+        let text = $(this).val();
+        if (text.length > 1000) {
             $(this).val(text.substring(0, 1000));
         }
-        $('#file_Desc_short_COUNT').html(text.length+'/'+'1000')
+        $('#file_Desc_short_COUNT').html(text.length + '/' + '1000')
     })
-    $('#file_btn_send').on('click',function (e){
+    $('#file_btn_send').on('click', function (e) {
         e.preventDefault();
         /*ВАЛИДАЦИЯ
         /*Валидация даты*/
-        let datepic=$('#file_date');
-        let chek=/^\d{2}[./-]\d{2}[./-]\d{4}$/.test(datepic.val())
-        if (!chek) {alert('Заполните дату правильно!');return;}
-        let ret=false;
+        let datepic = $('#file_date');
+        let chek = /^\d{2}[./-]\d{2}[./-]\d{4}$/.test(datepic.val())
+        if (!chek) {
+            alert('Заполните дату правильно!');
+            return;
+        }
+        let ret = false;
         /*проверка на заполнение обязательных полей*/
-        $('#file input, #file textarea').each(function (){
+        $('#file input, #file textarea').each(function () {
             if ($(this).prop('required')) {
                 let temp = $(this).val();
-                if (temp ==='' ||temp.length<2){
-                    ret=true;
+                if (temp === '' || temp.length < 2) {
+                    ret = true;
                 }
             }
         })
-        if (ret)  {
+        if (ret) {
             alert('Заполните обязательные поля!');
             return;
         }
         /**/
         datepic.datepicker("option", "dateFormat", "yy-mm-dd");
-        let data=$('#file').serialize();
+        let data = $('#file').serialize();
         datepic.datepicker("option", "dateFormat", "dd.mm.yy");
         $.ajax({
             type: 'POST',
@@ -344,124 +400,152 @@ $(document).ready(function () {
             data: data,
             dataType: 'json',
             cache: false,
-            success: function(data) {
+            success: function (data) {
                 console.log(data);
                 //update_person('ev_pers');
             }
         });
     })
 })
-function delTag(tag){
+
+function delTag(tag) {
     /* !*/
     $.ajax({
         type: 'POST',
         url: 'set.php?tag&del',
-        data: 'tag='+tag,
+        data: 'tag=' + tag,
         dataType: 'json',
         cache: false,
-        success: function(data) {
+        success: function (data) {
             console.log(data);
-            if (typeof data.err ==='undefined') {
+            if (typeof data.err === 'undefined') {
                 let tbl = $("#tbl_tag");
                 tbl.html('');
                 $.each(data, function (i, v) {
-                    tbl.append('<tr><td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delTag('+v.id+')"><i class="bi bi-trash"></i></button></td><td>'+v.Name+'</td></tr>')
+                    tbl.append('<tr><td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delTag(' + v.id + ')"><i class="bi bi-trash"></i></button></td><td>' + v.Name + '</td></tr>')
                 })
             } else alert(data.err);
             // do something with ajax data
         }
     })
 }
-function delSci_field(sci_field){
-    /*TODO !*/
+
+function delSciDepartment(sci_department) {
     $.ajax({
         type: 'POST',
-        url: 'set.php?sci_field&del',
-        data: 'sci_field='+sci_field,
+        url: 'set.php?sci_department&del',
+        data: 'sci_department=' + sci_department,
         dataType: 'json',
         cache: false,
-        success: function(data) {
+        success: function (data) {
             console.log(data);
-            if (typeof data.err ==='undefined') {
-                let tbl = $("#tbl_sci_field");
+            if (typeof data.err === 'undefined') {
+                let tbl = $("#tbl_sci_department");
                 tbl.html('');
                 $.each(data, function (i, v) {
-                    tbl.append('<tr><td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delSci_field('+v.id+')"><i class="bi bi-trash"></i></button></td><td>'+v.Name+'</td></tr>')
+                    tbl.append('<tr><td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delSciDepartment(' + v.id + ')"><i class="bi bi-trash"></i></button></td><td>' + v.Name + '</td></tr>')
                 })
             } else alert(data.err);
         }
     })
 }
-function load_tag(){
+
+function delSci_field(sci_field) {
+    /*TODO !*/
+    $.ajax({
+        type: 'POST',
+        url: 'set.php?sci_theme&del',
+        data: 'sci_theme=' + sci_field,
+        dataType: 'json',
+        cache: false,
+        success: function (data) {
+            console.log(data);
+            if (typeof data.err === 'undefined') {
+                let tbl = $("#tbl_sci_field");
+                tbl.html('');
+                $.each(data, function (i, v) {
+                    tbl.append('<tr><td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delSci_field(' + v.id + ')"><i class="bi bi-trash"></i></button></td><td>' + v.Name + '</td></tr>')
+                })
+            } else alert(data.err);
+        }
+    })
+}
+
+function load_tag() {
     return $.ajax({
-        async:false,
+        async: false,
         type: 'POST',
         url: 'get.php?tag',
         //data: 'tag='+tag,
         dataType: 'json',
         cache: false,
-        success: function(data) {
+        success: function (data) {
             //console.log(data);
             // do something with ajax data
         }
     }).responseJSON;
 }
-function load_person(){
+
+function load_person() {
     return $.ajax({
-        async:false,
+        async: false,
         type: 'POST',
         url: 'get.php?person',
         //data: 'tag='+tag,
         dataType: 'json',
         cache: false,
-        success: function(data) {
+        success: function (data) {
             //console.log(data);
             // do something with ajax data
         }
     }).responseJSON;
 }
-function load_sci_field(){
+
+function load_sci_field() {
     return $.ajax({
-        async:false,
+        async: false,
         type: 'POST',
         url: 'get.php?sci_theme',
         //data: 'tag='+tag,
         dataType: 'json',
         cache: false,
-        success: function(data) {
+        success: function (data) {
             //console.log(data);
             // do something with ajax data
         }
     }).responseJSON;
 }
-function load_sci_department(){
+
+function load_sci_department() {
     return $.ajax({
-        async:false,
+        async: false,
         type: 'POST',
         url: 'get.php?sci_department',
         //data: 'tag='+tag,
         dataType: 'json',
         cache: false,
-        success: function(data) {
+        success: function (data) {
             //console.log(data);
             // do something with ajax data
         }
     }).responseJSON;
 }
+
 function update_person(elem) {
-    let html='';
+    let html = '';
     $.ajax({
         type: 'POST',
         url: 'get.php?person',
         //contentType: 'application/json;',
         dataType: 'json',
         cache: false,
-        success: function(data) {
+        success: function (data) {
             //console.log(data);
-            initTagAjax('#'+elem,data)
+            initTagAjax('#' + elem, data)
         }
     });
 }
+
 function search_status(elem) {
     let id_checked = [];
     $('[name="multiselect_' + elem + '"]').each(function () {
@@ -473,30 +557,32 @@ function search_status(elem) {
     })
     $('#' + elem).val(id_checked);
 }
+
 function inittag(elem) {
-    $('#'+elem+'_tag_add_btn').on('click', function (e) {
+    $('#' + elem + '_tag_add_btn').on('click', function (e) {
         e.preventDefault();
-        let tag=$('#'+elem+'_tag_add');
-        $('#'+elem+'_tag').append('<option>' + tag.val() + '</option>').multiselect('refresh');
-        $('#'+elem+'_tag_ms').addClass('form-control');
+        let tag = $('#' + elem + '_tag_add');
+        $('#' + elem + '_tag').append('<option>' + tag.val() + '</option>').multiselect('refresh');
+        $('#' + elem + '_tag_ms').addClass('form-control');
         tag.val('');
     })
 }
-function initTagAjax(elem,data) {
-        let elem_g=$(elem);
-        elem_g.html('');
-        $.each(data,function (i,v){
-            $(elem).append('<option value="'+v.id+'">' + v.Name + '</option>');
-        });
-        elem_g.multiselect('refresh');
+
+function initTagAjax(elem, data) {
+    let elem_g = $(elem);
+    elem_g.html('');
+    $.each(data, function (i, v) {
+        $(elem).append('<option value="' + v.id + '">' + v.Name + '</option>');
+    });
+    elem_g.multiselect('refresh');
 }
 
 function initmultiselect(elem) {
-    let buttonW='80%';
-    let menuWidth='80%';
-    if (elem.indexOf('_tag') >0){
-         buttonW='60%';
-         menuWidth='80%';
+    let buttonW = '79%';
+    let menuWidth = '80%';
+    if (elem.indexOf('_tag') > 0) {
+        buttonW = '60%';
+        menuWidth = '80%';
     }
     $('#' + elem).multiselect({
         buttonWidth: buttonW, // (integer | string | 'auto' | null) Sets the min/max/exact width of the button.
@@ -516,11 +602,11 @@ function initmultiselect(elem) {
             search_status(elem)
         },
         open: function () {
-           // $('.ui-multiselect-menu').css({'z-index': '999999', 'width': '200px'});
+            // $('.ui-multiselect-menu').css({'z-index': '999999', 'width': '200px'});
         },
     }).change(function () {
         //  $("#" + z_table)[0].triggerToolbar();
     }).multiselect('refresh').multiselectfilter({
-        width:'300px'
+        width: '300px'
     });
 }

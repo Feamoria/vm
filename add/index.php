@@ -141,19 +141,13 @@
 			<!--Структурное подразделение -->
 			<div class="col-auto input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success" id="ev_SP">Структурное подразделение</span>
-				<select id="" name="" class="form-select" aria-label="">
-					<option selected disabled>--</option>
-					<option value="1">1е</option>
-					<option value="2">2е</option>
-					<option value="3">3е</option>
+				<select id="ev_sci_department" name="ev_sci_department[]" multiple class="form-select" aria-label="">
+
 				</select>
 			</div>
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success">Научная тематика</span>
-				<select id="ev_tem" name="ev_tem[]" class="form-select" multiple aria-label="">
-					<option value="1">1я</option>
-					<option value="2">2я</option>
-					<option value="3">3я</option>
+				<select id="ev_tem" name="ev_tem[]" multiple class="form-select"  aria-label="">
 				</select>
 			</div>
 			<!--Ссылки на архивный документ -->
@@ -184,19 +178,11 @@
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success">Ключевые слова</span>
 				<select id="ev_tag" name="ev_tag[]" class="form-select" multiple aria-label="">
-					<option value="1">1я</option>
-					<option value="2">2я</option>
-					<option value="3">3я</option>
+
 				</select>
 				<input style="width: 10%" type="text" id='ev_tag_add' aria-label="" class="form-control" placeholder="">
 				<button class="btn btn-primary"  id='ev_tag_add_btn'>Добавить</button>
 			</div>
-<!--
-			<div class="col-auto input-group mb-3">
-				<span class="input-group-text" id="ev_"></span>
-				<input type="text" class="form-control" placeholder="" aria-label="" aria-describedby="ev_">
-			</div>
--->
 			<div class="input-group">
 				<button class="btn btn-primary"  id='ev_btn_send'>Отправить</button>
 			</div>
@@ -228,9 +214,6 @@
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success">Ключевые слова</span>
 				<select id="pers_tag" name="pers_tag[]" class="form-select" multiple aria-label="">
-					<option value="1">1я</option>
-					<option value="2">2я</option>
-					<option value="3">3я</option>
 				</select>
 				<input style="width: 10%" type="text" id='pers_tag_add' aria-label="" class="form-control" placeholder="">
 				<button class="btn btn-primary"  id='pers_tag_add_btn'>+</button>
@@ -238,26 +221,23 @@
 			<!--Структурное подразделение -->
 			<div class="col-auto input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success" id="">Структурное подразделение</span>
-				<select id="pers_SP" name="pers_SP" class="form-select" aria-label="">
-					<option selected disabled>--</option>
-					<option value="1">1е</option>
-					<option value="2">2е</option>
-					<option value="3">3е</option>
+				<select id="pers_sci_department" name="pers_sci_department[]" multiple class="form-select" aria-label="">
+
 				</select>
 			</div>
 			<!--Научная тематика -->
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success">Научная тематика</span>
 				<select id="pers_tem" name="pers_tem[]" class="form-select" multiple aria-label="">
-					<option value="1">1я</option>
-					<option value="2">2я</option>
-					<option value="3">3я</option>
 				</select>
 			</div>
 			<div class="input-group">
 				<button class="btn btn-primary"  id='pers_btn_send'>Сохранить персоналию</button>
 			</div>
 		</form>
+        <table id="tbl_person" class="table table-bordered border-primary">
+
+        </table>
 	</div>
 	<div id="tabs-3">
 		<form class="row" method="post" id="file">
