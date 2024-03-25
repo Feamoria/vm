@@ -100,6 +100,8 @@
 		<li><a href="#tabs-3">Файлы</a></li>
         <li><a href="#tabs-4">Ключевые слова</a></li>
         <li><a href="#tabs-5">Научная тематика</a></li>
+		<li><a href="#tabs-6">Структурное подразделение</a></li>
+
 	</ul>
 	<div id="tabs-1">
 		<form class="row" id="event">
@@ -264,31 +266,28 @@
 				<input id="file_F" name="file_F" required type="file" class="form-control" placeholder="" aria-label="">
 				</div>
 			<div class="input-group">
-				<span style="width: 20%" class="input-group-text text-bg-success">Дата</span>
-				<input id="pers_date1" required name="file_date" type="text" class="form-control" placeholder="(обязательное) 1947.01.01 или 1947.02.01  если неизвестна точная дата или месяц" aria-label="">
+				<span style="width: 20%" class="input-group-text text-bg-success">Дата<span style="color: red">*</span></span>
+				<input id="file_date" required name="file_date" type="text" class="form-control" placeholder="1947.01.01 или 1947.02.01  если неизвестна точная дата или месяц" aria-label="">
 			</div>
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success">Название файла<span style="color: red">*</span></span>
-				<input id="pers_dol" name="file_name" required type="text" class="form-control" placeholder="" aria-label="">
+				<input id="file_name" name="file_name" required type="text" class="form-control" placeholder="" aria-label="">
 			</div>
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success">Аннотация</span>
-				<textarea id="pers_Desc" name="file_Desc" class="form-control" aria-label=""></textarea>
+				<textarea id="file_Desc" name="file_Desc" class="form-control" aria-label=""></textarea>
 				<span class="input-group-text" id="file_Desc_short_COUNT"></span>
 			</div>
 			<!--Пероналии TODO -->
 			<div class="col-auto input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success" id="">Пероналии</span>
-
+				<select id="file_pers" name="file_pers[]" class="form-select" multiple aria-label="">
 			</div>
 			<!--Структурное подразделение -->
 			<div class="col-auto input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success" id="">Структурное подразделение</span>
-				<select id="file_SP" name="file_SP" class="form-select" aria-label="">
-					<option selected disabled>--</option>
-					<option value="1">1е</option>
-					<option value="2">2е</option>
-					<option value="3">3е</option>
+				<select id="file_SP" name="file_SP[]" class="form-select" multiple aria-label="">
+
 				</select>
 			</div>
 			<!--Научная тематика -->
@@ -301,7 +300,7 @@
 			<!--Ссылки на архивный документ -->
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success">Ссылки на архивный документ</span>
-				<input style="width: 10%" type="text" id='file_doc' aria-label="" class="form-control" placeholder="">
+				<input style="width: 10%" type="text" id='file_doc' name='file_doc' aria-label="" class="form-control" placeholder="">
 			</div>
 			<!--Ключевые слова -->
 			<div class="input-group">
@@ -341,5 +340,31 @@
 
         </table>
     </div>
+
+	<div id="tabs-6">
+		<form class="row" method="post" id="sci_department">
+			<div class="input-group">
+				<span style="width: 20%" class="input-group-text text-bg-success">Структурное подразделение<span style="color: red">*</span></span>
+				<input  type="text" id='sci_department_name' name='sci_department_name' required aria-label="" class="form-control" placeholder="">
+
+			</div>
+			<div class="input-group">
+				<span style="width: 20%" class="input-group-text text-bg-success">Даты<span style="color: red">*</span></span>
+				<input type="text" id='sci_department_date1' required name="sci_department_date1" aria-label="" class="form-control" placeholder="Дата образования (обязательно)">
+				<input type="text" id='sci_department_date2' name="sci_department_date2" aria-label="" class="form-control" placeholder="Дата окончания существования">
+			</div>
+			<div class="input-group">
+				<span style="width: 20%" class="input-group-text text-bg-success">Родительское подразделение (Основано на)</span>
+				<select id="sci_department_owner" name="sci_department_owner[]" class="form-select" multiple aria-label="">
+				</select>
+			</div>
+			<div class="input-group">
+				<button class="btn btn-primary"  id='sci_department_add_btn'>Добавить</button>
+			</div>
+		</form>
+		<table class="" id="tbl_sci_department">
+
+		</table>
+	</div>
 </div>
 </body>

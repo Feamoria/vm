@@ -11,6 +11,11 @@ $(document).ready(function () {
                 initmultiselect('pers_tag');
                 initmultiselect('pers_tem');
             }
+            if (event.target.hash ==='#tabs-3') {
+                initmultiselect('file_tag');
+                initmultiselect('file_tem');
+                initmultiselect('file_pers');
+            }
             if (event.target.hash ==='#tabs-4'){
                 let data=load_tag();
                 let tbl = $("#tbl_tag");
@@ -28,15 +33,29 @@ $(document).ready(function () {
                 })
 
             }
+            if (event.target.hash ==='#tabs-6'){
+                initmultiselect('sci_department_owner');
+                let data=load_sci_department()
+                let tbl = $("#tbl_sci_department");
+                tbl.html('');
+                $.each(data, function (i, v) {
+                    tbl.append('<tr><td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delSci_field('+v.id+')"><i class="bi bi-trash"></i></button></td><td>'+v.Name+'</td></tr>')
+                })
+
+            }
         }
     })
+    /*LOAD DATA*/
+    let data_tag=load_tag();
+    let data_pers=load_person();
+    let data_sci_field=load_sci_field();
     /*******************
     /*     EVENT
     /********************/
     initmultiselect('ev_tem');
     initmultiselect('ev_tag');
     initmultiselect('ev_pers')
-    update_person('ev_pers');
+    //update_person('ev_pers');
     $('#ev_Y_n,#ev_M_n,#ev_D_n,#ev_Y_e,#ev_M_e,#ev_D_e').on('keyup',function (e){
         this.value = this.value.replace(/\D/g,'');
     })
@@ -49,8 +68,9 @@ $(document).ready(function () {
     })
 
     inittag('ev');
-    initTagAjax('#ev_tag',load_tag());
-    initTagAjax('#ev_tem',load_sci_field());
+    initTagAjax('#ev_tag',data_tag);
+    initTagAjax('#ev_tem',data_sci_field);
+    initTagAjax('#ev_pers',data_pers);
     $('#ev_btn_send').on('click',function (e){
         e.preventDefault();
         /* ВАЛИДАЦИЯ
@@ -99,8 +119,9 @@ $(document).ready(function () {
     initmultiselect('pers_tag');
     initmultiselect('pers_tem');
     inittag('pers');
-    initTagAjax('#pers_tag',load_tag());
-    initTagAjax('#pers_tem',load_sci_field());
+    initTagAjax('#pers_tag',data_tag);
+    initTagAjax('#pers_tem',data_sci_field);
+    // initTagAjax('#pers_file',data_sci_field); TODO
 
     $('#pers_Desc').on('keyup',function (e){
         let text=$(this).val();
@@ -109,9 +130,9 @@ $(document).ready(function () {
         }
         $('#pers_Desc_short_COUNT').html(text.length+'/'+'1000')
     })
+    /*ЗАГРУЗКА НА СЕРВЕР*/
     $('#pers_btn_send').on('click',function (e){
         e.preventDefault();
-
         /*ВАЛИДАЦИЯ
         /*Валидация даты*/
         let chek=/^\d{2}[./-]\d{2}[./-]\d{4}$/.test($('#pers_date1').val())
@@ -180,16 +201,16 @@ $(document).ready(function () {
         } else alert('Длинна ключевого слова должна быть больше 3')
     })
     /***********************
-     /*sci_field // Научное напрвление
+     /*sci_theme // Научное напрвление
      /***********************/
     $("#sci_field_add_btn").on('click', function (e){
         e.preventDefault();
-        let sci_field=$('#sci_field_add').val();
-        if (sci_field.length >3) {
+        let sci_theme=$('#sci_field_add').val();
+        if (sci_theme.length >3) {
             $.ajax({
                 type: 'POST',
-                url: 'set.php?sci_field',
-                data: 'sci_field='+sci_field,
+                url: 'set.php?sci_theme',
+                data: 'sci_theme='+sci_theme,
                 dataType: 'json',
                 cache: false,
                 success: function(data) {
@@ -205,6 +226,129 @@ $(document).ready(function () {
                 }
             })
         } else alert('Длинна ключевого слова должна быть больше 3')
+    })
+    /***********************
+     /*sci_sci_department // Научное подразделение
+     /***********************/
+    $('#sci_department_date1,#sci_department_date2').datepicker({
+        showOtherMonths: true,
+        selectOtherMonths: true,
+        changeMonth: true,
+        changeYear: true,
+        dateFormat: 'dd.mm.yy',
+    });
+    initmultiselect('sci_department_owner');
+    //initTagAjax('#pers_tag',data_tag); //TODO
+
+
+
+    /*ЗАГРУЗКА НА СЕРВЕР*/
+    $('#sci_department_add_btn').on('click',function (e){
+        e.preventDefault();
+        /*ВАЛИДАЦИЯ
+        /*Валидация даты*/
+        let chek=/^\d{2}[./-]\d{2}[./-]\d{4}$/.test($('#sci_department_date1').val())
+        if (!chek) {alert('Заполните дату правильно!');return;}
+        let date2=$('#sci_department_date2').val();
+        if (date2.length > 0 ) {
+            chek=/^\d{2}[./-]\d{2}[./-]\d{4}$/.test(date2)
+            if(!chek) {alert('Заполните дату правильно!');return;}
+        }
+        let ret=false;
+        /*проверка на заполнение обязательных полей*/
+        $('#sci_department input, #sci_department textarea').each(function (){
+            if ($(this).prop('required')) {
+                let temp = $(this).val();
+                if (temp ==='' ||temp.length<2){
+                    ret=true;
+                }
+            }
+        })
+        if (ret)  {
+            alert('Заполните обязательные поля!');
+            return;
+        }
+        /**/
+        let datepic = $('#sci_department_date1,#sci_department_date2');
+        datepic.datepicker("option", "dateFormat", "yy-mm-dd");
+        let data=$('#sci_department').serialize();
+        datepic.datepicker("option", "dateFormat", "dd.mm.yy");
+        $.ajax({
+            type: 'POST',
+            url: 'set.php?sci_department',
+            data: data,
+            dataType: 'json',
+            cache: false,
+            success: function(data) {
+                console.log(data);
+                if (typeof data.err ==='undefined') {
+                    initTagAjax('#sci_department_owner',data);
+                } else alert(data.err);
+                //update_person('ev_pers');
+            }
+        });
+    })
+    /***********************
+     /*   file
+     /***********************/
+    $('#file_date').datepicker({
+        showOtherMonths: true,
+        selectOtherMonths: true,
+        changeMonth: true,
+        changeYear: true,
+        dateFormat: 'dd.mm.yy',
+    });
+    initmultiselect('file_tag');
+    initmultiselect('file_tem');
+    initmultiselect('file_pers');
+    inittag('file');
+    initTagAjax('#file_tag',data_tag);
+    initTagAjax('#file_tem',data_sci_field);
+    initTagAjax('#file_pers',data_pers);
+
+    $('#file_Desc').on('keyup',function (e){
+        let text=$(this).val();
+        if (text.length> 1000) {
+            $(this).val(text.substring(0, 1000));
+        }
+        $('#file_Desc_short_COUNT').html(text.length+'/'+'1000')
+    })
+    $('#file_btn_send').on('click',function (e){
+        e.preventDefault();
+        /*ВАЛИДАЦИЯ
+        /*Валидация даты*/
+        let datepic=$('#file_date');
+        let chek=/^\d{2}[./-]\d{2}[./-]\d{4}$/.test(datepic.val())
+        if (!chek) {alert('Заполните дату правильно!');return;}
+        let ret=false;
+        /*проверка на заполнение обязательных полей*/
+        $('#file input, #file textarea').each(function (){
+            if ($(this).prop('required')) {
+                let temp = $(this).val();
+                if (temp ==='' ||temp.length<2){
+                    ret=true;
+                }
+            }
+        })
+        if (ret)  {
+            alert('Заполните обязательные поля!');
+            return;
+        }
+        /**/
+        datepic.datepicker("option", "dateFormat", "yy-mm-dd");
+        let data=$('#file').serialize();
+        datepic.datepicker("option", "dateFormat", "dd.mm.yy");
+        $.ajax({
+            type: 'POST',
+            url: 'set.php?file',
+            data: data,
+            dataType: 'json',
+            cache: false,
+            success: function(data) {
+                console.log(data);
+                //update_person('ev_pers');
+            }
+        });
     })
 })
 function delTag(tag){
@@ -262,11 +406,39 @@ function load_tag(){
         }
     }).responseJSON;
 }
+function load_person(){
+    return $.ajax({
+        async:false,
+        type: 'POST',
+        url: 'get.php?person',
+        //data: 'tag='+tag,
+        dataType: 'json',
+        cache: false,
+        success: function(data) {
+            //console.log(data);
+            // do something with ajax data
+        }
+    }).responseJSON;
+}
 function load_sci_field(){
     return $.ajax({
         async:false,
         type: 'POST',
-        url: 'get.php?sci_field',
+        url: 'get.php?sci_theme',
+        //data: 'tag='+tag,
+        dataType: 'json',
+        cache: false,
+        success: function(data) {
+            //console.log(data);
+            // do something with ajax data
+        }
+    }).responseJSON;
+}
+function load_sci_department(){
+    return $.ajax({
+        async:false,
+        type: 'POST',
+        url: 'get.php?sci_department',
         //data: 'tag='+tag,
         dataType: 'json',
         cache: false,
@@ -285,12 +457,10 @@ function update_person(elem) {
         dataType: 'json',
         cache: false,
         success: function(data) {
-            console.log(data);
+            //console.log(data);
             initTagAjax('#'+elem,data)
-
         }
     });
-
 }
 function search_status(elem) {
     let id_checked = [];
@@ -350,5 +520,7 @@ function initmultiselect(elem) {
         },
     }).change(function () {
         //  $("#" + z_table)[0].triggerToolbar();
-    }).multiselect('refresh');
+    }).multiselect('refresh').multiselectfilter({
+        width:'300px'
+    });
 }
