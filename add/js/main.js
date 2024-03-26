@@ -1,4 +1,33 @@
 $(document).ready(function () {
+    let dialog=$('#dialog_file').dialog({
+        autoOpen: false,
+        width: 1400,
+        height: 600,
+        modal: true,
+        buttons: {
+            "Выбрать файлы": function (){
+                let chk=[];
+                let text=$('#ev_file_text');
+                text.html('');
+                let sel=$('#ev_file');
+                sel.html('');
+                $('#dialog_file_cont .form-check-input').each(function (){
+                    if ($(this).prop('checked')){
+                        let id=$(this).val();
+                        chk.push(id);
+                        text.append("<a target='_blank' href='"+data_file[id-1].pathWeb+"'>"+data_file[id-1].name+" </a>  ")
+                        sel.append('<option value="'+id+'">'+id+'</option>');
+                    }
+
+                })
+                sel.val(chk);
+                dialog.dialog( "close" );
+            },
+            'Отмена': function() {
+                dialog.dialog( "close" );
+            }
+        },
+    })
     $('#tabs').tabs().bind('click', function (event) {	// Событие при переключении на таб
         if (typeof event.target.hash !== 'undefined') {
             console.log(event.target.hash);
@@ -81,17 +110,42 @@ $(document).ready(function () {
     initTagAjax('#ev_tem', data_sci_field);
     initTagAjax('#ev_pers', data_pers);
     initTagAjax('#ev_sci_department', data_sci_department);
+    /*Форма выбора файла*/
+    $('#btn_open_file').on('click',function (e){
+        e.preventDefault();
+        data_file=load_file();
+        let cont =$('#dialog_file_cont').html('');
+        $.each(data_file,function (index, value) {
+            //console.log(value);
+            let html='<div class="card" style="width: 18rem;">' +
+                '<img src="'+value.pathWeb+'" class="card-img-top" alt=""' +
+                '<div class="card-body">' +
+                '<h5 class="card-title">' +
+                '<input value="'+value.id+'" id="chk_'+value.id+'" name="chk[]" type="checkbox" class="form-check-input">' +
+                '<label class="" for="chk_'+value.id+'">'+value.name+'</label></h5>' +
+                '<p class="card-text">'+value.disc+'</p>' +
+
+                /*'<p class="card-text"><small class="text-muted">Последнее обновление 3 мин. назад</small></p>'+
+                '    <a href="#" class="card-link">Ссылка карточки</a>' +
+                '    <a href="#" class="card-link">Другая ссылка</a>' +*/
+                '  </div>' +
+                '</div>';
+            cont.append(html);
+        });
+        dialog.dialog( "open" );
+    })
     $('#ev_btn_send').on('click', function (e) {
         e.preventDefault();
         /* ВАЛИДАЦИЯ
          проверка на заполнение обязательных полей*/
         let ret = false;
         $('#event input, #event textarea, #event select').each(function () {
-            console.log(this);
             if ($(this).prop('required')) {
                 let temp = $(this).val();
-                if (temp === '' || temp.length < 2) {
+                if (temp === '') {
+                    $(this).focus();
                     ret = true;
+                    return false;
                 }
             }
         })
@@ -100,19 +154,15 @@ $(document).ready(function () {
             return;
         }
         /**/
-
         let data = $('#event').serialize();
         $.ajax({
             type: 'POST',
             url: 'set.php?event',
-            //data: JSON.stringify(parameters),
             data: data,
-            //contentType: 'application/json;',
             dataType: 'json',
             cache: false,
             success: function (data) {
-                // do something with ajax data
-
+                console.log(data);
             }
         });
     })
@@ -513,7 +563,7 @@ function delSciDepartment(sci_department) {
 }
 
 function delSci_field(sci_field) {
-    /*TODO !*/
+    /* !*/
     $.ajax({
         type: 'POST',
         url: 'set.php?sci_theme&del',

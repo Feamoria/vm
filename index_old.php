@@ -20,25 +20,9 @@ if (isset($_GET['level'])) {
         $TAG = "?tag=" . $_GET['tag'];
     }
     //echo "Location: index.php$TAG";
-    header("Location: index.php$TAG");
-}
+    header("Location: index_old.php.php$TAG");
 
-require_once 'php_class/connect.php';
-$db=(new BDconnect())->connect();
-$SQL="SELECT id,Name,DateN as `Date`,Desc_short as content,`doc`,importance as `level` FROM event
-where importance <= {$_SESSION['level']}
-order by DateN";
-    $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
-    $data = mysqli_fetch_all($query, MYSQLI_ASSOC);
-	foreach ($data as $i=>$val) {
-		/** person */
-		$SQL="
-			SELECT person.id,CONCAT(person.F,' ',person.I,' ',person.O) as Name 
-				FROM person, (SELECT * from person_event where idEvent={$val['id']}) as person_event
-			where person.id=person_event.idPerson";
-        $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
-        $data[$i]['person'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
-	}
+}
 $ArrContent = [
     [
         'Name' => 'Создана База АН СССР в Коми АССР',
@@ -115,8 +99,7 @@ $ArrContent = [
         'level' => 3
     ],
 ];
-    $ArrContent=$data;
-	//var_dump($data);
+
 $ArrPercon = [
     [
         'Name' => 'В.Н. Образцов',
@@ -180,19 +163,18 @@ $ArrPercon = [
             if ($Inv) {
                 $InvClass = 'class="timeline-inverted"';
             }
-			/** person*/
-            $person_html = "";
-			if (isset($i['person'])) {
-                if (is_array($i['person'])) {
-                    foreach ($i['person'] as $id=>$person) {
-                        //var_dump($person);
-                        $person_html .= "<a href='?person=".$person['id']."'>[".$person['Name']."]</a>";
+            $TAG = "";
+            if (is_array($i['tag'])) {
+                foreach ($i['tag'] as $tag) {
+                    $TAG .= "<a href='?tag={$tag}'>[$tag] </a>";
+                    if (isset($visibleTag)) {
+                        if ($visibleTag == $tag) {
+                            $skip = false;
+                        }
                     }
-                    $person_html = "<p><small class='text-muted'>$person_html</small></p>";
                 }
+                $TAG = "<p><small class='text-muted'>$TAG</small></p>";
             }
-			/** file */
-
             $level['class'] = [
                 1 => 'danger',
                 2 => 'info',
@@ -217,8 +199,7 @@ $ArrPercon = [
 							<p><small class='text-muted'><i class='bi bi-clock'></i> {$i['Date']}</small></p>
 						</div>
 						<div class='timeline-body'>
-							<p>{$i['content']}</p>
-							$person_html
+							<p>{$i['content']}</p>$TAG
 						</div>
 					</div>
 					</li>";

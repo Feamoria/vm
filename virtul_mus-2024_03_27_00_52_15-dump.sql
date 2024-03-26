@@ -24,16 +24,19 @@ DROP TABLE IF EXISTS `event`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `event` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `create_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `create_user` int NOT NULL,
   `Name` varchar(30) DEFAULT NULL,
   `DateN` varchar(30) DEFAULT NULL,
   `DateK` varchar(30) DEFAULT NULL,
   `Desc_short` varchar(300) DEFAULT NULL COMMENT 'Краткое описание',
   `Desc` text COMMENT 'полное описание',
+  `Doc` text COMMENT 'Ссылка на архивный документ',
   `importance` int DEFAULT NULL COMMENT 'Важность (1-9)',
+  `latitude` text COMMENT 'Координаты Ю.Ш.',
+  `longitude` text COMMENT 'Координаты В.Д.',
+  `create_user` int NOT NULL,
+  `create_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -42,6 +45,7 @@ CREATE TABLE `event` (
 
 LOCK TABLES `event` WRITE;
 /*!40000 ALTER TABLE `event` DISABLE KEYS */;
+INSERT INTO `event` VALUES (1,'Название','1991.01.31.12.1999','1991','агагагаг','гыгыгыгы','12312',1,'123','123',1,'2024-03-26 21:41:28');
 /*!40000 ALTER TABLE `event` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -54,15 +58,17 @@ DROP TABLE IF EXISTS `file`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `file` (
   `id` int NOT NULL AUTO_INCREMENT,
+  `date` datetime DEFAULT NULL,
   `name` text NOT NULL,
-  `path` text NOT NULL,
-  `type` int NOT NULL COMMENT 'тип(? возможно тип фото, документ и проч.)',
   `disc` varchar(500) NOT NULL COMMENT 'описание (500 символов?)',
+  `doc` text COMMENT 'Ссылки на архивный докумен',
+  `pathServ` text NOT NULL,
+  `pathWeb` text,
+  `type` int NOT NULL COMMENT 'тип(? возможно тип фото, документ и проч.)',
   `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `create_user` int NOT NULL,
-  `date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -71,6 +77,7 @@ CREATE TABLE `file` (
 
 LOCK TABLES `file` WRITE;
 /*!40000 ALTER TABLE `file` DISABLE KEYS */;
+INSERT INTO `file` VALUES (1,'2024-03-26 00:00:00','Имя файла прикольное','Тут должно быть описание','123','/var/www/html/vm/img/1.jpg','/vm/img/1.jpg',0,'2024-03-26 13:17:39',1),(2,'2024-03-26 00:00:00','Файл большой ','Тут должно быть описание Тут должно быть описание Тут должно быть описание Тут должно быть описание','123','/var/www/html/vm/img/2.jpg','/vm/img/2.jpg',0,'2024-03-26 13:18:07',1),(3,'2024-03-26 00:00:00','Файл большой ','Тут должно быть описание Тут должно быть описание Тут должно быть описание Тут должно быть описание','123','/var/www/html/vm/img/3.jpg','/vm/img/3.jpg',0,'2024-03-26 13:18:07',1),(4,'2024-03-26 00:00:00','Имя файла прикольное','Тут должно быть описание','123','/var/www/html/vm/img/1.jpg','/vm/img/1.jpg',0,'2024-03-26 13:17:39',1),(5,'2024-03-26 00:00:00','Файл большой ','Тут должно быть описание Тут должно быть описание Тут должно быть описание Тут должно быть описание','123','/var/www/html/vm/img/2.jpg','/vm/img/2.jpg',0,'2024-03-26 13:18:07',1),(6,'2024-03-26 00:00:00','Файл большой ','Тут должно быть описание Тут должно быть описание Тут должно быть описание Тут должно быть описание','123','/var/www/html/vm/img/3.jpg','/vm/img/3.jpg',0,'2024-03-26 13:18:07',1);
 /*!40000 ALTER TABLE `file` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -90,7 +97,7 @@ CREATE TABLE `file_event` (
   KEY `idFile` (`idFile`),
   CONSTRAINT `file_event_ibfk_1` FOREIGN KEY (`idFile`) REFERENCES `file` (`id`),
   CONSTRAINT `file_event_ibfk_2` FOREIGN KEY (`idEvent`) REFERENCES `event` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -99,6 +106,7 @@ CREATE TABLE `file_event` (
 
 LOCK TABLES `file_event` WRITE;
 /*!40000 ALTER TABLE `file_event` DISABLE KEYS */;
+INSERT INTO `file_event` VALUES (1,1,1);
 /*!40000 ALTER TABLE `file_event` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -116,9 +124,9 @@ CREATE TABLE `file_person` (
   PRIMARY KEY (`id`),
   KEY `idFile` (`idFile`),
   KEY `idPerson` (`idPerson`),
-  CONSTRAINT `file_person_ibfk_1` FOREIGN KEY (`idFile`) REFERENCES `file` (`id`),
-  CONSTRAINT `file_person_ibfk_2` FOREIGN KEY (`idPerson`) REFERENCES `person` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ;
+  CONSTRAINT `file_person_ibfk_1` FOREIGN KEY (`idFile`) REFERENCES `file` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `file_person_ibfk_2` FOREIGN KEY (`idPerson`) REFERENCES `person` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -127,6 +135,7 @@ CREATE TABLE `file_person` (
 
 LOCK TABLES `file_person` WRITE;
 /*!40000 ALTER TABLE `file_person` DISABLE KEYS */;
+INSERT INTO `file_person` VALUES (1,1,1),(2,1,4),(3,2,1),(4,2,4);
 /*!40000 ALTER TABLE `file_person` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -149,7 +158,7 @@ CREATE TABLE `person` (
   `create_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `create_user` int DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 ;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -158,7 +167,7 @@ CREATE TABLE `person` (
 
 LOCK TABLES `person` WRITE;
 /*!40000 ALTER TABLE `person` DISABLE KEYS */;
-INSERT INTO `person` VALUES (1,'Кочев','Алексей','Михайлович',' Алексей Михайлович (2.03.1915, с. Пыелдино Усть-Сысольского у. Вологодской губ. – ?), фотограф. С 1929 г. начал работать учеником фотографа в Сыктывкаре, с 1932 г. – фотограф-ретушер государственного фотоателье. В годы Великой Отечественной войны служил на фронте техником по аэрофотосъемке, награжден тремя медалями. В 1945-1946 гг. секретарь партбюро при горисполкоме. 1 июня 1946 г. зачислен сотрудником фотолаборатории Базы Академии наук СССР. Освобожден от занимаемой должности 15 сентября 1952 г. в связи с переводом в редакцию газеты «За новый Север»','фотограф',NULL,NULL,NULL,NULL),(2,'Дёгтева','Светлана','Владимировна','Специалист в области геоботаники, лесной типологии, охраны и рационального использования природных ресурсов.\r\nВместе с с коллегами проводит исследования растительного покрова на территориях Печоро-Илычского государственного природного биосферного заповедника и национального парка «Югыд ва».\r\nПровела классификацию растительного покрова в ландшафтах Северного (бассейн верхней и средней Печоры) и Приполярного (бассейн р. Косью) Урала, выявила особенности естественного восстановления растительных сообществ при промышленной деятельности на Приполярном Урале, закономерности смен лесных фитоценозов на вырубках и гарях в подзонах южной и средней тайги Республики Коми.\r\nАвтор и соавтор свыше 260 научных работ, в том числе 20 монографий, основные публикации посвящены проблеме трансформации растительного покрова под воздействием деятельности человека, вопросам формирования региональной системы объектов природно-заповедного фонда.','Главный научный сотрудник, доктор биологических наук ','1958-09-21',NULL,'2024-03-25 20:57:43',1),(3,'Дёгтева','Светлана','Владимировна','Специалист в области геоботаники, лесной типологии, охраны и рационального использования природных ресурсов.\r\nВместе с с коллегами проводит исследования растительного покрова на территориях Печоро-Илычского государственного природного биосферного заповедника и национального парка «Югыд ва».\r\nПровела классификацию растительного покрова в ландшафтах Северного (бассейн верхней и средней Печоры) и Приполярного (бассейн р. Косью) Урала, выявила особенности естественного восстановления растительных сообществ при промышленной деятельности на Приполярном Урале, закономерности смен лесных фитоценозов на вырубках и гарях в подзонах южной и средней тайги Республики Коми.\r\nАвтор и соавтор свыше 260 научных работ, в том числе 20 монографий, основные публикации посвящены проблеме трансформации растительного покрова под воздействием деятельности человека, вопросам формирования региональной системы объектов природно-заповедного фонда.','Главный научный сотрудник, доктор биологических наук ','1958-09-21',NULL,'2024-03-25 21:01:09',1);
+INSERT INTO `person` VALUES (1,'Кочев','Алексей','Михайлович',' Алексей Михайлович (2.03.1915, с. Пыелдино Усть-Сысольского у. Вологодской губ. – ?), фотограф. С 1929 г. начал работать учеником фотографа в Сыктывкаре, с 1932 г. – фотограф-ретушер государственного фотоателье. В годы Великой Отечественной войны служил на фронте техником по аэрофотосъемке, награжден тремя медалями. В 1945-1946 гг. секретарь партбюро при горисполкоме. 1 июня 1946 г. зачислен сотрудником фотолаборатории Базы Академии наук СССР. Освобожден от занимаемой должности 15 сентября 1952 г. в связи с переводом в редакцию газеты «За новый Север»','фотограф',NULL,NULL,NULL,NULL),(4,'Дёгтева','Светлана','Владимировна','Специалист в области геоботаники, лесной типологии, охраны и рационального использования природных ресурсов.\r\nВместе с с коллегами проводит исследования растительного покрова на территориях Печоро-Илычского государственного природного биосферного заповедника и национального парка «Югыд ва».\r\nПровела классификацию растительного покрова в ландшафтах Северного (бассейн верхней и средней Печоры) и Приполярного (бассейн р. Косью) Урала, выявила особенности естественного восстановления растительных сообществ при промышленной деятельности на Приполярном Урале, закономерности смен лесных фитоценозов на вырубках и гарях в подзонах южной и средней тайги Республики Коми.\r\nАвтор и соавтор свыше 260 научных работ, в том числе 20 монографий, основные публикации посвящены проблеме трансформации растительного покрова под воздействием деятельности человека, вопросам формирования региональной системы объектов природно-заповедного фонда.','Главный научный сотрудник, доктор биологических наук ','2024-09-21',NULL,'2024-03-26 06:34:07',1);
 /*!40000 ALTER TABLE `person` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -176,9 +185,9 @@ CREATE TABLE `person_event` (
   PRIMARY KEY (`id`),
   KEY `idEvent` (`idEvent`),
   KEY `idPerson` (`idPerson`),
-  CONSTRAINT `person_event_ibfk_1` FOREIGN KEY (`idEvent`) REFERENCES `event` (`id`),
-  CONSTRAINT `person_event_ibfk_2` FOREIGN KEY (`idPerson`) REFERENCES `person` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ;
+  CONSTRAINT `person_event_ibfk_1` FOREIGN KEY (`idEvent`) REFERENCES `event` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `person_event_ibfk_2` FOREIGN KEY (`idPerson`) REFERENCES `person` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -187,6 +196,7 @@ CREATE TABLE `person_event` (
 
 LOCK TABLES `person_event` WRITE;
 /*!40000 ALTER TABLE `person_event` DISABLE KEYS */;
+INSERT INTO `person_event` VALUES (1,1,1),(2,1,4);
 /*!40000 ALTER TABLE `person_event` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -206,7 +216,7 @@ CREATE TABLE `sci_department` (
   `create_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'системная дата и время СОЗДАНИЯ ЗАПИСИ!',
   `create_user` int DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4  COMMENT='Научная тематика';
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Научная тематика';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -235,7 +245,7 @@ CREATE TABLE `sci_department_event` (
   KEY `idEvent` (`idEvent`),
   CONSTRAINT `sci_department_event_ibfk_1` FOREIGN KEY (`idSciDepartment`) REFERENCES `sci_department` (`id`),
   CONSTRAINT `sci_department_event_ibfk_2` FOREIGN KEY (`idEvent`) REFERENCES `event` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -244,6 +254,7 @@ CREATE TABLE `sci_department_event` (
 
 LOCK TABLES `sci_department_event` WRITE;
 /*!40000 ALTER TABLE `sci_department_event` DISABLE KEYS */;
+INSERT INTO `sci_department_event` VALUES (1,11,1),(2,12,1);
 /*!40000 ALTER TABLE `sci_department_event` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -261,9 +272,9 @@ CREATE TABLE `sci_department_person` (
   PRIMARY KEY (`id`),
   KEY `idSciDepartment` (`idSciDepartment`),
   KEY `idPerson` (`idPerson`),
-  CONSTRAINT `sci_department_person_ibfk_1` FOREIGN KEY (`idSciDepartment`) REFERENCES `sci_department` (`id`),
-  CONSTRAINT `sci_department_person_ibfk_2` FOREIGN KEY (`idPerson`) REFERENCES `person` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 ;
+  CONSTRAINT `sci_department_person_ibfk_1` FOREIGN KEY (`idSciDepartment`) REFERENCES `sci_department` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `sci_department_person_ibfk_2` FOREIGN KEY (`idPerson`) REFERENCES `person` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -272,7 +283,7 @@ CREATE TABLE `sci_department_person` (
 
 LOCK TABLES `sci_department_person` WRITE;
 /*!40000 ALTER TABLE `sci_department_person` DISABLE KEYS */;
-INSERT INTO `sci_department_person` VALUES (1,6,3);
+INSERT INTO `sci_department_person` VALUES (2,6,4),(3,11,4);
 /*!40000 ALTER TABLE `sci_department_person` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -289,7 +300,7 @@ CREATE TABLE `sci_theme` (
   `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `create_user` int NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4  COMMENT='Научная тематика';
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Научная тематика';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -318,7 +329,7 @@ CREATE TABLE `sci_theme_event` (
   KEY `idEvent` (`idEvent`),
   CONSTRAINT `sci_theme_event_ibfk_2` FOREIGN KEY (`idEvent`) REFERENCES `event` (`id`),
   CONSTRAINT `sci_theme_event_ibfk_3` FOREIGN KEY (`idTheme`) REFERENCES `sci_theme` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -327,7 +338,37 @@ CREATE TABLE `sci_theme_event` (
 
 LOCK TABLES `sci_theme_event` WRITE;
 /*!40000 ALTER TABLE `sci_theme_event` DISABLE KEYS */;
+INSERT INTO `sci_theme_event` VALUES (1,3,1),(2,4,1);
 /*!40000 ALTER TABLE `sci_theme_event` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `sci_theme_file`
+--
+
+DROP TABLE IF EXISTS `sci_theme_file`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `sci_theme_file` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `idFile` int NOT NULL,
+  `idSciTheme` int NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idFile` (`idFile`),
+  KEY `idSciTheme` (`idSciTheme`),
+  CONSTRAINT `sci_theme_file_ibfk_1` FOREIGN KEY (`idFile`) REFERENCES `file` (`id`),
+  CONSTRAINT `sci_theme_file_ibfk_2` FOREIGN KEY (`idSciTheme`) REFERENCES `sci_theme` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `sci_theme_file`
+--
+
+LOCK TABLES `sci_theme_file` WRITE;
+/*!40000 ALTER TABLE `sci_theme_file` DISABLE KEYS */;
+INSERT INTO `sci_theme_file` VALUES (1,1,1),(2,1,2),(3,2,1),(4,2,2);
+/*!40000 ALTER TABLE `sci_theme_file` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -344,9 +385,9 @@ CREATE TABLE `sci_theme_pers` (
   PRIMARY KEY (`id`),
   KEY `idPers` (`idPers`),
   KEY `idTheme` (`idTheme`),
-  CONSTRAINT `sci_theme_pers_ibfk_2` FOREIGN KEY (`idPers`) REFERENCES `person` (`id`),
-  CONSTRAINT `sci_theme_pers_ibfk_3` FOREIGN KEY (`idTheme`) REFERENCES `sci_theme` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 ;
+  CONSTRAINT `sci_theme_pers_ibfk_2` FOREIGN KEY (`idPers`) REFERENCES `person` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `sci_theme_pers_ibfk_3` FOREIGN KEY (`idTheme`) REFERENCES `sci_theme` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -355,7 +396,7 @@ CREATE TABLE `sci_theme_pers` (
 
 LOCK TABLES `sci_theme_pers` WRITE;
 /*!40000 ALTER TABLE `sci_theme_pers` DISABLE KEYS */;
-INSERT INTO `sci_theme_pers` VALUES (1,4,3);
+INSERT INTO `sci_theme_pers` VALUES (2,3,4),(3,4,4);
 /*!40000 ALTER TABLE `sci_theme_pers` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -373,7 +414,7 @@ CREATE TABLE `tag` (
   `create_user` int DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `tag_Name_uindex` (`Name`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 ;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -402,7 +443,7 @@ CREATE TABLE `tag_event` (
   KEY `idEvent` (`idEvent`),
   CONSTRAINT `tag_event_ibfk_1` FOREIGN KEY (`idEvent`) REFERENCES `event` (`id`),
   CONSTRAINT `tag_event_ibfk_2` FOREIGN KEY (`idTag`) REFERENCES `tag` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -411,6 +452,7 @@ CREATE TABLE `tag_event` (
 
 LOCK TABLES `tag_event` WRITE;
 /*!40000 ALTER TABLE `tag_event` DISABLE KEYS */;
+INSERT INTO `tag_event` VALUES (1,3,1);
 /*!40000 ALTER TABLE `tag_event` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -430,7 +472,7 @@ CREATE TABLE `tag_file` (
   KEY `idFile` (`idFile`),
   CONSTRAINT `tag_file_ibfk_1` FOREIGN KEY (`idTag`) REFERENCES `tag` (`id`),
   CONSTRAINT `tag_file_ibfk_2` FOREIGN KEY (`idFile`) REFERENCES `file` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -439,6 +481,7 @@ CREATE TABLE `tag_file` (
 
 LOCK TABLES `tag_file` WRITE;
 /*!40000 ALTER TABLE `tag_file` DISABLE KEYS */;
+INSERT INTO `tag_file` VALUES (1,3,1),(2,1,1),(3,3,2),(4,1,2);
 /*!40000 ALTER TABLE `tag_file` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -457,9 +500,9 @@ CREATE TABLE `tag_person` (
   KEY `idTag` (`idTag`),
   KEY `idUser` (`idPerson`),
   KEY `idPerson` (`idPerson`),
-  CONSTRAINT `tag_person_ibfk_1` FOREIGN KEY (`idPerson`) REFERENCES `person` (`id`),
-  CONSTRAINT `tag_person_ibfk_2` FOREIGN KEY (`idTag`) REFERENCES `tag` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 ;
+  CONSTRAINT `tag_person_ibfk_1` FOREIGN KEY (`idPerson`) REFERENCES `person` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `tag_person_ibfk_2` FOREIGN KEY (`idTag`) REFERENCES `tag` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -468,7 +511,7 @@ CREATE TABLE `tag_person` (
 
 LOCK TABLES `tag_person` WRITE;
 /*!40000 ALTER TABLE `tag_person` DISABLE KEYS */;
-INSERT INTO `tag_person` VALUES (1,7,2),(2,7,3);
+INSERT INTO `tag_person` VALUES (3,7,4),(4,1,4);
 /*!40000 ALTER TABLE `tag_person` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -486,7 +529,7 @@ CREATE TABLE `user` (
   `login` varchar(20) DEFAULT NULL,
   `pass` varchar(200) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 ;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -508,4 +551,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-03-26  0:26:21
+-- Dump completed on 2024-03-27  0:52:15

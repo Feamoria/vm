@@ -95,6 +95,18 @@
 	<script src="js/main.js?<?php echo time();?>"></script>
 </head>
 <body>
+<div id="dialog_file" title="Выбор файлов" style="display: none">
+	<div class="row">
+		<div class="input-group">
+			<span style="width: 20%" class="input-group-text text-bg-success">Фильтрация</span>
+			<input id="" name="" type="text" class="form-control" placeholder="Название" aria-label="Название">
+			<input id="" name="" type="text" class="form-control" placeholder="Ключевые слова" aria-label="Ключевые слова">
+			<input id="" name="" type="text" class="form-control" placeholder="Научная тематика" aria-label="Научная тематика">
+			<input id="" name="" type="text" class="form-control" placeholder="Персоналии" aria-label="Персоналии">
+		</div>
+	</div>
+<div id="dialog_file_cont" class="row"></div>
+</div>
 <div id="tabs">
 	<ul>
 		<li><a href="#tabs-1">События</a></li>
@@ -140,6 +152,15 @@
 				</select>
 			</div>
 			<!-- TODO Файлы -->
+			<div class="input-group">
+				<span style="width: 20%" class="input-group-text text-bg-success">Файл</span>
+				<select id="ev_file" name="ev_file[]" class="form-select" style="display: none" multiple aria-label="">
+				</select>
+				<button style="width: 5%" class="btn btn-info" id="btn_open_file"><i class="bi bi-folder-fill"></i></button>
+				<span id="ev_file_text" style="width: 75%" class="input-group-text"></span>
+
+			</div>
+
 			<!--Структурное подразделение -->
 			<div class="col-auto input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success" id="ev_SP">Структурное подразделение</span>
@@ -155,13 +176,13 @@
 			<!--Ссылки на архивный документ -->
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success">Ссылка на архивный документ</span>
-				<input type="text" id='' name='ev_doc' aria-label="" class="form-control" placeholder="">
+				<input type="text" id='ev_doc' name='ev_doc' aria-label="" class="form-control" placeholder="">
 			</div>
 			<!--Важность события -->
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success" id="">Важность события<span style="color: red">*</span></span>
-				<select id="" name="" required class="form-select" aria-label="">
-					<option selected value="" disabled>--</option>
+				<select id="ev_importance" name="ev_importance" required class="form-select" aria-label="">
+					<option selected value="">--</option>
 					<option value="1">1е</option>
 					<option value="2">2е</option>
 					<option value="3">3е</option>
@@ -172,15 +193,14 @@
 			<!--Место (координаты) -->
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success">Координаты</span>
-				<input type="text" id='' name='latitude' aria-label="" class="form-control" placeholder="Ю.Ш.">
-				<input type="text" id='' name='longitude' aria-label="" class="form-control" placeholder="В.Д.">
+				<input type="text" id='ev_latitude' name='latitude' aria-label="" class="form-control" placeholder="Ю.Ш.">
+				<input type="text" id='ev_longitude' name='longitude' aria-label="" class="form-control" placeholder="В.Д.">
 
 			</div>
 			<!--Ключевые слова -->
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success">Ключевые слова</span>
 				<select id="ev_tag" name="ev_tag[]" class="form-select" multiple aria-label="">
-
 				</select>
 				<input style="width: 10%" type="text" id='ev_tag_add' aria-label="" class="form-control" placeholder="">
 				<button class="btn btn-primary"  id='ev_tag_add_btn'>Добавить</button>
