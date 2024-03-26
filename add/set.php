@@ -25,7 +25,7 @@ function add($table, $tag)
 
 }
 
-function del($table, $id)
+function del($table, $id,$show=true)
 {
     $db = (new BDconnect())->connect();
     //$USER_ID=$_SESSION['user']['id'];
@@ -36,16 +36,20 @@ function del($table, $id)
         die(json_encode(['err' => $SQL . "|Couldn't execute query." . mysqli_error($db)], JSON_UNESCAPED_UNICODE));
 
     }
-    $SQL = "SELECT * FROM $table order by Name";
-    $query = mysqli_query($db, $SQL) or
-    die(json_encode(['err' => $SQL . "|Couldn't execute query." . mysqli_error($db)], JSON_UNESCAPED_UNICODE));
-    $data = mysqli_fetch_all($query, MYSQLI_ASSOC);
-    return json_encode($data, JSON_UNESCAPED_UNICODE);
+    if ($show){
+        $SQL = "SELECT * FROM $table order by Name";
+        $query = mysqli_query($db, $SQL) or
+        die(json_encode(['err' => $SQL . "|Couldn't execute query." . mysqli_error($db)], JSON_UNESCAPED_UNICODE));
+        $data = mysqli_fetch_all($query, MYSQLI_ASSOC);
+        return json_encode($data, JSON_UNESCAPED_UNICODE);
+    }
     //die();
 }
 
 require_once '../php_class/connect.php';
-session_start();
+session_start([
+                  'cookie_lifetime' => 86400,
+              ]);
 //var_dump($_POST);
 if (isset($_SESSION['user'])) {
     $USER_ID = $_SESSION['user']['id'];
@@ -126,7 +130,9 @@ if (isset($_SESSION['user'])) {
     if (isset($_GET['pers'])) {
         $db = (new BDconnect())->connect();
         if (isset($_GET['del'])) {
-            //TODO
+            /*Капец.. надо вырезать все связи*/
+
+            die(del('person', $_POST['pers'],false));
         } else {
             /*Очистка от каки*/
             foreach ($_POST as $i => $value) {
@@ -160,7 +166,16 @@ if (isset($_SESSION['user'])) {
                         $result = mysqli_query($db, $SQL) or
                         die(json_encode(['err' => $SQL . "|Couldn't execute query." . mysqli_error($db)], JSON_UNESCAPED_UNICODE));
                     } else {
-                        /* TODO обработка если ключевые слова добавили ручками*/
+                        $value=mysqli_escape_string($db,$value);
+                        $SQL = "INSERT INTO tag (Name,create_user) value ($value,$USER_ID)";
+                        mysqli_query($db, $SQL) or
+                            die(json_encode(['err' => $SQL . "|Couldn't execute query." . mysqli_error($db)], JSON_UNESCAPED_UNICODE));
+                        $InsertIdTag = mysqli_insert_id($db);
+
+                        $SQL = "INSERT INTO tag_person (idTag, idPerson) value ($InsertIdTag,$InsertId)";
+                        mysqli_query($db, $SQL) or
+                            die(json_encode(['err' => $SQL . "|Couldn't execute query." . mysqli_error($db)], JSON_UNESCAPED_UNICODE));
+
                     }
                 }
             }
@@ -172,8 +187,6 @@ if (isset($_SESSION['user'])) {
                         $SQL = "INSERT INTO sci_department_person (idSciDepartment, idPerson)  value ($value,$InsertId)";
                         $result = mysqli_query($db, $SQL) or
                         die(json_encode(['err' => $SQL . "|Couldn't execute query." . mysqli_error($db)], JSON_UNESCAPED_UNICODE));
-                    } else {
-                        /*TODO обработка если ключевые слова добавили ручками*/
                     }
                 }
             }
@@ -185,8 +198,6 @@ if (isset($_SESSION['user'])) {
                         $SQL = "INSERT INTO sci_theme_pers (idTheme, idPers)  value ($value,$InsertId)";
                         $result = mysqli_query($db, $SQL) or
                         die(json_encode(['err' => $SQL . "|Couldn't execute query." . mysqli_error($db)], JSON_UNESCAPED_UNICODE));
-                    } else {
-                        /*TODO обработка если ключевые слова добавили ручками*/
                     }
                 }
             }
@@ -194,5 +205,18 @@ if (isset($_SESSION['user'])) {
         }
 
         // } else die(json_encode(['err' => 'Ошибка добавления:5'], JSON_UNESCAPED_UNICODE));
+    }
+    /*********
+     * FILE
+     ********/
+    if (isset($_GET['file'])) {
+        require_once '../php_class/fileUpload.php';
+        $UPLOAD=new FileUpload();
+        $UPLOAD->getFiles($_FILES);
+        $dataFile['UPLOAD']=$UPLOAD->getDataFile();
+        $dataFile['POST']=$_POST;
+        $UPLOAD->setBD($_POST);
+        $dataFile['GET']=$UPLOAD->getBD();
+        die(json_encode($dataFile,JSON_UNESCAPED_UNICODE));
     }
 }

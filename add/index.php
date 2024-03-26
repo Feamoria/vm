@@ -4,7 +4,9 @@
     ini_set('display_startup_errors', 1);
     require_once '../php_class/connect.php';
     //die(hash('sha512', '15142342'));
-    session_start();/*Аутентификация*/
+    session_start([
+                      'cookie_lifetime' => 86400,
+                  ]);/*Аутентификация*/
     if (isset($_GET['auth'])){
         $db = (new BDconnect())->connect();
         $SQL = "SELECT * FROM user WHERE login='" . mysqli_real_escape_string($db, $_POST['login']) . "' LIMIT 1";
@@ -258,7 +260,7 @@
 				<textarea id="file_Desc" name="file_Desc" class="form-control" aria-label=""></textarea>
 				<span class="input-group-text" id="file_Desc_short_COUNT"></span>
 			</div>
-			<!--Пероналии TODO -->
+			<!--Пероналии -->
 			<div class="col-auto input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success" id="">Пероналии</span>
 				<select id="file_pers" name="file_pers[]" class="form-select" multiple aria-label="">
@@ -295,6 +297,9 @@
 				<button class="btn btn-primary"  id='file_btn_send'>Сохранить файл</button>
 			</div>
 		</form>
+		<table id="tbl_file" class="table table-bordered border-primary">
+
+		</table>
 	</div>
     <div id="tabs-4">
         <form class="row" method="post" id="tag">

@@ -11,42 +11,16 @@ $(document).ready(function () {
                 initmultiselect('pers_tag');
                 initmultiselect('pers_tem');
                 initmultiselect('pers_sci_department');
+                /*Загрузка таблицы с персоналиями*/
                 let data = load_person();
-                let tbl = $("#tbl_person");
-                tbl.html('<thead><tr>' +
-                    '<th></th>' +
-                    '<th>Фамилия</th>' +
-                    '<th>Имя</th>' +
-                    '<th>Отчество</th>' +
-                    '<th>Должность</th>' +
-                    '<th>Даты жизни</th>' +
-                    '<th>Аннотация</th>' +
-                    '<th>Ключевые</th>' +
-                    '<th>подразделение</th>' +
-                    '<th>тематика</th>' +
-                    '<th>файлы</th>' +
-                    '</tr></thead>');
-                $.each(data, function (i, v) {
-                    tbl.append('<tr>' +
-                        '<td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delPerson(' + v.id + ')"><i class="bi bi-trash"></i></button></td>' +
-                        '<td>' + v.F + '</td>' +
-                        '<td>' + v.I + '</td>' +
-                        '<td>' + v.O + '</td>' +
-                        '<td>' + v.DOL + '</td>' +
-                        '<td>c ' + v.DAYN + ' по '+v.DAYD+'</td>' +
-                        '<td><textarea style="width: 100%" class="form-control">' + v.COMMENT +'</textarea></td>' +
-                        '<td>' + v.tag + '</td>' +
-                        '<td>' + v.sci_department + '</td>' +
-                        '<td>' + v.sci_theme + '</td>' +
-                        '<td>' + v.file + '</td>' +
-                        '</tr>')
-                })
-
+                updatePerson(data);
             }
             if (event.target.hash === '#tabs-3') {
                 initmultiselect('file_tag');
                 initmultiselect('file_tem');
                 initmultiselect('file_pers');
+                let data = load_file();
+                updateFile(data);
             }
             if (event.target.hash === '#tabs-4') {
                 let data = load_tag();
@@ -82,6 +56,7 @@ $(document).ready(function () {
     let data_pers = load_person();
     let data_sci_field = load_sci_field();
     let data_sci_department = load_sci_department();
+    let data_file = load_file();
     /*******************
      /*     EVENT
      /********************/
@@ -211,7 +186,7 @@ $(document).ready(function () {
             dataType: 'json',
             cache: false,
             success: function (data) {
-                update_person('ev_pers');
+                updatePerson(load_person())
             }
         });
     })
@@ -392,21 +367,108 @@ $(document).ready(function () {
         }
         /**/
         datepic.datepicker("option", "dateFormat", "yy-mm-dd");
-        let data = $('#file').serialize();
-        datepic.datepicker("option", "dateFormat", "dd.mm.yy");
+        let form = $('#file')[0];
         $.ajax({
             type: 'POST',
             url: 'set.php?file',
-            data: data,
+            //data: data,
             dataType: 'json',
+            data: new FormData(form),
+            processData: false,
+            contentType: false,
             cache: false,
-            success: function (data) {
-                console.log(data);
-                //update_person('ev_pers');
+            success: function (data, status) {
+                updateFile(data);
             }
+
         });
+        datepic.datepicker("option", "dateFormat", "dd.mm.yy");
+
     })
 })
+
+function updateFile(data) {
+    let tbl = $("#tbl_file");
+    tbl.html('<thead><tr>' +
+        '<th></th>' +
+        '<th>Дата файла</th>' +
+        '<th>Название файла</th>' +
+        '<th>Аннотация</th>' +
+        '<th>Пероналии</th>' +
+        '<th>Научная тематика</th>' +
+        '<th>Ссылки на архивный докумен</th>' +
+        '<th>Ключевые слова</th>' +
+        '<th>Файл</th>' +
+        '</tr></thead>');
+    $.each(data, function (i, v) {
+        tbl.append('<tr>' +
+            '<td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delFile(' + v.id + ')"><i class="bi bi-trash"></i></button></td>' +
+            '<td>' + v.date + '</td>' +
+            '<td>' + v.name + '</td>' +
+            '<td><textarea style="width: 100%" class="form-control">' + v.disc + '</textarea></td>' +
+            '<td>' + v.person + '</td>' +
+            '<td>' + v.sci_theme + '</td>' +
+            '<td>' + v.doc + '</td>' +
+            '<td>' + v.tag + '</td>' +
+            '<td><a target="_blank" href="' + v.pathWeb + '">v.name</a></td>' +
+            '</tr>')
+    })
+}
+
+function updatePerson(data) {
+    initTagAjax('#ev_pers', data);
+    initTagAjax('#file_pers', data);
+    let tbl = $("#tbl_person");
+    tbl.html('<thead><tr>' +
+        '<th></th>' +
+        '<th>Фамилия</th>' +
+        '<th>Имя</th>' +
+        '<th>Отчество</th>' +
+        '<th>Должность</th>' +
+        '<th>Даты жизни</th>' +
+        '<th>Аннотация</th>' +
+        '<th>Ключевые</th>' +
+        '<th>подразделение</th>' +
+        '<th>тематика</th>' +
+        '<th>файлы</th>' +
+        '</tr></thead>');
+    $.each(data, function (i, v) {
+        let file = '';
+        $.each(v.file, function (index, value) {
+            file += "<a href='" + value.pathWeb + "' target='_blank'>" + value.name + "</a>";
+        })
+        tbl.append('<tr>' +
+            '<td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delPerson(' + v.id + ')"><i class="bi bi-trash"></i></button></td>' +
+            '<td>' + v.F + '</td>' +
+            '<td>' + v.I + '</td>' +
+            '<td>' + v.O + '</td>' +
+            '<td>' + v.DOL + '</td>' +
+            '<td>c ' + v.DAYN + ' по ' + v.DAYD + '</td>' +
+            '<td><textarea style="width: 100%" class="form-control">' + v.COMMENT + '</textarea></td>' +
+            '<td>' + v.tag + '</td>' +
+            '<td>' + v.sci_department + '</td>' +
+            '<td>' + v.sci_theme + '</td>' +
+            '<td>' + file + '</td>' +
+            '</tr>')
+    })
+}
+
+function delPerson(tag) {
+    /* !*/
+    $.ajax({
+        type: 'POST',
+        url: 'set.php?pers&del',
+        data: 'pers=' + tag,
+        dataType: 'json',
+        cache: false,
+        success: function (data) {
+            if (typeof data.err === 'undefined') {
+                updatePerson(load_person());
+
+            } else alert(data.err);
+        }
+    })
+}
 
 function delTag(tag) {
     /* !*/
@@ -531,19 +593,19 @@ function load_sci_department() {
     }).responseJSON;
 }
 
-function update_person(elem) {
-    let html = '';
-    $.ajax({
+function load_file() {
+    return $.ajax({
+        async: false,
         type: 'POST',
-        url: 'get.php?person',
-        //contentType: 'application/json;',
+        url: 'get.php?file',
+        //data: 'tag='+tag,
         dataType: 'json',
         cache: false,
         success: function (data) {
             //console.log(data);
-            initTagAjax('#' + elem, data)
+            // do something with ajax data
         }
-    });
+    }).responseJSON;
 }
 
 function search_status(elem) {
@@ -558,6 +620,10 @@ function search_status(elem) {
     $('#' + elem).val(id_checked);
 }
 
+/**
+ * @comment Инициализация кнопки добавить для элементов с тегами
+ * @param elem Type:string|idSelect`а пример 'file_pers' без #
+ */
 function inittag(elem) {
     $('#' + elem + '_tag_add_btn').on('click', function (e) {
         e.preventDefault();
@@ -568,6 +634,11 @@ function inittag(elem) {
     })
 }
 
+/**
+ * @comment Заполнение Select`а данными
+ * @param elem Type:string|idSelect`а пример '#file_pers'
+ * @param data Type:array[id,Name]
+ */
 function initTagAjax(elem, data) {
     let elem_g = $(elem);
     elem_g.html('');
@@ -577,6 +648,10 @@ function initTagAjax(elem, data) {
     elem_g.multiselect('refresh');
 }
 
+/**
+ *  @comment Инициализация Multiselect на elem Select
+ *  @param elem Type:string|idSelect`а пример 'file_pers' без #
+ */
 function initmultiselect(elem) {
     let buttonW = '79%';
     let menuWidth = '80%';
