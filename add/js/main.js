@@ -460,7 +460,7 @@ function updateFile(data) {
             '<td>' + v.sci_theme + '</td>' +
             '<td>' + v.doc + '</td>' +
             '<td>' + v.tag + '</td>' +
-            '<td><a target="_blank" href="' + v.pathWeb + '">v.name</a></td>' +
+            '<td><a target="_blank" href="' + v.pathWeb + '">' + v.name + '</a></td>' +
             '</tr>')
     })
 }
