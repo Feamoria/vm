@@ -1,30 +1,39 @@
+let timerId;
+let first=true;
 $(document).ready(function () {
-    let dialog=$('#dialog_file').dialog({
+    timerId = setInterval(GetOnline, 0);
+
+    let dialog_del = $('#dialog_del').dialog({
+        modal: true,
+        resizable: false,
+        autoOpen: false
+    });
+    let dialog = $('#dialog_file').dialog({
         autoOpen: false,
         width: 1400,
         height: 600,
         modal: true,
         buttons: {
-            "Выбрать файлы": function (){
-                let chk=[];
-                let text=$('#ev_file_text');
+            "Выбрать файлы": function () {
+                let chk = [];
+                let text = $('#ev_file_text');
                 text.html('');
-                let sel=$('#ev_file');
+                let sel = $('#ev_file');
                 sel.html('');
-                $('#dialog_file_cont .form-check-input').each(function (){
-                    if ($(this).prop('checked')){
-                        let id=$(this).val();
+                $('#dialog_file_cont .form-check-input').each(function () {
+                    if ($(this).prop('checked')) {
+                        let id = $(this).val();
                         chk.push(id);
-                        text.append("<a target='_blank' href='"+data_file[id-1].pathWeb+"'>"+data_file[id-1].name+" </a>  ")
-                        sel.append('<option value="'+id+'">'+id+'</option>');
+                        text.append("<a target='_blank' href='" + data_file[id - 1].pathWeb + "'>" + data_file[id - 1].name + " </a>  ")
+                        sel.append('<option value="' + id + '">' + id + '</option>');
                     }
 
                 })
                 sel.val(chk);
-                dialog.dialog( "close" );
+                dialog.dialog("close");
             },
-            'Отмена': function() {
-                dialog.dialog( "close" );
+            'Отмена': function () {
+                dialog.dialog("close");
             }
         },
     })
@@ -111,19 +120,19 @@ $(document).ready(function () {
     initTagAjax('#ev_pers', data_pers);
     initTagAjax('#ev_sci_department', data_sci_department);
     /*Форма выбора файла*/
-    $('#btn_open_file').on('click',function (e){
+    $('#btn_open_file').on('click', function (e) {
         e.preventDefault();
-        data_file=load_file();
-        let cont =$('#dialog_file_cont').html('');
-        $.each(data_file,function (index, value) {
+        data_file = load_file();
+        let cont = $('#dialog_file_cont').html('');
+        $.each(data_file, function (index, value) {
             //console.log(value);
-            let html='<div class="card" style="width: 18rem;">' +
-                '<img src="'+value.pathWeb+'" class="card-img-top" alt=""' +
+            let html = '<div class="card" style="width: 18rem;">' +
+                '<img src="' + value.pathWeb + '" class="card-img-top" alt=""' +
                 '<div class="card-body">' +
                 '<h5 class="card-title">' +
-                '<input value="'+value.id+'" id="chk_'+value.id+'" name="chk[]" type="checkbox" class="form-check-input">' +
-                '<label class="" for="chk_'+value.id+'">'+value.name+'</label></h5>' +
-                '<p class="card-text">'+value.disc+'</p>' +
+                '<input value="' + value.id + '" id="chk_' + value.id + '" name="chk[]" type="checkbox" class="form-check-input">' +
+                '<label class="" for="chk_' + value.id + '">' + value.name + '</label></h5>' +
+                '<p class="card-text">' + value.disc + '</p>' +
 
                 /*'<p class="card-text"><small class="text-muted">Последнее обновление 3 мин. назад</small></p>'+
                 '    <a href="#" class="card-link">Ссылка карточки</a>' +
@@ -132,7 +141,7 @@ $(document).ready(function () {
                 '</div>';
             cont.append(html);
         });
-        dialog.dialog( "open" );
+        dialog.dialog("open");
     })
     $('#ev_btn_send').on('click', function (e) {
         e.preventDefault();
@@ -437,6 +446,24 @@ $(document).ready(function () {
     })
 })
 
+function GetOnline() {
+    if (first) {
+        first=false;
+        clearInterval(timerId)
+        timerId=setInterval(GetOnline, 60*1000);
+    }
+    $.ajax({
+        async: true,
+        url: 'getOnline.php',
+        dataType: 'json',
+        cache: false,
+        success: function (data, status) {
+            $('#UserOnline').html(data[0].COUNT);
+            console.log(data[0]);
+        }
+    });
+}
+
 function updateFile(data) {
     let tbl = $("#tbl_file");
     tbl.html('<thead><tr>' +
@@ -503,84 +530,139 @@ function updatePerson(data) {
     })
 }
 
-function delPerson(tag) {
-    /* !*/
-    $.ajax({
-        type: 'POST',
-        url: 'set.php?pers&del',
-        data: 'pers=' + tag,
-        dataType: 'json',
-        cache: false,
-        success: function (data) {
-            if (typeof data.err === 'undefined') {
-                updatePerson(load_person());
+function delPerson(tag, answer = null) {
+    if (answer == null) {
+        $('#dialog_del').dialog({
+            buttons: {
+                "Да": function () {
+                    $(this).dialog("close");
+                    delPerson(tag, true)
+                },
+                'Нет': function () {
+                    $(this).dialog("close");
+                }
+            }
+        }).dialog("open");
+    } else if (answer === true) {
+        $.ajax({
+            type: 'POST',
+            url: 'set.php?pers&del',
+            data: 'pers=' + tag,
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                if (typeof data.err === 'undefined') {
+                    updatePerson(load_person());
 
-            } else alert(data.err);
-        }
-    })
+                } else alert(data.err);
+            }
+        })
+    }
 }
 
-function delTag(tag) {
+function delTag(tag, answer = null) {
     /* !*/
-    $.ajax({
-        type: 'POST',
-        url: 'set.php?tag&del',
-        data: 'tag=' + tag,
-        dataType: 'json',
-        cache: false,
-        success: function (data) {
-            console.log(data);
-            if (typeof data.err === 'undefined') {
-                let tbl = $("#tbl_tag");
-                tbl.html('');
-                $.each(data, function (i, v) {
-                    tbl.append('<tr><td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delTag(' + v.id + ')"><i class="bi bi-trash"></i></button></td><td>' + v.Name + '</td></tr>')
-                })
-            } else alert(data.err);
-            // do something with ajax data
-        }
-    })
+    if (answer == null) {
+        $('#dialog_del').dialog({
+            buttons: {
+                "Да": function () {
+                    $(this).dialog("close");
+                    delTag(tag, true)
+                },
+                'Нет': function () {
+                    $(this).dialog("close");
+                }
+            }
+        }).dialog("open");
+    } else if (answer === true) {
+        $.ajax({
+            type: 'POST',
+            url: 'set.php?tag&del',
+            data: 'tag=' + tag,
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                console.log(data);
+                if (typeof data.err === 'undefined') {
+                    let tbl = $("#tbl_tag");
+                    tbl.html('');
+                    $.each(data, function (i, v) {
+                        tbl.append('<tr><td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delTag(' + v.id + ')"><i class="bi bi-trash"></i></button></td><td>' + v.Name + '</td></tr>')
+                    })
+                } else alert(data.err);
+                // do something with ajax data
+            }
+        })
+    }
 }
 
-function delSciDepartment(sci_department) {
-    $.ajax({
-        type: 'POST',
-        url: 'set.php?sci_department&del',
-        data: 'sci_department=' + sci_department,
-        dataType: 'json',
-        cache: false,
-        success: function (data) {
-            console.log(data);
-            if (typeof data.err === 'undefined') {
-                let tbl = $("#tbl_sci_department");
-                tbl.html('');
-                $.each(data, function (i, v) {
-                    tbl.append('<tr><td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delSciDepartment(' + v.id + ')"><i class="bi bi-trash"></i></button></td><td>' + v.Name + '</td></tr>')
-                })
-            } else alert(data.err);
-        }
-    })
+function delSciDepartment(sci_department, answer = null) {
+    if (answer == null) {
+        $('#dialog_del').dialog({
+            buttons: {
+                "Да": function () {
+                    $(this).dialog("close");
+                    delSciDepartment(sci_department, true)
+                },
+                'Нет': function () {
+                    $(this).dialog("close");
+                }
+            }
+        }).dialog("open");
+    } else if (answer === true) {
+        $.ajax({
+            type: 'POST',
+            url: 'set.php?sci_department&del',
+            data: 'sci_department=' + sci_department,
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                console.log(data);
+                if (typeof data.err === 'undefined') {
+                    let tbl = $("#tbl_sci_department");
+                    tbl.html('');
+                    $.each(data, function (i, v) {
+                        tbl.append('<tr><td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delSciDepartment(' + v.id + ')"><i class="bi bi-trash"></i></button></td><td>' + v.Name + '</td></tr>')
+                    })
+                } else alert(data.err);
+            }
+        })
+    }
 }
 
-function delSci_field(sci_field) {
+function delSci_field(sci_field, answer = null) {
     /* !*/
-    $.ajax({
-        type: 'POST',
-        url: 'set.php?sci_theme&del',
-        data: 'sci_theme=' + sci_field,
-        dataType: 'json',
-        cache: false,
-        success: function (data) {
-            console.log(data);
-            if (typeof data.err === 'undefined') {
-                let tbl = $("#tbl_sci_field");
-                tbl.html('');
-                $.each(data, function (i, v) {
-                    tbl.append('<tr><td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delSci_field(' + v.id + ')"><i class="bi bi-trash"></i></button></td><td>' + v.Name + '</td></tr>')
-                })
-            } else alert(data.err);
-        }
-    })
+    if (answer == null) {
+        $('#dialog_del').dialog({
+            buttons: {
+                "Да": function () {
+                    $(this).dialog("close");
+                    delSci_field(sci_field, true)
+                },
+                'Нет': function () {
+                    $(this).dialog("close");
+                }
+            }
+        }).dialog("open");
+    } else if (answer === true) {
+        $.ajax({
+            type: 'POST',
+            url: 'set.php?sci_theme&del',
+            data: 'sci_theme=' + sci_field,
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                console.log(data);
+                if (typeof data.err === 'undefined') {
+                    let tbl = $("#tbl_sci_field");
+                    tbl.html('');
+                    $.each(data, function (i, v) {
+                        tbl.append('<tr><td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delSci_field(' + v.id + ')"><i class="bi bi-trash"></i></button></td><td>' + v.Name + '</td></tr>')
+                    })
+                } else alert(data.err);
+            }
+        })
+    }
 }
 
 function load_tag() {

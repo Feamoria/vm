@@ -95,6 +95,12 @@
 	<script src="js/main.js?<?php echo time();?>"></script>
 </head>
 <body>
+<div class="row">
+	<div class="col-md-3">Пользователей онлайн: <span id="UserOnline"></span> </div>
+</div>
+<div id="dialog_del" title="Удаление" style="display: none">
+	<p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>Удалить запись?</p>
+</div>
 <div id="dialog_file" title="Выбор файлов" style="display: none">
 	<div class="row">
 		<div class="input-group">
