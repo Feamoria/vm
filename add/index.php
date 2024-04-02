@@ -1,4 +1,5 @@
 <?php
+
     ini_set('error_reporting', E_ALL);
     ini_set('display_errors', 1);
     ini_set('display_startup_errors', 1);
@@ -7,7 +8,7 @@
     session_start([
                       'cookie_lifetime' => 86400,
                   ]);/*Аутентификация*/
-    if (isset($_GET['auth'])){
+    if (isset($_GET['auth'])) {
         $db = (new BDconnect())->connect();
         $SQL = "SELECT * FROM user WHERE login='" . mysqli_real_escape_string($db, $_POST['login']) . "' LIMIT 1";
         $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));;
@@ -16,28 +17,26 @@
 
         if ($data['pass'] === hash('sha512', $_POST['password']))//Авторизация пройдена
         {
-            $_SESSION['user']['id']=$data['id'];
-            $_SESSION['user']['role']=$data['role'];
-            $_SESSION['user']['FIO']=$data['FIO'];
-            $_SESSION['user']['login']=$data['login'];
-            $_SESSION['user']['pass']=$data['pass'];
+            $_SESSION['user']['id'] = $data['id'];
+            $_SESSION['user']['role'] = $data['role'];
+            $_SESSION['user']['FIO'] = $data['FIO'];
+            $_SESSION['user']['login'] = $data['login'];
+            $_SESSION['user']['pass'] = $data['pass'];
             # Обновляем страницу с данными авторизации
 
         } else//Авторизация отклонена
         {
-            $_SESSION['mess']='Вы ввели неверный логин/пароль';
+            $_SESSION['mess'] = 'Вы ввели неверный логин/пароль';
         }
         header("Location: /vm/add/index.php");
-    }
-    else
-    /*Аутентификация*/
-    if (!isset($_SESSION['user'])) {
-        $mess='';
-        if (isset($_SESSION['mess'])) {
-            $mess=$_SESSION['mess'];
-            $_SESSION['mess']=null;
-        }
-        $html='<h1 style="color: red;" align="center">Не авторизовано</h1>
+    } else /*Аутентификация*/ {
+        if (!isset($_SESSION['user'])) {
+            $mess = '';
+            if (isset($_SESSION['mess'])) {
+                $mess = $_SESSION['mess'];
+                $_SESSION['mess'] = null;
+            }
+            $html = '<h1 style="color: red;" align="center">Не авторизовано</h1>
 			<h2 align="center">Авторизуйтесь в системе</h2>
 			<div style="position: fixed;top: 180px;left: 50%;width: 250px; height:80px; background: #f0f0f0;transform: translate(-50%, 0%);padding: 15px;">
 			<form method="POST" class="" action="index.php?auth"  >
@@ -50,11 +49,12 @@
 				<input name="password" style="float:right;width:140px;" type="password">
 			</div>
 			<div style="margin:auto;padding:10px;width:50px;">
-			    <P style="color: red">'.$mess.'</P>
+			    <P style="color: red">' . $mess . '</P>
 				<input name="submit" value="Войти" type="submit">
 			</div>
 			</form></div>';
-        die($html);
+            die($html);
+        }
     }
 
 
@@ -62,18 +62,18 @@
 <!DOCTYPE html>
 <html lang='ru'>
 <head>
-    <meta http-equiv='Content-Type' content='text/html; charset=utf-8'/>
-    <meta http-equiv='X-UA-Compatible' content='IE=edge'/>
-    <title>Добавление данных</title>
-    <link rel="icon" type="image/png" href="favicon.ico" />
+	<meta http-equiv='Content-Type' content='text/html; charset=utf-8'/>
+	<meta http-equiv='X-UA-Compatible' content='IE=edge'/>
+	<title>Добавление данных</title>
+	<link rel="icon" type="image/png" href="favicon.ico"/>
 	<script src="../js/jquery/jquery-3.7.1.min.js"></script>
 	<script src="../js/jquery/jquery.form.js"></script>
 	<script src="../js/jquery/jquery-ajax-native.js"></script>
 	<script src="../js/jquery/jquery-ui/jquery-ui.min.js"></script>
 	<script src="../js/jquery/jquery-ui/jquery.ui.datepicker-ru.js"></script>
-	<link href="../js/jquery/jquery-ui/jquery-ui.min.css" rel="stylesheet" >
-	<link href="../js/jquery/jquery-ui/jquery-ui.structure.css" rel="stylesheet" >
-	<link href="../js/jquery/jquery-ui/jquery-ui.theme.css" rel="stylesheet" >
+	<link href="../js/jquery/jquery-ui/jquery-ui.min.css" rel="stylesheet">
+	<link href="../js/jquery/jquery-ui/jquery-ui.structure.css" rel="stylesheet">
+	<link href="../js/jquery/jquery-ui/jquery-ui.theme.css" rel="stylesheet">
 	<!--multiselect  https://github.com/ehynds/jquery-ui-multiselect-widget-->
 	<script type='text/javascript' src='../js/jquery/jquery-multiselect/jquery.multiselect.js'></script>
 	<script type='text/javascript' src='../js/jquery/jquery-multiselect/jquery.multiselect.ru.js'></script>
@@ -82,8 +82,8 @@
 	<link rel='stylesheet' type='text/css' media='screen' href='../js/jquery/jquery-multiselect/jquery.multiselect.css'/>
 	<link rel='stylesheet' type='text/css' media='screen' href='../js/jquery/jquery-multiselect/jquery.multiselect.filter.css'/>
 	<!-- bootstrap -->
-	<link href="../css/bootstrap.min.css" rel="stylesheet" >
-	<link href="../ico/font/bootstrap-icons.css" rel="stylesheet" >
+	<link href="../css/bootstrap.min.css" rel="stylesheet">
+	<link href="../ico/font/bootstrap-icons.css" rel="stylesheet">
 	<script src="../js/bootstrap/bootstrap.bundle.min.js"></script>
 
 	<!-- Upload_master jQuery plugin -->
@@ -92,34 +92,50 @@
 	<script src="../js/Upload_master/js/jquery.fileupload.js"></script>
 
 	<!-- MY -->
-	<script src="js/main.js?<?php echo time();?>"></script>
+	<script src="js/main.js?<?php
+        echo time(); ?>"></script>
 </head>
 <body>
 <div class="row">
-	<div class="col-md-12">Пользователей онлайн: <span id="UserOnline"></span> </div>
+	<div class="col-md-12">Пользователей онлайн: <span id="UserOnline"></span></div>
 </div>
 <div id="dialog_del" title="Удаление" style="display: none">
 	<p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>Удалить запись?</p>
 </div>
 <div id="dialog_file" title="Выбор файлов" style="display: none">
 	<div class="row">
-		<div class="input-group">
+		<!--<div class="input-group">
 			<span style="width: 20%" class="input-group-text text-bg-success">Фильтрация</span>
-			<input id="" name="" type="text" class="form-control" placeholder="Название" aria-label="Название">
-			<input id="" name="" type="text" class="form-control" placeholder="Ключевые слова" aria-label="Ключевые слова">
-			<input id="" name="" type="text" class="form-control" placeholder="Научная тематика" aria-label="Научная тематика">
-			<input id="" name="" type="text" class="form-control" placeholder="Персоналии" aria-label="Персоналии">
-		</div>
+-->		<form id="s_form">
+			<div class="container">
+				<div class="row row-cols-2">
+					<div class="col">
+						<input id="s_Name" name="s_Name" type="text" class="form-control" placeholder="Название" aria-label="Название">
+					</div>
+					<div class="col">
+						<select id="s_pers" name="s_pers[]" multiple class="form-select" aria-label="Персоналии"></select>
+					</div>
+					<div class="col">
+						<select id="s_tem" name="s_tem[]" multiple class="form-select" aria-label="Научная тематика"></select>
+					</div>
+					<div class="col">
+						<select id="s_tg" name="s_tag[]" multiple class="form-select" aria-label="Ключевые слова"></select>
+					</div>
+				</div>
+			</div>
+		</form>
+		<!--
+		</div>-->
 	</div>
-<div id="dialog_file_cont" class="row"></div>
+	<div id="dialog_file_cont" class="row"></div>
 </div>
 <div id="tabs">
 	<ul>
 		<li><a href="#tabs-1">События</a></li>
 		<li><a href="#tabs-2">Персоналии</a></li>
 		<li><a href="#tabs-3">Файлы</a></li>
-        <li><a href="#tabs-4">Ключевые слова</a></li>
-        <li><a href="#tabs-5">Научная тематика</a></li>
+		<li><a href="#tabs-4">Ключевые слова</a></li>
+		<li><a href="#tabs-5">Научная тематика</a></li>
 		<li><a href="#tabs-6">Структурное подразделение</a></li>
 
 	</ul>
@@ -163,7 +179,8 @@
 				<span style="width: 20%" class="input-group-text text-bg-success">Файл</span>
 				<select id="ev_file" name="ev_file[]" class="form-select" style="display: none" multiple aria-label="">
 				</select>
-				<button style="width: 5%" class="btn btn-info" id="btn_open_file"><i class="bi bi-folder-fill"></i></button>
+				<button style="width: 5%" class="btn btn-info" id="btn_open_file"><i class="bi bi-folder-fill"></i>
+				</button>
 				<span id="ev_file_text" style="width: 75%" class="input-group-text"></span>
 			</div>
 			<!--Важность события -->
@@ -200,7 +217,7 @@
 			<!--Научная тематика -->
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success">Научная тематика</span>
-				<select id="ev_tem" name="ev_tem[]" multiple class="form-select"  aria-label="">
+				<select id="ev_tem" name="ev_tem[]" multiple class="form-select" aria-label="">
 				</select>
 			</div>
 			<!--Ключевые слова -->
@@ -209,7 +226,7 @@
 				<select id="ev_tag" name="ev_tag[]" class="form-select" multiple aria-label="">
 				</select>
 				<input style="width: 10%" type="text" id='ev_tag_add' aria-label="" class="form-control" placeholder="">
-				<button class="btn btn-primary"  id='ev_tag_add_btn'>Добавить</button>
+				<button class="btn btn-primary" id='ev_tag_add_btn'>Добавить</button>
 			</div>
 			<!--Место (координаты) -->
 			<div class="input-group">
@@ -219,7 +236,7 @@
 
 			</div>
 			<div class="input-group">
-				<button class="btn btn-primary"  id='ev_btn_send'>Отправить</button>
+				<button class="btn btn-primary" id='ev_btn_send'>Отправить</button>
 			</div>
 		</form>
 		<table id="tbl_event" class="table table-bordered border-primary">
@@ -229,7 +246,7 @@
 	<div id="tabs-2">
 		<form class="row" method="post" id="pers">
 			<div class="input-group">
-                <span style="width: 20%" class="input-group-text text-bg-success">ФИО персоны<span style="color: red">*</span></span>
+				<span style="width: 20%" class="input-group-text text-bg-success">ФИО персоны<span style="color: red">*</span></span>
 				<input id="pers_F" name="pers_F" required type="text" class="form-control" placeholder="Фамилия" aria-label="Фамилия">
 				<input id="pers_I" name="pers_I" required type="text" class="form-control" placeholder="Имя" aria-label="Имя">
 				<input id="pers_O" name="pers_O" required type="text" class="form-control" placeholder="Отчество" aria-label="Отчество">
@@ -237,7 +254,7 @@
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success">Годы жизни</span>
 				<input id="pers_date1" required name="pers_date1" type="text" class="form-control" placeholder="c (обязательное)" aria-label="">
-				<input id="pers_date2"  name="pers_date2" type="text" class="form-control" placeholder="по" aria-label="">
+				<input id="pers_date2" name="pers_date2" type="text" class="form-control" placeholder="по" aria-label="">
 			</div>
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success">Должность<span style="color: red">*</span></span>
@@ -267,22 +284,22 @@
 				<select id="pers_tag" name="pers_tag[]" class="form-select" multiple aria-label="">
 				</select>
 				<input style="width: 10%" type="text" id='pers_tag_add' aria-label="" class="form-control" placeholder="">
-				<button class="btn btn-primary"  id='pers_tag_add_btn'>+</button>
+				<button class="btn btn-primary" id='pers_tag_add_btn'>+</button>
 			</div>
 			<div class="input-group">
-				<button class="btn btn-primary"  id='pers_btn_send'>Сохранить персоналию</button>
+				<button class="btn btn-primary" id='pers_btn_send'>Сохранить персоналию</button>
 			</div>
 		</form>
-        <table id="tbl_person" class="table table-bordered border-primary">
+		<table id="tbl_person" class="table table-bordered border-primary">
 
-        </table>
+		</table>
 	</div>
 	<div id="tabs-3">
 		<form class="row" method="post" id="file">
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success">Файл<span style="color: red">*</span></span>
 				<input id="file_F" name="file_F" required type="file" class="form-control" placeholder="" aria-label="">
-				</div>
+			</div>
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success">Дата</span>
 				<input id="file_date" name="file_date" type="text" class="form-control" placeholder="1947.01.01 или 1947.02.01  если неизвестна точная дата или месяц" aria-label="">
@@ -328,46 +345,46 @@
 
 				</select>
 				<input style="width: 10%" type="text" id='file_tag_add' aria-label="" class="form-control" placeholder="">
-				<button class="btn btn-primary"  id='file_tag_add_btn'>+</button>
+				<button class="btn btn-primary" id='file_tag_add_btn'>+</button>
 			</div>
 			<div class="input-group">
-				<button class="btn btn-primary"  id='file_btn_send'>Сохранить файл</button>
+				<button class="btn btn-primary" id='file_btn_send'>Сохранить файл</button>
 			</div>
 		</form>
 		<table id="tbl_file" class="table table-bordered border-primary">
 
 		</table>
 	</div>
-    <div id="tabs-4">
-        <form class="row" method="post" id="tag">
-            <div class="input-group">
-                <span style="width: 30%" class="input-group-text text-bg-success">Ключевое слово</span>
-                <input style="width: 30%" type="text" id='tag_add' aria-label="" class="form-control" placeholder="">
-                <button class="btn btn-primary"  id='tag_add_btn'>Добавить</button>
-            </div>
-        </form>
-        <table class="" id="tbl_tag">
+	<div id="tabs-4">
+		<form class="row" method="post" id="tag">
+			<div class="input-group">
+				<span style="width: 30%" class="input-group-text text-bg-success">Ключевое слово</span>
+				<input style="width: 30%" type="text" id='tag_add' aria-label="" class="form-control" placeholder="">
+				<button class="btn btn-primary" id='tag_add_btn'>Добавить</button>
+			</div>
+		</form>
+		<table class="" id="tbl_tag">
 
-        </table>
-    </div>
-    <div id="tabs-5">
-        <form class="row" method="post" id="sci_field">
-            <div class="input-group">
-                <span style="width: 30%" class="input-group-text text-bg-success">Научная тематика</span>
-                <input style="width: 30%" type="text" id='sci_field_add' aria-label="" class="form-control" placeholder="">
-                <button class="btn btn-primary"  id='sci_field_add_btn'>Добавить</button>
-            </div>
-        </form>
-        <table class="" id="tbl_sci_field">
+		</table>
+	</div>
+	<div id="tabs-5">
+		<form class="row" method="post" id="sci_field">
+			<div class="input-group">
+				<span style="width: 30%" class="input-group-text text-bg-success">Научная тематика</span>
+				<input style="width: 30%" type="text" id='sci_field_add' aria-label="" class="form-control" placeholder="">
+				<button class="btn btn-primary" id='sci_field_add_btn'>Добавить</button>
+			</div>
+		</form>
+		<table class="" id="tbl_sci_field">
 
-        </table>
-    </div>
+		</table>
+	</div>
 
 	<div id="tabs-6">
 		<form class="row" method="post" id="sci_department">
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success">Структурное подразделение<span style="color: red">*</span></span>
-				<input  type="text" id='sci_department_name' name='sci_department_name' required aria-label="" class="form-control" placeholder="">
+				<input type="text" id='sci_department_name' name='sci_department_name' required aria-label="" class="form-control" placeholder="">
 
 			</div>
 			<div class="input-group">
@@ -381,7 +398,7 @@
 				</select>
 			</div>
 			<div class="input-group">
-				<button class="btn btn-primary"  id='sci_department_add_btn'>Добавить</button>
+				<button class="btn btn-primary" id='sci_department_add_btn'>Добавить</button>
 			</div>
 		</form>
 		<table class="" id="tbl_sci_department">

@@ -155,7 +155,7 @@
             }
         }
 
-        public function delFile($id)
+        public function delFile($id): array
         {
             $File = $this->getBD($id);
             $ret=[];
@@ -171,12 +171,36 @@
             return $ret;
         }
 
-        public function getBD($id = null): array
+        public function getBD($id = null,$searth=null): array
         {
             $SQL = "SELECT * FROM file order by date";
             if ($id != null) {
                 $SQL = "SELECT * FROM file where id=$id";
             }
+            if ($searth != null) {
+                $Where='';
+                $and='';
+                if (isset($searth['s_Name'])){
+                    $Where.=" $and `name` like '%{$searth['s_Name']}%'";
+                    $and='and';
+                }
+                if (isset($searth['s_pers'])){
+                    $s=implode(',',$searth['s_pers']);
+                    $Where.=" $and id in (SELECT `idFile` from `file_person` where `idPerson` in ($s))";
+                }
+                //s_tem
+                if (isset($searth['s_tem'])){
+                    $s=implode(',',$searth['s_tem']);
+                    $Where.=" $and id in (SELECT `idFile` from `sci_theme_file` where `idSciTheme` in ($s))";
+                }
+                //s_tag
+                if (isset($searth['s_tag'])){
+                    $s=implode(',',$searth['s_tem']);
+                    $Where.=" $and id in (SELECT `idFile` from `tag_file` where `idTag` in ($s))";
+                }
+                $SQL="SELECT * FROM file where $Where";
+            }
+
             $query = mysqli_query($this->connect, $SQL) or die(
                 $SQL . "|Couldn't execute query." . mysqli_error(
                     $this->connect

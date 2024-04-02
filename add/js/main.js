@@ -5,7 +5,7 @@ $(document).ready(function () {
     if (!test)
         timerId = setInterval(GetOnline, 0);
 
-    let dialog_del = $('#dialog_del').dialog({
+    $('#dialog_del').dialog({
         modal: true,
         resizable: false,
         autoOpen: false
@@ -25,9 +25,7 @@ $(document).ready(function () {
                 $('#dialog_file_cont .form-check-input').each(function () {
                     if ($(this).prop('checked')) {
                         let id = $(this).val();
-                        console.log(id)
                         chk.push(id);
-
                         text.append("<a target='_blank' href='" + data_file[id].pathWeb + "'>" + data_file[id].name + " </a>  ")
                         sel.append('<option value="' + id + '">' + id + '</option>');
                     }
@@ -130,26 +128,44 @@ $(document).ready(function () {
     /*Форма выбора файла*/
     $('#btn_open_file').on('click', function (e) {
         e.preventDefault();
-        data_file = load_file();
-        let cont = $('#dialog_file_cont').html('');
-        $.each(data_file, function (index, value) {
-            //console.log(value);
-            let html = '<div class="card" style="width: 18rem;">' +
-                '<img src="' + value.pathWeb + '" class="card-img-top" alt=""' +
-                '<div class="card-body">' +
-                '<h5 class="card-title">' +
-                '<input value="' + value.id + '" id="chk_' + value.id + '" name="chk[]" type="checkbox" class="form-check-input">' +
-                '<label class="" for="chk_' + value.id + '">' + value.name + '</label></h5>' +
-                '<p class="card-text">' + value.disc + '</p>' +
+        function load(search=null) {
+            data_file = load_file(search);
+            let cont = $('#dialog_file_cont').html('');
+            $.each(data_file.file, function (index, value) {
+                //console.log(value);
+                let html = '<div class="card" style="width: 18rem;">' +
+                    '<img src="' + value.pathWeb + '" class="card-img-top" alt=""' +
+                    '<div class="card-body">' +
+                    '<h5 class="card-title">' +
+                    '<input value="' + value.id + '" id="chk_' + value.id + '" name="chk[]" type="checkbox" class="form-check-input">' +
+                    '<label class="" for="chk_' + value.id + '">' + value.name + '</label></h5>' +
+                    '<p class="card-text">' + value.disc + '</p>' +
 
-                /*'<p class="card-text"><small class="text-muted">Последнее обновление 3 мин. назад</small></p>'+
-                '    <a href="#" class="card-link">Ссылка карточки</a>' +
-                '    <a href="#" class="card-link">Другая ссылка</a>' +*/
-                '  </div>' +
-                '</div>';
-            cont.append(html);
-        });
+                    /*'<p class="card-text"><small class="text-muted">Последнее обновление 3 мин. назад</small></p>'+
+                    '    <a href="#" class="card-link">Ссылка карточки</a>' +
+                    '    <a href="#" class="card-link">Другая ссылка</a>' +*/
+                    '  </div>' +
+                    '</div>';
+                cont.append(html);
+            });
+        }
+        load();
         dialog.dialog("open");
+        /**/
+        initmultiselect('s_tg');
+        initmultiselect('s_tem');
+        initmultiselect('s_pers')
+
+        initTagAjax('#s_tg', data_tag);
+        initTagAjax('#s_tem', data_sci_field);
+        initTagAjax('#s_pers', data_pers);
+
+        $('#s_Name,#s_tg,#s_tem,#s_pers').on('change keyup',function (){
+            load($('#s_form').serialize());
+
+        })
+        /**/
+
     })
     $('#ev_btn_send').on('click', function (e) {
         e.preventDefault();
@@ -452,7 +468,7 @@ $(document).ready(function () {
             processData: false,
             contentType: false,
             cache: false,
-            success: function (data, status) {
+            success: function (data, /*status*/) {
                 updateFile(data.GET);
             }
         });
@@ -471,7 +487,7 @@ function GetOnline() {
         url: 'getOnline.php',
         dataType: 'json',
         cache: false,
-        success: function (data, status) {
+        success: function (data, /*status*/) {
             $('#UserOnline').html('<div class="badge bg-primary text-wrap">' + data[0].COUNT + '</div>');
             if (typeof data.user !== 'undefined') {
                 $.each(data.user, function (index, value) {
@@ -496,7 +512,7 @@ function updateFile(data) {
         '<th>Ключевые слова</th>' +
         '<th>Файл</th>' +
         '</tr></thead>');
-    $.each(data, function (i, v) {
+    $.each(data.file, function (i, v) {
         tbl.append('<tr>' +
             '<td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delFile(' + v.id + ')"><i class="bi bi-trash"></i></button></td>' +
             '<td>' + v.date + '</td>' +
@@ -528,69 +544,26 @@ function updateEvent(data) {
         '</tr></thead>');
     $.each(data, function (i, v) {
         //console.log(v)
-        /*function arrdata(data,href=false) {
+        function arrdata(data,href=false) {
             let ret='';
             if (typeof data !== 'undefined')
             if (data.length >0) {
-                $.each(v.file,function (index, value) {
-                    //console.log(value,value[1]);
+                $.each(data,function (index, value) {
                     if (!href) {
                         ret += '[' + value + ']';
                     } else {
-
-                       // ret += '<a>' + value + ']';
+                        ret += '<a target="_blank" href="' + value.pathWeb + '">' + value.name + '</a>';
                     }
                 });
             }
             return ret;
-        }*/
-        /*file!*/
-        let file='';//arrdata(v.file);
-        if (typeof v.file !== 'undefined') {
-            let data = v.file;
-            if (data.length > 0) {
-                $.each(data, function (index, value) {
-                    file += '<a target="_blank" href="' + value.pathWeb + '">' + value.name + '</a>';
-                });
-            }
         }
-        /*sci_department!*/
-        let sci_department='';
-        if (typeof v.sci_department !== 'undefined') {
-            let data = v.sci_department;
-            if (data.length > 0) {
-                $.each(data, function (index, value) {
-                    sci_department += '[' + value + ']';
-                });
-            }
-        }
-        let sci_theme='';//arrdata(v.sci_theme);
-        if (typeof v.sci_theme !== 'undefined') {
-            let data = v.sci_theme;
-            if (data.length > 0) {
-                $.each(data, function (index, value) {
-                    sci_theme += '[' + value + ']';
-                });
-            }
-        }
-        let tag='';//arrdata(v.tag);
-        if (typeof v.tag !== 'undefined') {
-            let data = v.tag;
-            if (data.length > 0) {
-                $.each(data, function (index, value) {
-                    tag += '[' + value + ']';
-                });
-            }
-        }
-        let pers='';//arrdata(v.pers);
-        if (typeof v.pers !== 'undefined') {
-            let data = v.pers;
-            if (data.length > 0) {
-                $.each(data, function (index, value) {
-                    pers += '[' + value + ']';
-                });
-            }
-        }
+        let file=arrdata(v.file,true);
+        let sci_department=arrdata(v.sci_department);
+        let sci_theme=arrdata(v.sci_theme);
+        let tag=arrdata(v.tag);
+        let pers=arrdata(v.pers);
+
 
         tbl.append('<tr>' +
             '<td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delEvent(' + v.id + ')"><i class="bi bi-trash"></i></button></td>' +
@@ -912,12 +885,16 @@ function load_sci_department() {
     }).responseJSON;
 }
 
-function load_file() {
+function load_file(search=null) {
+    let data_search='';
+    if (search !== null) {
+        data_search=search;
+    }
     return $.ajax({
         async: false,
         type: 'POST',
         url: 'get.php?file',
-        //data: 'tag='+tag,
+        data: data_search,
         dataType: 'json',
         cache: false,
         success: function (data) {
@@ -978,12 +955,18 @@ function initmultiselect(elem) {
         buttonW = '60%';
         menuWidth = '80%';
     }
-    $('#' + elem).multiselect({
+    if (elem.indexOf('s_') > 0) {
+        buttonW = '100%';
+        menuWidth = '100%';
+    }
+    let select=$('#' + elem);
+    let ariaLabel= select.attr('aria-label');
+    select.multiselect({
         buttonWidth: buttonW, // (integer | string | 'auto' | null) Sets the min/max/exact width of the button.
         menuWidth: menuWidth, // (integer | string | 'auto' | null) If a number is provided, sets the exact menu width.
 
         //header: ['Всё', 'Ничего'],
-        noneSelectedText: '--',
+        noneSelectedText: ariaLabel,
         selectedText: '#',
         selectedList: 5,
         click: function (/*event, ui*/) {

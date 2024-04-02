@@ -119,6 +119,11 @@
     if (isset($_GET['file'])) {
         require_once '../php_class/fileUpload.php';
         $UPLOAD=new FileUpload();
-        die(json_encode($UPLOAD->getBD(), JSON_UNESCAPED_UNICODE));
+        $ret=[];
+        if (!empty($_POST)) {
+            $ret['POST'] =$_POST;
+        } else $_POST=null;
+        $ret['file']=$UPLOAD->getBD(null,$_POST);
+        die(json_encode($ret, JSON_UNESCAPED_UNICODE));
     }
 
