@@ -4,13 +4,53 @@
     session_start([
                       'cookie_lifetime' => 86400,
                   ]);
+    if (isset($_GET['event'])) {
+        $db = (new BDconnect())->connect();
+        $SQL = "SELECT * FROM event 
+                order by create_date desc";
+        $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
+        $res = mysqli_fetch_all($query,MYSQLI_ASSOC);
+        $data=[];
+        foreach ($res as $val) {
+            $i=$val['id'];
+            $data[$i]=$val;
+            //Персоналии
+            $SQL="SELECT CONCAT(F,' ',I,' ',O) as Name FROM person,(select * from person_event where idEvent={$val['id']}) as person_event
+                    where person.id=person_event.idPerson";
+            $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
+            $data[$i]['pers']=mysqli_fetch_all($query);
+            //ТЕГИ
+            $SQL="SELECT tag.Name FROM tag,(select * from tag_event where idEvent={$val['id']}) as tag_event
+                    where tag.id=tag_event.idTag";
+            $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
+            $data[$i]['tag']=mysqli_fetch_all($query);
+            /*Структурное подразделение */
+            $SQL="SELECT sci_department.Name FROM sci_department,(select * from sci_department_event where idEvent={$val['id']}) as sci_department_event
+                    where sci_department.id=sci_department_event.idSciDepartment";
+            $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
+            $data[$i]['sci_department']=mysqli_fetch_all($query);
+            /*Научная тематика */
+            $SQL="SELECT sci_theme.Name FROM sci_theme,(select * from sci_theme_event where idEvent={$val['id']}) as sci_theme_event
+                    where sci_theme.id=sci_theme_event.idTheme";
+            $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
+            $data[$i]['sci_theme']=mysqli_fetch_all($query);
+            /*Файлы*/
+            $SQL="SELECT file.name,file.pathWeb FROM file,(select * from file_event where idEvent={$val['id']}) as file_event
+                    where file.id=file_event.idFile";
+            $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
+            $data[$i]['file']=mysqli_fetch_all($query, MYSQLI_ASSOC);
+        }
+        die(json_encode($data, JSON_UNESCAPED_UNICODE));
+    }
     if (isset($_GET['person'])) {
         $db = (new BDconnect())->connect();
         $SQL = "SELECT `id`, CONCAT(F,' ',I,' ',O) as Name, F, I, O, COMMENT, DOL, DAYN, DAYD, CREATE_DATE, CREATE_USER FROM person ;";
         $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
-        $data = mysqli_fetch_all($query, MYSQLI_ASSOC);
-
-        foreach ($data as $i=>$val) {
+        $res = mysqli_fetch_all($query,MYSQLI_ASSOC);
+        $data=[];
+        foreach ($res as $val) {
+            $i=$val['id'];
+            $data[$i]=$val;
             //ТЕГИ
             $SQL="SELECT tag.Name FROM tag,(select * from tag_person where idPerson={$val['id']}) as tag_person
                     where tag.id=tag_person.idTag";
@@ -40,14 +80,24 @@
         $db = (new BDconnect())->connect();
         $SQL = "SELECT id,Name FROM tag;";
         $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
-        $data = mysqli_fetch_all($query, MYSQLI_ASSOC);
+        $res = mysqli_fetch_all($query,MYSQLI_ASSOC);
+        $data=[];
+        foreach ($res as $val) {
+            $i=$val['id'];
+            $data[$i]=$val;
+        }
         die(json_encode($data, JSON_UNESCAPED_UNICODE));
     }
     if (isset($_GET['sci_theme'])) {
         $db = (new BDconnect())->connect();
         $SQL = "SELECT id,Name FROM sci_theme;";
         $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
-        $data = mysqli_fetch_all($query, MYSQLI_ASSOC);
+        $res = mysqli_fetch_all($query,MYSQLI_ASSOC);
+        $data=[];
+        foreach ($res as $val) {
+            $i=$val['id'];
+            $data[$i]=$val;
+        }
         die(json_encode($data, JSON_UNESCAPED_UNICODE));
     }
     if (isset($_GET['sci_department'])) {
@@ -57,9 +107,15 @@
                     ),')') as Name FROM sci_department 
                 order by Date_create";
         $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
-        $data = mysqli_fetch_all($query, MYSQLI_ASSOC);
+        $res = mysqli_fetch_all($query,MYSQLI_ASSOC);
+        $data=[];
+        foreach ($res as $val) {
+            $i=$val['id'];
+            $data[$i]=$val;
+        }
         die(json_encode($data, JSON_UNESCAPED_UNICODE));
     }
+
     if (isset($_GET['file'])) {
         require_once '../php_class/fileUpload.php';
         $UPLOAD=new FileUpload();

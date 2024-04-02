@@ -8,8 +8,13 @@
                 where id=".$_SESSION['user']['id'];
         $result = mysqli_query($db, $SQL) or
         die(json_encode(['err' => $SQL . "|Couldn't execute query." . mysqli_error($db)], JSON_UNESCAPED_UNICODE));
-        $SQL="SELECT COUNT(*) as COUNT from user where online > (CURRENT_TIMESTAMP() - INTERVAL 2 MINUTE )";
+        $SQL="SELECT COUNT(*) as COUNT from user where online > (CURRENT_TIMESTAMP() - INTERVAL 2 MINUTE ) and online is not null";
         $result = mysqli_query($db, $SQL) or
         die(json_encode(['err' => $SQL . "|Couldn't execute query." . mysqli_error($db)], JSON_UNESCAPED_UNICODE));
-        die(json_encode(mysqli_fetch_all($result, MYSQLI_ASSOC)));
+        $ret=mysqli_fetch_all($result, MYSQLI_ASSOC);
+        $SQL="SELECT FIO from user where online > (CURRENT_TIMESTAMP() - INTERVAL 2 MINUTE ) and online is not null";
+        $result = mysqli_query($db, $SQL) or
+        die(json_encode(['err' => $SQL . "|Couldn't execute query." . mysqli_error($db)], JSON_UNESCAPED_UNICODE));
+        $ret['user']=mysqli_fetch_all($result, MYSQLI_ASSOC);
+        die(json_encode($ret));
     }

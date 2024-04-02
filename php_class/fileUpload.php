@@ -83,11 +83,13 @@
                     //session_start();
                     $data = $this->FileArray['file_F'];
                     $Date = $POST['file_date'];
+                    if ($Date =='') $Date='null';
+                    else $Date="'".$Date."'";
                     $name = $POST['file_name'];
                     $doc = $POST['file_doc'];
                     $Desc = $POST['file_Desc'];
                     $SQL = "insert into file (date, name, disc, doc, pathServ, pathWeb, type,  create_user)  values 
-                            ('$Date','$name','$Desc','$doc','{$data['serv_path']}',
+                            ($Date,'$name','$Desc','$doc','{$data['serv_path']}',
                              '{$data['client_path']}','{$data['info1']['type']}',                          
                             '{$_SESSION['user']['id']}' );";
                     $result = mysqli_query($this->connect, $SQL) or die(
@@ -153,17 +155,39 @@
             }
         }
 
+        public function delFile($id)
+        {
+            $File = $this->getBD($id);
+            $ret=[];
+            foreach ($File as $meta) {
+                $pathServ = $meta['pathServ'];
+                if (unlink($pathServ)) {
+                    $SQL = "DELETE FROM file where id=$id";
+                    if (!mysqli_query($this->connect, $SQL)) {
+                        $ret = ['err' => $SQL . "|Couldn't execute query." . mysqli_error($this->connect)];
+                    } else $ret=['ok' => "ok" ];
+                } else $ret=['err' => 'Ошибка удаления файла'];
+            }
+            return $ret;
+        }
+
         public function getBD($id = null): array
         {
             $SQL = "SELECT * FROM file order by date";
+            if ($id != null) {
+                $SQL = "SELECT * FROM file where id=$id";
+            }
             $query = mysqli_query($this->connect, $SQL) or die(
                 $SQL . "|Couldn't execute query." . mysqli_error(
                     $this->connect
                 )
             );
-            $data = mysqli_fetch_all($query, MYSQLI_ASSOC);
-            foreach ($data as $i => $val) {
+            $res = mysqli_fetch_all($query, MYSQLI_ASSOC);
+            $data = [];
+            foreach ($res as $val) {
                 //ТЕГИ
+                $i = $val['id'];
+                $data[$val['id']] = $val;
                 $SQL = "SELECT tag.Name FROM tag,(select * from tag_file where idFile={$val['id']}) as tag_file
                     where tag.id=tag_file.idTag";
                 $query = mysqli_query($this->connect, $SQL) or

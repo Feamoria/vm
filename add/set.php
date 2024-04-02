@@ -131,8 +131,10 @@ if (isset($_SESSION['user'])) {
         $db = (new BDconnect())->connect();
         if (isset($_GET['del'])) {
             /*Капец.. надо вырезать все связи*/
-
-            die(del('person', $_POST['pers'],false));
+            $text='ok';
+            $del=del('person', $_POST['pers'],false);
+            if($del !== false) $text= $del ;
+            die(json_encode(['ok' => "$text"], JSON_UNESCAPED_UNICODE));
         } else {
             /*Очистка от каки*/
             foreach ($_POST as $i => $value) {
@@ -203,7 +205,7 @@ if (isset($_SESSION['user'])) {
             }
 
         }
-
+        die(json_encode(['ok' => 'ok'], JSON_UNESCAPED_UNICODE));
         // } else die(json_encode(['err' => 'Ошибка добавления:5'], JSON_UNESCAPED_UNICODE));
     }
     /*********
@@ -211,18 +213,32 @@ if (isset($_SESSION['user'])) {
      ********/
     if (isset($_GET['file'])) {
         require_once '../php_class/fileUpload.php';
-        $UPLOAD=new FileUpload();
-        $UPLOAD->getFiles($_FILES);
-        $dataFile['UPLOAD']=$UPLOAD->getDataFile();
-        $dataFile['POST']=$_POST;
-        $UPLOAD->setBD($_POST);
-        $dataFile['GET']=$UPLOAD->getBD();
-        die(json_encode($dataFile,JSON_UNESCAPED_UNICODE));
+        $UPLOAD = new FileUpload();
+        if (isset($_GET['del'])) {
+            $id_file=$_POST['file'];
+            $UPLOAD->delFile($id_file);
+        } else {
+            $UPLOAD->getFiles($_FILES);
+            $dataFile['UPLOAD'] = $UPLOAD->getDataFile();
+            $dataFile['POST'] = $_POST;
+            $UPLOAD->setBD($_POST);
+        }
+        $dataFile['GET'] = $UPLOAD->getBD();
+        die(json_encode($dataFile, JSON_UNESCAPED_UNICODE));
     }
+    /*********
+     * event
+     ********/
     if (isset($_GET['event'])) {
         $db = (new BDconnect())->connect();
         if (isset($_GET['del'])) {
-            die(del('event', $_POST['event'],false));
+
+
+
+            $text='ok';
+            $del=del('event', $_POST['event'],false);
+            if($del !== false) $text= $del ;
+            die(json_encode(['ok' => "$text"], JSON_UNESCAPED_UNICODE));
         } else {
             /*Очистка от каки*/
             foreach ($_POST as $i => $value) {
@@ -238,14 +254,14 @@ if (isset($_SESSION['user'])) {
             $DateK=$_POST['ev_Y_e'];
             if (!empty($_POST['ev_M_e'])) {$DateK.='.'.$_POST['ev_M_e'];}
             if (!empty($_POST['ev_D_e'])) {$DateK.='.'.$_POST['ev_D_e'];}
-            $Desc_short=$_POST['ev_Desc_short'];
+            //$Desc_short=$_POST['ev_Desc_short'];
             $Desc=$_POST['ev_Desc'];
             $Doc=$_POST['ev_doc'];
             $importance=$_POST['ev_importance'];
             $latitude=$_POST['latitude'];
             $longitude=$_POST['longitude'];
-            $SQL = "INSERT INTO event (Name, DateN, DateK, Desc_short, `Desc`, Doc, importance, latitude, longitude, create_user) value 
-               ('$Name','$DateN','$DateK','$Desc_short','$Desc','$Doc','$importance','$latitude','$longitude',$USER_ID) ";
+            $SQL = "INSERT INTO event (Name, DateN, DateK,  `Desc`, Doc, importance, latitude, longitude, create_user) value 
+               ('$Name','$DateN','$DateK','$Desc','$Doc','$importance','$latitude','$longitude',$USER_ID) ";
             $result = mysqli_query($db, $SQL) or
             die(json_encode(['err' => $SQL . "|Couldn't execute query." . mysqli_error($db)], JSON_UNESCAPED_UNICODE));
             $InsertId = mysqli_insert_id($db);

@@ -96,7 +96,7 @@
 </head>
 <body>
 <div class="row">
-	<div class="col-md-3">Пользователей онлайн: <span id="UserOnline"></span> </div>
+	<div class="col-md-12">Пользователей онлайн: <span id="UserOnline"></span> </div>
 </div>
 <div id="dialog_del" title="Удаление" style="display: none">
 	<p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>Удалить запись?</p>
@@ -126,9 +126,16 @@
 	<div id="tabs-1">
 		<form class="row" id="event">
 			<div class="input-group">
-				<span style="width: 20%" class="input-group-text text-bg-success">Название события</span>
+				<span style="width: 20%" class="input-group-text text-bg-success text-wrap">Название события (краткая аннотация)<span style="color: red">*</span></span>
+				<textarea id="ev_Name" required name="ev_Name" class="form-control" aria-label=""></textarea>
+				<span class="input-group-text" id="ev_Name_COUNT"></span>
+			</div>
+			<!--
+			<div class="input-group">
+				<span style="width: 20%" class="input-group-text text-bg-success">Название события (краткая аннотация)</span>
 				<input id="ev_Name" name="ev_Name" type="text" class="form-control" placeholder="Название" aria-label="Название">
 			</div>
+			-->
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success">Дата начала<span style="color: red">*</span></span>
 				<input type="text" id='ev_Y_n' required name="ev_Y_n" aria-label="" class="form-control" placeholder="Год (обязательно)">
@@ -141,21 +148,15 @@
 				<input type="text" id='ev_M_e' name="ev_M_e" aria-label="" class="form-control" placeholder="Месяц (1-12)">
 				<input type="text" id='ev_D_e' name="ev_D_e" aria-label="" class="form-control" placeholder="День (1-31)">
 			</div>
+			<!--
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success">Событие кратко<span style="color: red">*</span></span>
 				<textarea id="ev_Desc_short" required name="ev_Desc_short" class="form-control" aria-label=""></textarea>
 				<span class="input-group-text" id="ev_Desc_short_COUNT"></span>
-			</div>
+			</div> -->
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success">Событие полное</span>
 				<textarea id="ev_Desc" name="ev_Desc" class="form-control" aria-label=""></textarea>
-			</div>
-			<!--Персоналии multiple -->
-			<div class="input-group">
-				<span style="width: 20%" class="input-group-text text-bg-success">Персоналии</span>
-				<select id="ev_pers" name="ev_pers[]" class="form-select" multiple aria-label="">
-
-				</select>
 			</div>
 			<!-- TODO Файлы -->
 			<div class="input-group">
@@ -164,25 +165,6 @@
 				</select>
 				<button style="width: 5%" class="btn btn-info" id="btn_open_file"><i class="bi bi-folder-fill"></i></button>
 				<span id="ev_file_text" style="width: 75%" class="input-group-text"></span>
-
-			</div>
-
-			<!--Структурное подразделение -->
-			<div class="col-auto input-group">
-				<span style="width: 20%" class="input-group-text text-bg-success" id="ev_SP">Структурное подразделение</span>
-				<select id="ev_sci_department" name="ev_sci_department[]" multiple class="form-select" aria-label="">
-
-				</select>
-			</div>
-			<div class="input-group">
-				<span style="width: 20%" class="input-group-text text-bg-success">Научная тематика</span>
-				<select id="ev_tem" name="ev_tem[]" multiple class="form-select"  aria-label="">
-				</select>
-			</div>
-			<!--Ссылки на архивный документ -->
-			<div class="input-group">
-				<span style="width: 20%" class="input-group-text text-bg-success">Ссылка на архивный документ</span>
-				<input type="text" id='ev_doc' name='ev_doc' aria-label="" class="form-control" placeholder="">
 			</div>
 			<!--Важность события -->
 			<div class="input-group">
@@ -196,12 +178,30 @@
 					<option value="5">5е</option>
 				</select>
 			</div>
-			<!--Место (координаты) -->
+			<!--Ссылки на архивный документ -->
 			<div class="input-group">
-				<span style="width: 20%" class="input-group-text text-bg-success">Координаты</span>
-				<input type="text" id='ev_latitude' name='latitude' aria-label="" class="form-control" placeholder="Ю.Ш.">
-				<input type="text" id='ev_longitude' name='longitude' aria-label="" class="form-control" placeholder="В.Д.">
+				<span style="width: 20%" class="input-group-text text-bg-success">Ссылка на архивный документ</span>
+				<input type="text" id='ev_doc' name='ev_doc' aria-label="" class="form-control" placeholder="">
+			</div>
+			<!--Персоналии multiple -->
+			<div class="input-group">
+				<span style="width: 20%" class="input-group-text text-bg-success">Персоналии</span>
+				<select id="ev_pers" name="ev_pers[]" class="form-select" multiple aria-label="">
 
+				</select>
+			</div>
+			<!--Структурное подразделение -->
+			<div class="col-auto input-group">
+				<span style="width: 20%" class="input-group-text text-bg-success" id="ev_SP">Структурное подразделение</span>
+				<select id="ev_sci_department" name="ev_sci_department[]" multiple class="form-select" aria-label="">
+
+				</select>
+			</div>
+			<!--Научная тематика -->
+			<div class="input-group">
+				<span style="width: 20%" class="input-group-text text-bg-success">Научная тематика</span>
+				<select id="ev_tem" name="ev_tem[]" multiple class="form-select"  aria-label="">
+				</select>
 			</div>
 			<!--Ключевые слова -->
 			<div class="input-group">
@@ -211,10 +211,20 @@
 				<input style="width: 10%" type="text" id='ev_tag_add' aria-label="" class="form-control" placeholder="">
 				<button class="btn btn-primary"  id='ev_tag_add_btn'>Добавить</button>
 			</div>
+			<!--Место (координаты) -->
+			<div class="input-group">
+				<span style="width: 20%" class="input-group-text text-bg-success">Координаты</span>
+				<input type="text" id='ev_latitude' name='latitude' aria-label="" class="form-control" placeholder="Ю.Ш.">
+				<input type="text" id='ev_longitude' name='longitude' aria-label="" class="form-control" placeholder="В.Д.">
+
+			</div>
 			<div class="input-group">
 				<button class="btn btn-primary"  id='ev_btn_send'>Отправить</button>
 			</div>
 		</form>
+		<table id="tbl_event" class="table table-bordered border-primary">
+
+		</table>
 	</div>
 	<div id="tabs-2">
 		<form class="row" method="post" id="pers">
@@ -238,14 +248,6 @@
 				<textarea id="pers_Desc" name="pers_Desc" class="form-control" aria-label=""></textarea>
 				<span class="input-group-text" id="pers_Desc_short_COUNT"></span>
 			</div>
-			<!--Ключевые слова -->
-			<div class="input-group">
-				<span style="width: 20%" class="input-group-text text-bg-success">Ключевые слова</span>
-				<select id="pers_tag" name="pers_tag[]" class="form-select" multiple aria-label="">
-				</select>
-				<input style="width: 10%" type="text" id='pers_tag_add' aria-label="" class="form-control" placeholder="">
-				<button class="btn btn-primary"  id='pers_tag_add_btn'>+</button>
-			</div>
 			<!--Структурное подразделение -->
 			<div class="col-auto input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success" id="">Структурное подразделение</span>
@@ -258,6 +260,14 @@
 				<span style="width: 20%" class="input-group-text text-bg-success">Научная тематика</span>
 				<select id="pers_tem" name="pers_tem[]" class="form-select" multiple aria-label="">
 				</select>
+			</div>
+			<!--Ключевые слова -->
+			<div class="input-group">
+				<span style="width: 20%" class="input-group-text text-bg-success">Ключевые слова</span>
+				<select id="pers_tag" name="pers_tag[]" class="form-select" multiple aria-label="">
+				</select>
+				<input style="width: 10%" type="text" id='pers_tag_add' aria-label="" class="form-control" placeholder="">
+				<button class="btn btn-primary"  id='pers_tag_add_btn'>+</button>
 			</div>
 			<div class="input-group">
 				<button class="btn btn-primary"  id='pers_btn_send'>Сохранить персоналию</button>
@@ -274,8 +284,8 @@
 				<input id="file_F" name="file_F" required type="file" class="form-control" placeholder="" aria-label="">
 				</div>
 			<div class="input-group">
-				<span style="width: 20%" class="input-group-text text-bg-success">Дата<span style="color: red">*</span></span>
-				<input id="file_date" required name="file_date" type="text" class="form-control" placeholder="1947.01.01 или 1947.02.01  если неизвестна точная дата или месяц" aria-label="">
+				<span style="width: 20%" class="input-group-text text-bg-success">Дата</span>
+				<input id="file_date" name="file_date" type="text" class="form-control" placeholder="1947.01.01 или 1947.02.01  если неизвестна точная дата или месяц" aria-label="">
 			</div>
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success">Название файла<span style="color: red">*</span></span>
@@ -285,6 +295,11 @@
 				<span style="width: 20%" class="input-group-text text-bg-success">Аннотация</span>
 				<textarea id="file_Desc" name="file_Desc" class="form-control" aria-label=""></textarea>
 				<span class="input-group-text" id="file_Desc_short_COUNT"></span>
+			</div>
+			<!--Ссылки на архивный документ -->
+			<div class="input-group">
+				<span style="width: 20%" class="input-group-text text-bg-success">Ссылки на архивный документ</span>
+				<input style="width: 10%" type="text" id='file_doc' name='file_doc' aria-label="" class="form-control" placeholder="">
 			</div>
 			<!--Пероналии -->
 			<div class="col-auto input-group">
@@ -305,11 +320,7 @@
 
 				</select>
 			</div>
-			<!--Ссылки на архивный документ -->
-			<div class="input-group">
-				<span style="width: 20%" class="input-group-text text-bg-success">Ссылки на архивный документ</span>
-				<input style="width: 10%" type="text" id='file_doc' name='file_doc' aria-label="" class="form-control" placeholder="">
-			</div>
+
 			<!--Ключевые слова -->
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success">Ключевые слова</span>
