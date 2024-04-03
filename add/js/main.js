@@ -26,7 +26,7 @@ $(document).ready(function () {
                     if ($(this).prop('checked')) {
                         let id = $(this).val();
                         chk.push(id);
-                        text.append("<a target='_blank' href='" + data_file[id].pathWeb + "'>" + data_file[id].name + " </a>  ")
+                        text.append("<a target='_blank' href='" + data_file.GET[id].pathWeb + "'>" + data_file.GET[id].name + " </a>  ")
                         sel.append('<option value="' + id + '">' + id + '</option>');
                     }
 
@@ -61,8 +61,9 @@ $(document).ready(function () {
                 initmultiselect('file_tag');
                 initmultiselect('file_tem');
                 initmultiselect('file_pers');
+                initmultiselect('file_sci_department');
                 let data = load_file();
-                updateFile(data);
+                updateFile(data.GET);
             }
             if (event.target.hash === '#tabs-4') {
                 let data = load_tag();
@@ -131,7 +132,7 @@ $(document).ready(function () {
         function load(search=null) {
             data_file = load_file(search);
             let cont = $('#dialog_file_cont').html('');
-            $.each(data_file.file, function (index, value) {
+            $.each(data_file.GET, function (index, value) {
                 //console.log(value);
                 let html = '<div class="card" style="width: 18rem;">' +
                     '<img src="' + value.pathWeb + '" class="card-img-top" alt=""' +
@@ -195,6 +196,7 @@ $(document).ready(function () {
             dataType: 'json',
             cache: false,
             success: function (data) {
+                $('#ev_file_text').empty();
                 $('#event').trigger("reset");
                 console.log(data);
                 updateEvent(load_event());
@@ -418,10 +420,12 @@ $(document).ready(function () {
     initmultiselect('file_tag');
     initmultiselect('file_tem');
     initmultiselect('file_pers');
+    initmultiselect('file_sci_department');
     inittag('file');
     initTagAjax('#file_tag', data_tag);
     initTagAjax('#file_tem', data_sci_field);
     initTagAjax('#file_pers', data_pers);
+    initTagAjax('#file_sci_department', data_sci_department);
 
     $('#file_Desc').on('keyup', function (/*e*/) {
         let text = $(this).val();
@@ -446,9 +450,12 @@ $(document).ready(function () {
         /*проверка на заполнение обязательных полей*/
         $('#file input, #file textarea').each(function () {
             if ($(this).prop('required')) {
-                let temp = $(this).val();
-                if (temp === '' || temp.length < 2) {
-                    ret = true;
+                if( !$(this).prop('disabled')){
+                    let temp = $(this).val();
+                    if (temp === '' || temp.length < 2) {
+                        console.log($(this));
+                        ret = true;
+                    }
                 }
             }
         })
@@ -469,6 +476,9 @@ $(document).ready(function () {
             contentType: false,
             cache: false,
             success: function (data, /*status*/) {
+                $('#file').trigger("reset");
+                $('#id_file').val('');
+                $('#file_F').prop('disabled',false);
                 updateFile(data.GET);
             }
         });
@@ -499,6 +509,80 @@ function GetOnline() {
     });
 }
 
+function editEvent(id) {
+    /** TODO*/
+    alert("В разработке")
+}
+function editPerson(id){
+    /** TODO #persID*/
+    let data=load_person('s_id='+id);
+    let info =data[id];
+    $('#persID').val(info.id);
+    /*
+    * pers_F pers_I pers_O
+    * pers_date1  pers_date1
+    * pers_dol
+    * pers_Desc
+    * //array
+    * pers_sci_department
+    * pers_tem
+    * pers_tag
+    * */
+    console.log(info);
+
+    $(window).scrollTop($('#UserOnline').offset().top);
+    alert("В разработке")
+}
+function editFile(id){
+    $('#file_F').prop('disabled',true);
+    let data=load_file('s_id='+id);
+    let info =data.GET[id];
+    $('#id_file').val(info.id);
+    $('#file_name').val(info.name);
+    let DT=$('#file_date');
+    DT.datepicker("option", "dateFormat", "yy-mm-dd");
+    DT.val(info.date);
+    DT.datepicker("option", "dateFormat", "dd.mm.yy");
+    $('#file_Desc').val(info.disc);
+    $('#file_doc').val(info.doc);
+    let person = [];
+    if (info.person.length>0) {
+        let dt=info.person;
+        $.each(dt,function (index, value) {
+            person.push(value[0])
+        });
+    }
+    $('#file_pers').val(person).multiselect('refresh');//refresh
+    /*sci_theme*/
+    let file_sci_department = [];
+    if (info.sci_department.length>0) {
+        let dt=info.sci_department;
+        $.each(dt,function (index, value) {
+            file_sci_department.push(value[0])
+        });
+    }
+    $('#file_sci_department').val(file_sci_department).multiselect('refresh');
+    /*sci_theme*/
+    let sci_theme = [];
+    if (info.sci_theme.length>0) {
+        let dt=info.sci_theme;
+        $.each(dt,function (index, value) {
+            sci_theme.push(value[0])
+        });
+    }
+    $('#file_tem').val(sci_theme).multiselect('refresh');
+    /*tag*/
+    let tag = [];
+    if (info.tag.length>0) {
+        let dt=info.tag;
+        $.each(dt,function (index, value) {
+            tag.push(value[0])
+        });
+    }
+    $('#file_tag').val(tag).multiselect('refresh');
+    $(window).scrollTop($('#UserOnline').offset().top);
+}
+
 function updateFile(data) {
     let tbl = $("#tbl_file");
     tbl.html('<thead><tr>' +
@@ -506,20 +590,27 @@ function updateFile(data) {
         '<th>Дата файла</th>' +
         '<th>Название файла</th>' +
         '<th>Аннотация</th>' +
-        '<th>Пероналии</th>' +
+        '<th>Перcоналии</th>' +
         '<th>Научная тематика</th>' +
+        '<th>Структурное подразделение</th>' +
         '<th>Ссылки на архивный докумен</th>' +
         '<th>Ключевые слова</th>' +
         '<th>Файл</th>' +
         '</tr></thead>');
-    $.each(data.file, function (i, v) {
+
+    $.each(data, function (i, v) {
         tbl.append('<tr>' +
-            '<td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delFile(' + v.id + ')"><i class="bi bi-trash"></i></button></td>' +
+            '<td style="width: 20px">' +
+            '<div class="d-flex flex-column"><div>' +
+            '<button type="button" class="btn btn-danger" onclick="delFile(' + v.id + ')"><i class="bi bi-trash"></i></button></div>' +
+            '<div><button type="button" class="btn btn-info" onclick="editFile(' + v.id + ')"><i class="bi bi-pencil-square"></i></button></div>' +
+            '</td>' +
             '<td>' + v.date + '</td>' +
             '<td>' + v.name + '</td>' +
             '<td><textarea style="width: 100%" class="form-control">' + v.disc + '</textarea></td>' +
             '<td>' + v.person + '</td>' +
             '<td>' + v.sci_theme + '</td>' +
+            '<td>' + v.sci_department + '</td>' +
             '<td>' + v.doc + '</td>' +
             '<td>' + v.tag + '</td>' +
             '<td><a target="_blank" href="' + v.pathWeb + '">' + v.name + '</a></td>' +
@@ -566,7 +657,11 @@ function updateEvent(data) {
 
 
         tbl.append('<tr>' +
-            '<td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delEvent(' + v.id + ')"><i class="bi bi-trash"></i></button></td>' +
+            '<td style="width: 20px">' +
+            '<div class="d-flex flex-column">' +
+            '<div><button type="button" class="btn btn-danger" onclick="delEvent(' + v.id + ')"><i class="bi bi-trash"></i></button></div>' +
+            '<div><button type="button" class="btn btn-info" onclick="editEvent(' + v.id + ')"><i class="bi bi-pencil-square"></i></button></div>' +
+            '</div></td>' +
             '<td>' + v.Name + '</td>' +
             '<td>' + v.DateN +'<br>'+v.DateK+ '</td>' +
             '<td><textarea style="width: 100%" class="form-control">' + v.Desc + '</textarea></td>' +
@@ -602,10 +697,14 @@ function updatePerson(data) {
     $.each(data, function (i, v) {
         let file = '';
         $.each(v.file, function (index, value) {
-            file += "<a href='" + value.pathWeb + "' target='_blank'>" + value.name + "</a>";
+            file += "<a href='" + value.pathWeb + "' target='_blank'>[" + value.name + "]</a> <br>";
         })
         tbl.append('<tr>' +
-            '<td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delPerson(' + v.id + ')"><i class="bi bi-trash"></i></button></td>' +
+            '<td style="width: 20px">' +
+            '<div class="d-flex flex-column">' +
+            '<div><button type="button" class="btn btn-danger" onclick="delPerson(' + v.id + ')"><i class="bi bi-trash"></i></button></div>' +
+            '<div><button type="button" class="btn btn-info" onclick="editPerson(' + v.id + ')"><i class="bi bi-pencil-square"></i></button></div>' +
+            '</div></td>' +
             '<td>' + v.F + '</td>' +
             '<td>' + v.I + '</td>' +
             '<td>' + v.O + '</td>' +
@@ -615,7 +714,7 @@ function updatePerson(data) {
             '<td>' + v.tag + '</td>' +
             '<td>' + v.sci_department + '</td>' +
             '<td>' + v.sci_theme + '</td>' +
-            '<td>' + file + '</td>' +
+            '<td class="text-wrap">' + file + '</td>' +
             '</tr>')
     })
 }
@@ -669,7 +768,7 @@ function delFile(tag, answer = null) {
             cache: false,
             success: function (data) {
                 if (typeof data.err === 'undefined') {
-                    updateFile(load_file());
+                    updateFile(data.GET);
                 } else alert(data.err);
             }
         })
@@ -840,12 +939,16 @@ function load_tag() {
     }).responseJSON;
 }
 
-function load_person() {
+function load_person(search=null) {
+    let data_search='';
+    if (search !== null) {
+        data_search=search;
+    }
     return $.ajax({
         async: false,
         type: 'POST',
         url: 'get.php?person',
-        //data: 'tag='+tag,
+        data: data_search,
         dataType: 'json',
         cache: false,
         success: function (data) {
@@ -955,7 +1058,7 @@ function initmultiselect(elem) {
         buttonW = '60%';
         menuWidth = '80%';
     }
-    if (elem.indexOf('s_') > 0) {
+    if (elem.indexOf('s_') === 0) {
         buttonW = '100%';
         menuWidth = '100%';
     }

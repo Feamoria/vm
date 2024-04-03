@@ -76,6 +76,100 @@
             $this->FileArray = $resp;
         }
 
+        /**
+         * @param $data : array
+         * id_file
+         * file_date
+         * file_name
+         * file_Desc
+         * file_doc
+         * file_pers            : array
+         * file_sci_department  : array
+         * file_tem             : array
+         * file_tag             : array
+         */
+        public function updateBD($data)
+        {
+            foreach ($data as $i => $value) {
+                if (!is_array($value)) {
+                    $data[$i] = mysqli_escape_string($this->connect, $value);
+                }
+            }
+            $id=(int)$data['id_file'];
+            $date=$data['file_date'];
+            $name=$data['file_name'];
+            $Desc=$data['file_Desc'];
+            $doc=$data['file_doc'];
+            $ret=[];
+            /*Основа // И вообще оберёнм в транзацию ибо нех*/
+            mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+            mysqli_begin_transaction($this->connect);
+            try {
+                $SQL = "UPDATE  file 
+                SET
+                    `name`='$name',
+                    `date`='$date',
+                    `disc`='$Desc',
+                    `doc`='$doc'
+                WHERE id=$id;";
+                mysqli_query($this->connect, $SQL);
+                /*file_pers*/
+                $VALUES = [];
+                $SQL = "DELETE FROM file_person WHERE idFile=$id";
+                mysqli_query($this->connect, $SQL);
+                if (isset($data['file_pers'])) {
+                    foreach ($data['file_pers'] as $val) {
+                        $VALUES[] = "($id,$val)";
+                    }
+                    $VALUES = implode(',', $VALUES);
+                    $SQL = "INSERT INTO file_person (idFile, idPerson) VALUES $VALUES";
+                    mysqli_query($this->connect, $SQL);
+                }
+                /*file_sci_department*/
+                $VALUES = [];
+                $SQL = "DELETE FROM sci_department_file WHERE idFile=$id";
+                mysqli_query($this->connect, $SQL);
+                if (isset($data['file_sci_department'])) {
+                    foreach ($data['file_sci_department'] as $val) {
+                        $VALUES[] = "($id,$val)";
+                    }
+                    $VALUES = implode(',', $VALUES);
+                    $SQL = "INSERT INTO sci_department_file (idFile, idSciDepartment) VALUES $VALUES";
+                    mysqli_query($this->connect, $SQL);
+                }
+                /*file_tem*/
+                $VALUES = [];
+                $SQL = "DELETE FROM sci_theme_file WHERE idFile=$id";
+                mysqli_query($this->connect, $SQL);
+                if (isset($data['file_tem'])) {
+                    foreach ($data['file_tem'] as $val) {
+                        $VALUES[] = "($id,$val)";
+                    }
+                    $VALUES = implode(',', $VALUES);
+                    $SQL = "INSERT INTO sci_theme_file (idFile, idSciTheme) VALUES $VALUES";
+                    mysqli_query($this->connect, $SQL);
+                }
+                /*file_tag*/
+                $VALUES = [];
+                $SQL = "DELETE FROM tag_file WHERE idFile=$id";
+                mysqli_query($this->connect, $SQL);
+                if (isset($data['file_tag'])) {
+                    foreach ($data['file_tag'] as $val) {
+                        $VALUES[] = "($id,$val)";
+                    }
+                    $VALUES = implode(',', $VALUES);
+                    $SQL = "INSERT INTO tag_file (idFile, idTag) VALUES $VALUES";
+                    mysqli_query($this->connect, $SQL);
+                }
+                /** commit */
+                mysqli_commit($this->connect);
+                $ret=['ok'];
+            } catch (mysqli_sql_exception $exception) {
+                mysqli_rollback($this->connect);
+                $ret=['errorSQL','SQL'=>$SQL,'exception'=>$exception->getMessage(),'code'=>$exception->getCode()];
+            }
+            return $ret;
+        }
         public function setBD($POST): bool
         {
             if (isset($this->FileArray['file_F'])) {
@@ -146,6 +240,22 @@
                             }
                         }
                     }
+                    /*Научное подразделение -file_sci_department*/
+                    if (!empty($POST['file_sci_department'])) {
+                        foreach ($POST['file_sci_department'] as $i => $value) {
+                            if (is_numeric($value)) {
+                                $value = (int)$value;
+                                $SQL = "INSERT INTO sci_department_file (idSciDepartment, idFile)  value ($value,$InsertId)";
+                                $result = mysqli_query($this->connect, $SQL) or
+                                die(
+                                json_encode(
+                                    ['err' => $SQL . "|Couldn't execute query." . mysqli_error($this->connect)],
+                                    JSON_UNESCAPED_UNICODE
+                                )
+                                );
+                            }
+                        }
+                    }
                     return true;
                 } else {
                     return false;
@@ -173,13 +283,17 @@
 
         public function getBD($id = null,$searth=null): array
         {
-            $SQL = "SELECT * FROM file order by date";
+            $SQL = "SELECT id, cast(date as DATE ) as `date` , name, disc, doc, pathServ, pathWeb, type, create_date, create_user FROM file order by date";
             if ($id != null) {
-                $SQL = "SELECT * FROM file where id=$id";
+                $SQL = "SELECT id, cast(date as DATE ) as `date` , name, disc, doc, pathServ, pathWeb, type, create_date, create_user  FROM file where id=$id";
             }
             if ($searth != null) {
                 $Where='';
                 $and='';
+                if (isset($searth['s_id'])){
+                    $Where.=" $and `id` = '{$searth['s_id']}'";
+                    $and='and';
+                }
                 if (isset($searth['s_Name'])){
                     $Where.=" $and `name` like '%{$searth['s_Name']}%'";
                     $and='and';
@@ -198,7 +312,9 @@
                     $s=implode(',',$searth['s_tem']);
                     $Where.=" $and id in (SELECT `idFile` from `tag_file` where `idTag` in ($s))";
                 }
-                $SQL="SELECT * FROM file where $Where";
+                $SQL="SELECT id, cast(date as DATE ) as `date` , name, disc, doc, pathServ, pathWeb, type, create_date, create_user 
+                        FROM file 
+                        where $Where";
             }
 
             $query = mysqli_query($this->connect, $SQL) or die(
@@ -212,7 +328,7 @@
                 //ТЕГИ
                 $i = $val['id'];
                 $data[$val['id']] = $val;
-                $SQL = "SELECT tag.Name FROM tag,(select * from tag_file where idFile={$val['id']}) as tag_file
+                $SQL = "SELECT tag.id,tag.Name FROM tag,(select * from tag_file where idFile={$val['id']}) as tag_file
                     where tag.id=tag_file.idTag";
                 $query = mysqli_query($this->connect, $SQL) or
                 die(
@@ -223,7 +339,7 @@
                 );
                 $data[$i]['tag'] = mysqli_fetch_all($query);
                 /*Научная тематика */
-                $SQL = "SELECT sci_theme.Name FROM sci_theme,(select * from sci_theme_file where idFile={$val['id']}) as sci_theme_file
+                $SQL = "SELECT sci_theme.id,sci_theme.Name FROM sci_theme,(select * from sci_theme_file where idFile={$val['id']}) as sci_theme_file
                     where sci_theme.id=sci_theme_file.idSciTheme";
                 $query = mysqli_query($this->connect, $SQL) or
                 die(
@@ -234,7 +350,7 @@
                 );
                 $data[$i]['sci_theme'] = mysqli_fetch_all($query);
                 /*Персоналии*/
-                $SQL = "SELECT CONCAT(F,' ',I,' ',O) as Name FROM person,(select * from file_person where idFile={$val['id']}) as file_person
+                $SQL = "SELECT person.id , CONCAT(F,' ',I,' ',O) as Name FROM person,(select * from file_person where idFile={$val['id']}) as file_person
                     where person.id=file_person.idPerson";
                 $query = mysqli_query($this->connect, $SQL) or
                 die(
@@ -244,6 +360,18 @@
                 )
                 );
                 $data[$i]['person'] = mysqli_fetch_all($query);
+
+                /* Научное подразделение -file_sci_department*/
+                $SQL = "SELECT sci_department.id,sci_department.Name FROM sci_department,(select * from sci_department_file where idFile={$val['id']}) as sci_department_file
+                    where sci_department.id=sci_department_file.idSciDepartment";
+                $query = mysqli_query($this->connect, $SQL) or
+                die(
+                json_encode(
+                    ['err' => $SQL . "|Couldn't execute query." . mysqli_error($this->connect)],
+                    JSON_UNESCAPED_UNICODE
+                )
+                );
+                $data[$i]['sci_department'] = mysqli_fetch_all($query);
             }
             return $data;
         }

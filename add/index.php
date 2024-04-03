@@ -18,6 +18,7 @@
         if ($data['pass'] === hash('sha512', $_POST['password']))//Авторизация пройдена
         {
             $_SESSION['user']['id'] = $data['id'];
+            $_SESSION['user']['site'] = 'vm';
             $_SESSION['user']['role'] = $data['role'];
             $_SESSION['user']['FIO'] = $data['FIO'];
             $_SESSION['user']['login'] = $data['login'];
@@ -30,7 +31,7 @@
         }
         header("Location: /vm/add/index.php");
     } else /*Аутентификация*/ {
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_SESSION['user']['site'])) {
             $mess = '';
             if (isset($_SESSION['mess'])) {
                 $mess = $_SESSION['mess'];
@@ -246,6 +247,7 @@
 	<div id="tabs-2">
 		<form class="row" method="post" id="pers">
 			<div class="input-group">
+				<input id="persID" type="hidden">
 				<span style="width: 20%" class="input-group-text text-bg-success">ФИО персоны<span style="color: red">*</span></span>
 				<input id="pers_F" name="pers_F" required type="text" class="form-control" placeholder="Фамилия" aria-label="Фамилия">
 				<input id="pers_I" name="pers_I" required type="text" class="form-control" placeholder="Имя" aria-label="Имя">
@@ -297,6 +299,7 @@
 	<div id="tabs-3">
 		<form class="row" method="post" id="file">
 			<div class="input-group">
+				<input id="id_file" name="id_file" type="hidden">
 				<span style="width: 20%" class="input-group-text text-bg-success">Файл<span style="color: red">*</span></span>
 				<input id="file_F" name="file_F" required type="file" class="form-control" placeholder="" aria-label="">
 			</div>
@@ -318,17 +321,15 @@
 				<span style="width: 20%" class="input-group-text text-bg-success">Ссылки на архивный документ</span>
 				<input style="width: 10%" type="text" id='file_doc' name='file_doc' aria-label="" class="form-control" placeholder="">
 			</div>
-			<!--Пероналии -->
+			<!--Персоналии -->
 			<div class="col-auto input-group">
-				<span style="width: 20%" class="input-group-text text-bg-success" id="">Пероналии</span>
-				<select id="file_pers" name="file_pers[]" class="form-select" multiple aria-label="">
+				<span style="width: 20%" class="input-group-text text-bg-success" id="">Персоналии</span>
+				<select id="file_pers" name="file_pers[]" class="form-select" multiple aria-label=""></select>
 			</div>
 			<!--Структурное подразделение -->
 			<div class="col-auto input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success" id="">Структурное подразделение</span>
-				<select id="file_SP" name="file_SP[]" class="form-select" multiple aria-label="">
-
-				</select>
+				<select id="file_sci_department" name="file_sci_department[]" class="form-select" multiple aria-label=""></select>
 			</div>
 			<!--Научная тематика -->
 			<div class="input-group">

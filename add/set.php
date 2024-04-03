@@ -217,11 +217,14 @@ if (isset($_SESSION['user'])) {
         if (isset($_GET['del'])) {
             $id_file=$_POST['file'];
             $UPLOAD->delFile($id_file);
-        } else {
+        } else if(empty($_POST['id_file'])) {
             $UPLOAD->getFiles($_FILES);
             $dataFile['UPLOAD'] = $UPLOAD->getDataFile();
             $dataFile['POST'] = $_POST;
             $UPLOAD->setBD($_POST);
+        } else {
+            $dataFile['POST']=$_POST;
+            $dataFile['UPDATE']=$UPLOAD->updateBD($_POST);
         }
         $dataFile['GET'] = $UPLOAD->getBD();
         die(json_encode($dataFile, JSON_UNESCAPED_UNICODE));

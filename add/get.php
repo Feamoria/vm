@@ -44,10 +44,16 @@
     }
     if (isset($_GET['person'])) {
         $db = (new BDconnect())->connect();
-        $SQL = "SELECT `id`, CONCAT(F,' ',I,' ',O) as Name, F, I, O, COMMENT, DOL, DAYN, DAYD, CREATE_DATE, CREATE_USER FROM person ;";
+        $data=[];
+        $where='';
+        if (!empty($_POST)) {
+            $data['POST']=$_POST;
+            $where= ' where id = '.(int)$_POST['s_id'];
+        }
+        $SQL = "SELECT `id`, CONCAT(F,' ',I,' ',O) as Name, F, I, O, COMMENT, DOL, DAYN, DAYD, CREATE_DATE, CREATE_USER FROM person $where;";
         $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
         $res = mysqli_fetch_all($query,MYSQLI_ASSOC);
-        $data=[];
+
         foreach ($res as $val) {
             $i=$val['id'];
             $data[$i]=$val;
@@ -123,7 +129,7 @@
         if (!empty($_POST)) {
             $ret['POST'] =$_POST;
         } else $_POST=null;
-        $ret['file']=$UPLOAD->getBD(null,$_POST);
+        $ret['GET']=$UPLOAD->getBD(null,$_POST);
         die(json_encode($ret, JSON_UNESCAPED_UNICODE));
     }
 
