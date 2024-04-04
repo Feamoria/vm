@@ -88,7 +88,7 @@
          * file_tem             : array
          * file_tag             : array
          */
-        public function updateBD($data)
+        public function updateBD($data): array
         {
             foreach ($data as $i => $value) {
                 if (!is_array($value)) {
@@ -337,7 +337,7 @@
                     JSON_UNESCAPED_UNICODE
                 )
                 );
-                $data[$i]['tag'] = mysqli_fetch_all($query);
+                $data[$i]['tag'] = mysqli_fetch_all($query,MYSQLI_ASSOC);
                 /*Научная тематика */
                 $SQL = "SELECT sci_theme.id,sci_theme.Name FROM sci_theme,(select * from sci_theme_file where idFile={$val['id']}) as sci_theme_file
                     where sci_theme.id=sci_theme_file.idSciTheme";
@@ -348,7 +348,7 @@
                     JSON_UNESCAPED_UNICODE
                 )
                 );
-                $data[$i]['sci_theme'] = mysqli_fetch_all($query);
+                $data[$i]['sci_theme'] = mysqli_fetch_all($query,MYSQLI_ASSOC);
                 /*Персоналии*/
                 $SQL = "SELECT person.id , CONCAT(F,' ',I,' ',O) as Name FROM person,(select * from file_person where idFile={$val['id']}) as file_person
                     where person.id=file_person.idPerson";
@@ -359,7 +359,7 @@
                     JSON_UNESCAPED_UNICODE
                 )
                 );
-                $data[$i]['person'] = mysqli_fetch_all($query);
+                $data[$i]['person'] = mysqli_fetch_all($query,MYSQLI_ASSOC);
 
                 /* Научное подразделение -file_sci_department*/
                 $SQL = "SELECT sci_department.id,sci_department.Name FROM sci_department,(select * from sci_department_file where idFile={$val['id']}) as sci_department_file
@@ -371,7 +371,7 @@
                     JSON_UNESCAPED_UNICODE
                 )
                 );
-                $data[$i]['sci_department'] = mysqli_fetch_all($query);
+                $data[$i]['sci_department'] = mysqli_fetch_all($query,MYSQLI_ASSOC);
             }
             return $data;
         }

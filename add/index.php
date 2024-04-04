@@ -247,7 +247,7 @@
 	<div id="tabs-2">
 		<form class="row" method="post" id="pers">
 			<div class="input-group">
-				<input id="persID" type="hidden">
+				<input id="persID" name="persID" type="hidden">
 				<span style="width: 20%" class="input-group-text text-bg-success">ФИО персоны<span style="color: red">*</span></span>
 				<input id="pers_F" name="pers_F" required type="text" class="form-control" placeholder="Фамилия" aria-label="Фамилия">
 				<input id="pers_I" name="pers_I" required type="text" class="form-control" placeholder="Имя" aria-label="Имя">

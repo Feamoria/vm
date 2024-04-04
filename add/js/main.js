@@ -70,7 +70,8 @@ $(document).ready(function () {
                 let tbl = $("#tbl_tag");
                 tbl.html('');
                 $.each(data, function (i, v) {
-                    tbl.append('<tr><td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delTag(' + v.id + ')"><i class="bi bi-trash"></i></button></td><td>' + v.Name + '</td></tr>')
+                    if (v.SUMM === null) {v.SUMM=0;}
+                    tbl.append('<tr><td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delTag(' + v.id + ')"><i class="bi bi-trash"></i></button></td><td>' + v.Name +' ('+v.SUMM+ ')</td></tr>')
                 })
             }
             if (event.target.hash === '#tabs-5') {
@@ -78,7 +79,8 @@ $(document).ready(function () {
                 let tbl = $("#tbl_sci_field");
                 tbl.html('');
                 $.each(data, function (i, v) {
-                    tbl.append('<tr><td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delSci_field(' + v.id + ')"><i class="bi bi-trash"></i></button></td><td>' + v.Name + '</td></tr>')
+                    if (v.SUMM === null) {v.SUMM=0;}
+                    tbl.append('<tr><td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delSci_field(' + v.id + ')"><i class="bi bi-trash"></i></button></td><td>' + v.Name +' ('+v.SUMM+ ')</td></tr>')
                 })
 
             }
@@ -100,7 +102,7 @@ $(document).ready(function () {
     let data_sci_field = load_sci_field();
     let data_sci_department = load_sci_department();
     let data_file = load_file();
-    let data_event=load_event();
+    let data_event = load_event();
     /*******************
      /*     EVENT
      /********************/
@@ -129,7 +131,8 @@ $(document).ready(function () {
     /*Форма выбора файла*/
     $('#btn_open_file').on('click', function (e) {
         e.preventDefault();
-        function load(search=null) {
+
+        function load(search = null) {
             data_file = load_file(search);
             let cont = $('#dialog_file_cont').html('');
             $.each(data_file.GET, function (index, value) {
@@ -150,6 +153,7 @@ $(document).ready(function () {
                 cont.append(html);
             });
         }
+
         load();
         dialog.dialog("open");
         /**/
@@ -161,7 +165,7 @@ $(document).ready(function () {
         initTagAjax('#s_tem', data_sci_field);
         initTagAjax('#s_pers', data_pers);
 
-        $('#s_Name,#s_tg,#s_tem,#s_pers').on('change keyup',function (){
+        $('#s_Name,#s_tg,#s_tem,#s_pers').on('change keyup', function () {
             load($('#s_form').serialize());
 
         })
@@ -220,7 +224,7 @@ $(document).ready(function () {
     initTagAjax('#pers_tag', data_tag);
     initTagAjax('#pers_tem', data_sci_field);
     initTagAjax('#pers_sci_department', data_sci_department);
-    // initTagAjax('#pers_file',data_sci_field); TODO
+    // initTagAjax('#pers_file',data_sci_field); TODO pers_file (?)
 
     $('#pers_Desc').on('keyup', function (/*e*/) {
         let text = $(this).val();
@@ -272,9 +276,12 @@ $(document).ready(function () {
             data: data,
             dataType: 'json',
             cache: false,
-            success: function (/*data*/) {/*TODO обрабатывать ошибки*/
+            success: function (data) {/*TODO обрабатывать ошибки*/
+                console.log(data);
                 $('#pers').trigger("reset");
+                $('#persID').val('');
                 updatePerson(load_person())
+
             }
         });
     })
@@ -450,7 +457,7 @@ $(document).ready(function () {
         /*проверка на заполнение обязательных полей*/
         $('#file input, #file textarea').each(function () {
             if ($(this).prop('required')) {
-                if( !$(this).prop('disabled')){
+                if (!$(this).prop('disabled')) {
                     let temp = $(this).val();
                     if (temp === '' || temp.length < 2) {
                         console.log($(this));
@@ -478,7 +485,7 @@ $(document).ready(function () {
             success: function (data, /*status*/) {
                 $('#file').trigger("reset");
                 $('#id_file').val('');
-                $('#file_F').prop('disabled',false);
+                $('#file_F').prop('disabled', false);
                 updateFile(data.GET);
             }
         });
@@ -513,70 +520,98 @@ function editEvent(id) {
     /** TODO*/
     alert("В разработке")
 }
-function editPerson(id){
-    /** TODO #persID*/
-    let data=load_person('s_id='+id);
-    let info =data[id];
-    $('#persID').val(info.id);
-    /*
-    * pers_F pers_I pers_O
-    * pers_date1  pers_date1
-    * pers_dol
-    * pers_Desc
-    * //array
-    * pers_sci_department
-    * pers_tem
-    * pers_tag
-    * */
-    console.log(info);
 
+function editPerson(id) {
+    /** TODO #persID*/
+    let data = load_person('s_id=' + id);
+    let info = data[id];
+    $('#persID').val(info.id);
+
+    console.log(info);
+    $('#pers_F').val(info.F);
+    $('#pers_I').val(info.I);
+    $('#pers_O').val(info.O);
+    let DT = $('#pers_date1,#pers_date2');
+    DT.datepicker("option", "dateFormat", "yy-mm-dd");
+    $('#pers_date1').val(info.DAYN);
+    $('#pers_date2').val(info.DAYD);
+    DT.datepicker("option", "dateFormat", "dd.mm.yy");
+    $('#pers_dol').val(info.DOL);
+    $('#pers_Desc').val(info.COMMENT);
+    //pers_sci_department  - sci_department
+    let sci_department = [];
+    if (info.sci_department.length > 0) {
+        let dt = info.sci_department;
+        $.each(dt, function (index, value) {
+            sci_department.push(value.id)
+        });
+    }
+    $('#pers_sci_department').val(sci_department).multiselect('refresh');
+    // pers_tem  - sci_theme
+    let sci_theme = [];
+    if (info.sci_theme.length > 0) {
+        let dt = info.sci_theme;
+        $.each(dt, function (index, value) {
+            sci_theme.push(value.id)
+        });
+    }
+    $('#pers_tem').val(sci_theme).multiselect('refresh');
+    // pers_tag - tag
+    let tag = [];
+    if (info.tag.length > 0) {
+        let dt = info.tag;
+        $.each(dt, function (index, value) {
+            tag.push(value.id)
+        });
+    }
+    $('#pers_tag').val(tag).multiselect('refresh');
     $(window).scrollTop($('#UserOnline').offset().top);
-    alert("В разработке")
 }
-function editFile(id){
-    $('#file_F').prop('disabled',true);
-    let data=load_file('s_id='+id);
-    let info =data.GET[id];
+
+function editFile(id) {
+    $('#file_F').prop('disabled', true);
+    let data = load_file('s_id=' + id);
+    let info = data.GET[id];
     $('#id_file').val(info.id);
     $('#file_name').val(info.name);
-    let DT=$('#file_date');
+    let DT = $('#file_date');
     DT.datepicker("option", "dateFormat", "yy-mm-dd");
     DT.val(info.date);
     DT.datepicker("option", "dateFormat", "dd.mm.yy");
     $('#file_Desc').val(info.disc);
     $('#file_doc').val(info.doc);
     let person = [];
-    if (info.person.length>0) {
-        let dt=info.person;
-        $.each(dt,function (index, value) {
+    if (info.person.length > 0) {
+        let dt = info.person;
+        $.each(dt, function (index, value) {
             person.push(value[0])
         });
     }
     $('#file_pers').val(person).multiselect('refresh');//refresh
     /*sci_theme*/
     let file_sci_department = [];
-    if (info.sci_department.length>0) {
-        let dt=info.sci_department;
-        $.each(dt,function (index, value) {
-            file_sci_department.push(value[0])
+    if (info.sci_department.length > 0) {
+        let dt = info.sci_department;
+        $.each(dt, function (index, value) {
+            file_sci_department.push(value.id)
         });
     }
     $('#file_sci_department').val(file_sci_department).multiselect('refresh');
     /*sci_theme*/
     let sci_theme = [];
-    if (info.sci_theme.length>0) {
-        let dt=info.sci_theme;
-        $.each(dt,function (index, value) {
-            sci_theme.push(value[0])
+    if (info.sci_theme.length > 0) {
+        let dt = info.sci_theme;
+        $.each(dt, function (index, value) {
+            sci_theme.push(value.id)
         });
     }
     $('#file_tem').val(sci_theme).multiselect('refresh');
     /*tag*/
     let tag = [];
-    if (info.tag.length>0) {
-        let dt=info.tag;
-        $.each(dt,function (index, value) {
-            tag.push(value[0])
+    if (info.tag.length > 0) {
+        let dt = info.tag;
+        $.each(dt, function (index, value) {
+            tag.push(value.id)
         });
     }
     $('#file_tag').val(tag).multiselect('refresh');
@@ -599,6 +634,22 @@ function updateFile(data) {
         '</tr></thead>');
 
     $.each(data, function (i, v) {
+        let tag = '';
+        $.each(v.tag, function (index, value) {
+            tag += "[" + value.Name + "]";
+        })
+        let sci_department = '';
+        $.each(v.sci_department, function (index, value) {
+            sci_department += "[" + value.Name + "]";
+        })
+        let sci_theme = '';
+        $.each(v.sci_theme, function (index, value) {
+            sci_theme += "[" + value.Name + "]";
+        })
+        let person = '';
+        $.each(v.person, function (index, value) {
+            person += "[" + value.Name + "]";
+        })
         tbl.append('<tr>' +
             '<td style="width: 20px">' +
             '<div class="d-flex flex-column"><div>' +
@@ -608,15 +659,16 @@ function updateFile(data) {
             '<td>' + v.date + '</td>' +
             '<td>' + v.name + '</td>' +
             '<td><textarea style="width: 100%" class="form-control">' + v.disc + '</textarea></td>' +
-            '<td>' + v.person + '</td>' +
-            '<td>' + v.sci_theme + '</td>' +
-            '<td>' + v.sci_department + '</td>' +
+            '<td>' + person + '</td>' +
+            '<td>' + sci_theme + '</td>' +
+            '<td>' + sci_department + '</td>' +
             '<td>' + v.doc + '</td>' +
-            '<td>' + v.tag + '</td>' +
+            '<td class="text-wrap">' + tag + '</td>' +
             '<td><a target="_blank" href="' + v.pathWeb + '">' + v.name + '</a></td>' +
             '</tr>')
     })
 }
+
 function updateEvent(data) {
     let tbl = $("#tbl_event");
     //console.log(data);
@@ -635,25 +687,26 @@ function updateEvent(data) {
         '</tr></thead>');
     $.each(data, function (i, v) {
         //console.log(v)
-        function arrdata(data,href=false) {
-            let ret='';
+        function arrdata(data, href = false) {
+            let ret = '';
             if (typeof data !== 'undefined')
-            if (data.length >0) {
-                $.each(data,function (index, value) {
-                    if (!href) {
-                        ret += '[' + value + ']';
-                    } else {
-                        ret += '<a target="_blank" href="' + value.pathWeb + '">' + value.name + '</a>';
-                    }
-                });
-            }
+                if (data.length > 0) {
+                    $.each(data, function (index, value) {
+                        if (!href) {
+                            ret += '[' + value + ']';
+                        } else {
+                            ret += '<a target="_blank" href="' + value.pathWeb + '">' + value.name + '</a>';
+                        }
+                    });
+                }
             return ret;
         }
-        let file=arrdata(v.file,true);
-        let sci_department=arrdata(v.sci_department);
-        let sci_theme=arrdata(v.sci_theme);
-        let tag=arrdata(v.tag);
-        let pers=arrdata(v.pers);
+
+        let file = arrdata(v.file, true);
+        let sci_department = arrdata(v.sci_department);
+        let sci_theme = arrdata(v.sci_theme);
+        let tag = arrdata(v.tag);
+        let pers = arrdata(v.pers);
 
 
         tbl.append('<tr>' +
@@ -663,7 +716,7 @@ function updateEvent(data) {
             '<div><button type="button" class="btn btn-info" onclick="editEvent(' + v.id + ')"><i class="bi bi-pencil-square"></i></button></div>' +
             '</div></td>' +
             '<td>' + v.Name + '</td>' +
-            '<td>' + v.DateN +'<br>'+v.DateK+ '</td>' +
+            '<td>' + v.DateN + '<br>' + v.DateK + '</td>' +
             '<td><textarea style="width: 100%" class="form-control">' + v.Desc + '</textarea></td>' +
             '<td>' + file + '</td>' +//Файлы
             '<td>' + v.Doc + '</td>' +//Ссылка на архивный докумены
@@ -677,6 +730,7 @@ function updateEvent(data) {
     })
 
 }
+
 function updatePerson(data) {
     initTagAjax('#ev_pers', data);
     initTagAjax('#file_pers', data);
@@ -699,6 +753,18 @@ function updatePerson(data) {
         $.each(v.file, function (index, value) {
             file += "<a href='" + value.pathWeb + "' target='_blank'>[" + value.name + "]</a> <br>";
         })
+        let tag = '';
+        $.each(v.tag, function (index, value) {
+            tag += "[" + value.Name + "]";
+        })
+        let sci_department = '';
+        $.each(v.sci_department, function (index, value) {
+            sci_department += "[" + value.Name + "]";
+        })
+        let sci_theme = '';
+        $.each(v.sci_theme, function (index, value) {
+            sci_theme += "[" + value.Name + "]";
+        })
         tbl.append('<tr>' +
             '<td style="width: 20px">' +
             '<div class="d-flex flex-column">' +
@@ -711,14 +777,15 @@ function updatePerson(data) {
             '<td>' + v.DOL + '</td>' +
             '<td>c ' + v.DAYN + ' по ' + v.DAYD + '</td>' +
             '<td><textarea style="width: 100%" class="form-control">' + v.COMMENT + '</textarea></td>' +
-            '<td>' + v.tag + '</td>' +
-            '<td>' + v.sci_department + '</td>' +
-            '<td>' + v.sci_theme + '</td>' +
+            '<td class="text-wrap">' + tag + '</td>' +
+            '<td class="text-wrap">' + sci_department + '</td>' +
+            '<td class="text-wrap">' + sci_theme + '</td>' +
             '<td class="text-wrap">' + file + '</td>' +
             '</tr>')
     })
 }
-function delEvent(tag, answer = null){
+
+function delEvent(tag, answer = null) {
     if (answer == null) {
         $('#dialog_del').dialog({
             buttons: {
@@ -746,6 +813,7 @@ function delEvent(tag, answer = null){
         })
     }
 }
+
 function delFile(tag, answer = null) {
     if (answer == null) {
         $('#dialog_del').dialog({
@@ -924,6 +992,7 @@ function load_event() {
         }
     }).responseJSON;
 }
+
 function load_tag() {
     return $.ajax({
         async: false,
@@ -939,10 +1008,10 @@ function load_tag() {
     }).responseJSON;
 }
 
-function load_person(search=null) {
-    let data_search='';
+function load_person(search = null) {
+    let data_search = '';
     if (search !== null) {
-        data_search=search;
+        data_search = search;
     }
     return $.ajax({
         async: false,
@@ -988,10 +1057,10 @@ function load_sci_department() {
     }).responseJSON;
 }
 
-function load_file(search=null) {
-    let data_search='';
+function load_file(search = null) {
+    let data_search = '';
     if (search !== null) {
-        data_search=search;
+        data_search = search;
     }
     return $.ajax({
         async: false,
@@ -1041,8 +1110,14 @@ function inittag(elem) {
 function initTagAjax(elem, data) {
     let elem_g = $(elem);
     elem_g.html('');
+
     $.each(data, function (i, v) {
-        $(elem).append('<option value="' + v.id + '">' + v.Name + '</option>');
+        let SUMM='';
+        if (typeof v.SUMM !== 'undefined'){
+            if (v.SUMM ===null) v.SUMM=0;
+            SUMM="("+v.SUMM+")"
+        }
+        $(elem).append('<option value="' + v.id + '">' + v.Name +SUMM+ '</option>');
     });
     elem_g.multiselect('refresh');
 }
@@ -1062,8 +1137,8 @@ function initmultiselect(elem) {
         buttonW = '100%';
         menuWidth = '100%';
     }
-    let select=$('#' + elem);
-    let ariaLabel= select.attr('aria-label');
+    let select = $('#' + elem);
+    let ariaLabel = select.attr('aria-label');
     select.multiselect({
         buttonWidth: buttonW, // (integer | string | 'auto' | null) Sets the min/max/exact width of the button.
         menuWidth: menuWidth, // (integer | string | 'auto' | null) If a number is provided, sets the exact menu width.

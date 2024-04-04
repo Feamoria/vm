@@ -58,20 +58,20 @@
             $i=$val['id'];
             $data[$i]=$val;
             //ТЕГИ
-            $SQL="SELECT tag.Name FROM tag,(select * from tag_person where idPerson={$val['id']}) as tag_person
+            $SQL="SELECT tag.id, tag.Name FROM tag,(select * from tag_person where idPerson={$val['id']}) as tag_person
                     where tag.id=tag_person.idTag";
             $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
-            $data[$i]['tag']=mysqli_fetch_all($query);
+            $data[$i]['tag']=mysqli_fetch_all($query,MYSQLI_ASSOC);
             /*Структурное подразделение */
-            $SQL="SELECT sci_department.Name FROM sci_department,(select * from sci_department_person where idPerson={$val['id']}) as sci_department_person
+            $SQL="SELECT sci_department.id,sci_department.Name FROM sci_department,(select * from sci_department_person where idPerson={$val['id']}) as sci_department_person
                     where sci_department.id=sci_department_person.idSciDepartment";
             $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
-            $data[$i]['sci_department']=mysqli_fetch_all($query);
+            $data[$i]['sci_department']=mysqli_fetch_all($query,MYSQLI_ASSOC);
             /*Научная тематика */
-            $SQL="SELECT sci_theme.Name FROM sci_theme,(select * from sci_theme_pers where idPers={$val['id']}) as sci_theme_pers
+            $SQL="SELECT sci_theme.id,sci_theme.Name FROM sci_theme,(select * from sci_theme_pers where idPers={$val['id']}) as sci_theme_pers
                     where sci_theme.id=sci_theme_pers.idTheme";
             $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
-            $data[$i]['sci_theme']=mysqli_fetch_all($query);
+            $data[$i]['sci_theme']=mysqli_fetch_all($query,MYSQLI_ASSOC);
             /*Файлы*/
             $SQL="SELECT file.name,file.pathWeb FROM file,(select * from file_person where idPerson={$val['id']}) as file_person
                     where file.id=file_person.idFile";
@@ -84,27 +84,40 @@
     }
     if (isset($_GET['tag'])) {
         $db = (new BDconnect())->connect();
-        $SQL = "SELECT id,Name FROM tag;";
+        $SQL = "SELECT tag.id,tag.Name,X.`SUMM` FROM tag 
+                left join (
+                    SELECT Z.idTag,SUM(Z.count) as `SUMM` from (
+                        SELECT idTag,count(*) as count  from tag_file group by idTag
+                        UNION 
+                        SELECT idTag,count(*) as count  from tag_event group by idTag
+                        UNION
+                        SELECT idTag,count(*) as count  from tag_person group by idTag
+                    ) as Z  group by Z.idTag
+                    ) as X on X.idTag=tag.id
+                order by X.SUMM desc 
+                ";
         $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
         $res = mysqli_fetch_all($query,MYSQLI_ASSOC);
-        $data=[];
-        foreach ($res as $val) {
-            $i=$val['id'];
-            $data[$i]=$val;
-        }
-        die(json_encode($data, JSON_UNESCAPED_UNICODE));
+        die(json_encode($res, JSON_UNESCAPED_UNICODE));
     }
     if (isset($_GET['sci_theme'])) {
         $db = (new BDconnect())->connect();
-        $SQL = "SELECT id,Name FROM sci_theme;";
+        $SQL = "SELECT sci_theme.id,sci_theme.Name,X.SUMM FROM sci_theme
+                left join (
+                    SELECT Z.idSciTheme,SUM(Z.count) as `SUMM` from (
+                        SELECT idSciTheme,count(*) as count  from sci_theme_file group by idSciTheme
+                        UNION 
+                        SELECT idTheme as idSciTheme,count(*) as count  from sci_theme_event group by idTheme
+                        UNION
+                        SELECT idTheme as idSciTheme,count(*) as count  from sci_theme_pers group by idTheme
+                    ) as Z  group by Z.idSciTheme
+                    ) as X on X.idSciTheme=sci_theme.id
+                order by X.SUMM desc 
+
+";
         $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
         $res = mysqli_fetch_all($query,MYSQLI_ASSOC);
-        $data=[];
-        foreach ($res as $val) {
-            $i=$val['id'];
-            $data[$i]=$val;
-        }
-        die(json_encode($data, JSON_UNESCAPED_UNICODE));
+        die(json_encode($res, JSON_UNESCAPED_UNICODE));
     }
     if (isset($_GET['sci_department'])) {
         $db = (new BDconnect())->connect();
@@ -114,12 +127,7 @@
                 order by Date_create";
         $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
         $res = mysqli_fetch_all($query,MYSQLI_ASSOC);
-        $data=[];
-        foreach ($res as $val) {
-            $i=$val['id'];
-            $data[$i]=$val;
-        }
-        die(json_encode($data, JSON_UNESCAPED_UNICODE));
+        die(json_encode($res, JSON_UNESCAPED_UNICODE));
     }
 
     if (isset($_GET['file'])) {
