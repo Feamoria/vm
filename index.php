@@ -66,7 +66,7 @@
 	<script src="js/bootstrap/bootstrap.bundle.min.js"></script>
 	<script src="js/main.js?<?php
         echo time(); ?>"></script>
-	<link href="main.css?<?php
+	<link href="css/main.css?<?php
         echo time(); ?>" rel="stylesheet">
 	<title></title>
 </head>
