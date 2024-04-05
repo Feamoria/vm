@@ -517,17 +517,89 @@ function GetOnline() {
 }
 
 function editEvent(id) {
-    /** TODO*/
-    alert("В разработке")
+    /** #eventID*/
+    let data = load_event('s_id=' + id);
+    let info = data[id];
+    $('#eventID').val(info.id);
+    $('#ev_Name').val(info.Name);
+    let ev_n = info.DateN.split('.');
+    let ev_k = info.DateK.split('.');
+    $('#ev_Y_n').val(ev_n[0]);
+    $('#ev_M_n').val((ev_n[1])?ev_n[1]:'');
+    $('#ev_D_n').val((ev_n[2])?ev_n[2]:'');
+    $('#ev_Y_e').val((ev_k[0])?ev_k[0]:'');
+    $('#ev_M_e').val((ev_k[1])?ev_k[1]:'');
+    $('#ev_D_e').val((ev_k[2])?ev_k[2]:'');
+    $('#ev_Desc').val(info.Desc);
+    $('#ev_importance').val(info.importance);
+    $('#ev_doc').val(info.Doc);
+    $('#ev_latitude').val(info.latitude);
+    $('#ev_longitude').val(info.longitude);
+    // ev_sci_department - sci_department
+    let sci_department = [];
+    if (info.sci_department.length > 0) {
+        let dt = info.sci_department;
+        $.each(dt, function (index, value) {
+            sci_department.push(value.id)
+        });
+    }
+    $('#ev_sci_department').val(sci_department).multiselect('refresh');
+    // ev_tem- sci_theme
+    let sci_theme = [];
+    if (info.sci_theme.length > 0) {
+        let dt = info.sci_theme;
+        $.each(dt, function (index, value) {
+            sci_theme.push(value.id)
+        });
+    }
+    $('#ev_tem').val(sci_theme).multiselect('refresh');
+    // ev_tag - tag
+    let tag = [];
+    if (info.tag.length > 0) {
+        let dt = info.tag;
+        $.each(dt, function (index, value) {
+            tag.push(value.id)
+        });
+    }
+    $('#ev_tag').val(tag).multiselect('refresh');
+    // ev_pers - pers
+    let pers = [];
+    if (info.pers.length > 0) {
+        let dt = info.pers;
+        $.each(dt, function (index, value) {
+            pers.push(value.id)
+        });
+    }
+    $('#ev_pers').val(pers).multiselect('refresh');
+    // ev_file - file
+    let file = [];
+    if (info.file.length > 0) {
+        let dt = info.file;
+        let text = $('#ev_file_text');
+        text.html('');
+        $.each(dt, function (index, value) {
+            file.push(value.id)
+            text.append("<a target='_blank' href='" + value.pathWeb + "'>[" + value.name + "] </a>  ")
+        });
+    }
+    $('#ev_file').val(file);//.multiselect('refresh');
+    /*
+        *   ARRAY
+        * ev_file  // ev_file_text
+
+        * */
+
+
+    $(window).scrollTop($('#UserOnline').offset().top);
 }
 
 function editPerson(id) {
-    /** TODO #persID*/
+    /**  #persID*/
     let data = load_person('s_id=' + id);
     let info = data[id];
     $('#persID').val(info.id);
 
-    console.log(info);
+    //console.log(info);
     $('#pers_F').val(info.F);
     $('#pers_I').val(info.I);
     $('#pers_O').val(info.O);
@@ -693,7 +765,7 @@ function updateEvent(data) {
                 if (data.length > 0) {
                     $.each(data, function (index, value) {
                         if (!href) {
-                            ret += '[' + value + ']';
+                            ret += '[' + value.Name + ']';
                         } else {
                             ret += '<a target="_blank" href="' + value.pathWeb + '">' + value.name + '</a>';
                         }
@@ -978,12 +1050,16 @@ function delSci_field(sci_field, answer = null) {
     }
 }
 
-function load_event() {
+function load_event(search = null) {
+    let data_search = '';
+    if (search !== null) {
+        data_search = search;
+    }
     return $.ajax({
         async: false,
         type: 'POST',
         url: 'get.php?event',
-        //data: 'tag='+tag,
+        data: data_search,
         dataType: 'json',
         cache: false,
         success: function (data) {

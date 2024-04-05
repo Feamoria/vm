@@ -138,10 +138,10 @@
 		<li><a href="#tabs-4">Ключевые слова</a></li>
 		<li><a href="#tabs-5">Научная тематика</a></li>
 		<li><a href="#tabs-6">Структурное подразделение</a></li>
-
 	</ul>
 	<div id="tabs-1">
 		<form class="row" id="event">
+			<input id="eventID" name="eventID" type="hidden">
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success text-wrap">Название события (краткая аннотация)<span style="color: red">*</span></span>
 				<textarea id="ev_Name" required name="ev_Name" class="form-control" aria-label=""></textarea>

@@ -6,7 +6,13 @@
                   ]);
     if (isset($_GET['event'])) {
         $db = (new BDconnect())->connect();
+        $where='';
+        if (!empty($_POST)) {
+            $data['POST']=$_POST;
+            $where= ' where id = '.(int)$_POST['s_id'];
+        }
         $SQL = "SELECT * FROM event 
+                $where
                 order by create_date desc";
         $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
         $res = mysqli_fetch_all($query,MYSQLI_ASSOC);
@@ -15,27 +21,27 @@
             $i=$val['id'];
             $data[$i]=$val;
             //Персоналии
-            $SQL="SELECT CONCAT(F,' ',I,' ',O) as Name FROM person,(select * from person_event where idEvent={$val['id']}) as person_event
+            $SQL="SELECT person.id,CONCAT(F,' ',I,' ',O) as Name FROM person,(select * from person_event where idEvent={$val['id']}) as person_event
                     where person.id=person_event.idPerson";
             $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
-            $data[$i]['pers']=mysqli_fetch_all($query);
+            $data[$i]['pers']=mysqli_fetch_all($query,MYSQLI_ASSOC);
             //ТЕГИ
-            $SQL="SELECT tag.Name FROM tag,(select * from tag_event where idEvent={$val['id']}) as tag_event
+            $SQL="SELECT tag.id,tag.Name FROM tag,(select * from tag_event where idEvent={$val['id']}) as tag_event
                     where tag.id=tag_event.idTag";
             $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
-            $data[$i]['tag']=mysqli_fetch_all($query);
+            $data[$i]['tag']=mysqli_fetch_all($query,MYSQLI_ASSOC);
             /*Структурное подразделение */
-            $SQL="SELECT sci_department.Name FROM sci_department,(select * from sci_department_event where idEvent={$val['id']}) as sci_department_event
+            $SQL="SELECT sci_department.id,sci_department.Name FROM sci_department,(select * from sci_department_event where idEvent={$val['id']}) as sci_department_event
                     where sci_department.id=sci_department_event.idSciDepartment";
             $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
-            $data[$i]['sci_department']=mysqli_fetch_all($query);
+            $data[$i]['sci_department']=mysqli_fetch_all($query,MYSQLI_ASSOC);
             /*Научная тематика */
-            $SQL="SELECT sci_theme.Name FROM sci_theme,(select * from sci_theme_event where idEvent={$val['id']}) as sci_theme_event
+            $SQL="SELECT sci_theme.id,sci_theme.Name FROM sci_theme,(select * from sci_theme_event where idEvent={$val['id']}) as sci_theme_event
                     where sci_theme.id=sci_theme_event.idTheme";
             $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
-            $data[$i]['sci_theme']=mysqli_fetch_all($query);
+            $data[$i]['sci_theme']=mysqli_fetch_all($query,MYSQLI_ASSOC);
             /*Файлы*/
-            $SQL="SELECT file.name,file.pathWeb FROM file,(select * from file_event where idEvent={$val['id']}) as file_event
+            $SQL="SELECT file.id, file.name,file.pathWeb FROM file,(select * from file_event where idEvent={$val['id']}) as file_event
                     where file.id=file_event.idFile";
             $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
             $data[$i]['file']=mysqli_fetch_all($query, MYSQLI_ASSOC);

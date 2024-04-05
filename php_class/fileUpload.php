@@ -309,7 +309,7 @@
                 }
                 //s_tag
                 if (isset($searth['s_tag'])){
-                    $s=implode(',',$searth['s_tem']);
+                    $s=implode(',',$searth['s_tag']);
                     $Where.=" $and id in (SELECT `idFile` from `tag_file` where `idTag` in ($s))";
                 }
                 $SQL="SELECT id, cast(date as DATE ) as `date` , name, disc, doc, pathServ, pathWeb, type, create_date, create_user 
@@ -339,7 +339,8 @@
                 );
                 $data[$i]['tag'] = mysqli_fetch_all($query,MYSQLI_ASSOC);
                 /*Научная тематика */
-                $SQL = "SELECT sci_theme.id,sci_theme.Name FROM sci_theme,(select * from sci_theme_file where idFile={$val['id']}) as sci_theme_file
+                $SQL = "SELECT sci_theme.id,sci_theme.Name FROM sci_theme,
+                                        (select * from sci_theme_file where idFile={$val['id']}) as sci_theme_file
                     where sci_theme.id=sci_theme_file.idSciTheme";
                 $query = mysqli_query($this->connect, $SQL) or
                 die(
@@ -350,7 +351,8 @@
                 );
                 $data[$i]['sci_theme'] = mysqli_fetch_all($query,MYSQLI_ASSOC);
                 /*Персоналии*/
-                $SQL = "SELECT person.id , CONCAT(F,' ',I,' ',O) as Name FROM person,(select * from file_person where idFile={$val['id']}) as file_person
+                $SQL = "SELECT person.id , CONCAT(F,' ',I,' ',O) as Name FROM person,
+                                                      (select * from file_person where idFile={$val['id']}) as file_person
                     where person.id=file_person.idPerson";
                 $query = mysqli_query($this->connect, $SQL) or
                 die(
