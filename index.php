@@ -59,7 +59,7 @@
 ?>
 <!DOCTYPE html>
 <head>
-
+	<script src="js/jquery/jquery-3.7.1.min.js"></script>
 	<link href="css/bootstrap.min.css" rel="stylesheet">
 	<link href="ico/font/bootstrap-icons.css" rel="stylesheet">
 	<script src="js/bootstrap/bootstrap.bundle.min.js"></script>
