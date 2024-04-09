@@ -20,8 +20,8 @@
 	<link href="css/bootstrap.min.css" rel="stylesheet">
 	<link href="ico/font/bootstrap-icons.css" rel="stylesheet">
 	<script src="js/bootstrap/bootstrap.bundle.min.js"></script>
-	<script src="js/jquery-ui/jquery-ui.min.js"></script>
-	<link rel="stylesheet" href="js/jquery-ui/jquery-ui.min.css"/>
+	<script src="js/jquery/jquery-ui/jquery-ui.min.js"></script>
+	<link rel="stylesheet" href="js/jquery/jquery-ui/jquery-ui.min.css"/>
 	<script src="js/main.js?<?php
         echo time(); ?>"></script>
 	<link href="css/main.css?<?php
