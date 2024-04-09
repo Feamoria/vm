@@ -15,11 +15,29 @@
 
     ///var_dump($input);
     if (isset($_GET['event'])) {
-        $level = $input['level'];
+        $YearN=(int)$input["year"][0];
+        $YearE=(int)$input["year"][1];
+        $mod =$input["mod"];// round(((int)$input["year"][1]-(int)$input["year"][0])/5);
+        $level =ceil((5.0001)-($YearE-$YearN)/$mod);
+        $data['level']=$level;
+        $data['mod']=$mod;
         //$level = 5;
+        $YearN=$YearN-1;
+        $YearE=$YearE+1;
+        $them_sql='';
+        $them=(int)$input["them"];
+        if ($them>0) {
+            $them_sql="and id in (SELECT idEvent from sci_theme_event where idTheme=$them)";
+        }
+
+
+
         $SQL = "SELECT id,Name,DateN as `Date`,`doc`,importance as `level` FROM event
 			where importance <= $level
+            and DateN between '$YearN' and '$YearE'
+            $them_sql
 			order by DateN";
+        $data['SQL']=$SQL;
     } elseif (isset($_POST['person'])) {
         // Выбрать ВСЮ инфу о персоналии
         $SQL = "SELECT id,Name,DateN as `Date`,`doc`,importance as `level` FROM event
