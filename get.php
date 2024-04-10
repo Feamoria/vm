@@ -36,9 +36,6 @@
         if ($them>0) {
             $them_sql="and id in (SELECT idEvent from sci_theme_event where idTheme=$them)";
         }
-
-
-
         $SQL = "SELECT id,Name,DateN as `Date`,`doc`,importance as `level` FROM event
 			where importance <= $level
             and DateN between '$YearN' and '$YearE'
@@ -76,7 +73,7 @@
         $data['event'][$i]['tag'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
         /** file */
         $SQL = "
-			SELECT file.id,file.Name,file.pathWeb
+			SELECT file.id,file.Name,file.pathWeb,file.disc
 				FROM file, (SELECT * from file_event where idEvent={$val['id']}) as file_event
 			where file.id=file_event.idFile";
         $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));

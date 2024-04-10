@@ -21,10 +21,88 @@ async function buildEvent(){
         let file_html='';
         if (val.file.length>0) {
             if (val.file.length===1){
-                file_html="<img class='timeline-img' src='"+val.file[0].pathWeb+"'>"
+                file_html="<img class='timeline-img' src='"+val.file[0].pathWeb+" alt='"+val.file[0].Name+"''>"
             } else {
+                let first=true;
+                let carousel_indicators='';
+                let carousel_item='';
+                $.each(val.file,function (index, value) {
+                    let carousel_indicator_active='';
+                    let carousel_item_active='';
+                    if (first) {
+                        carousel_indicator_active ='class="active" aria-current="true';
+                        carousel_item_active='active';
+                        first=false;
+                    }
+                    carousel_indicators+='<button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="'+index+'" '+carousel_indicator_active+' aria-label="Slide '+(index+1)+'"></button>'
+                    carousel_item+='<div class="carousel-item '+carousel_item_active+'">' +
+                        '      <img src="'+value.pathWeb+'" class="d-block w-100" alt="'+value.Name+'">' +
+                        '      <div style="background-color: gray" class="carousel-caption d-none d-md-block">' +
+                        '        <h5>'+value.Name+'</h5>' +
+                        '        <p>'+value.disc+'</p>' +
+                        '      </div>' +
+                        '    </div>'
+                });
+                file_html='<div id="carouselExampleCaptions" class="carousel slide">' +
+                    '<div class="carousel-indicators">' +carousel_indicators+'</div>'+
+                    '<div class="carousel-inner">'+carousel_item+'</div>'+
+                    '<button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="prev">' +
+                    '    <span class="carousel-control-prev-icon" aria-hidden="true"></span>' +
+                    '    <span class="visually-hidden">Предыдущий</span>' +
+                    '  </button>' +
+                    '  <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="next">' +
+                    '    <span class="carousel-control-next-icon" aria-hidden="true"></span>' +
+                    '    <span class="visually-hidden">Следующий</span>' +
+                    '  </button>' +
+                    '</div>'
                 //** TODO СЛАЙДЕР КАРТИНОК! */
-                file_html="<img class='timeline-img' src='"+val.file[0].pathWeb+"'>"
+                /*
+<div id="carouselExampleCaptions" class="carousel slide">
+  <div class="carousel-indicators">
+    <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+    <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="1" aria-label="Slide 2"></button>
+    <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="2" aria-label="Slide 3"></button>
+  </div>
+  <div class="carousel-inner">
+    <div class="carousel-item active">
+      <img src="..." class="d-block w-100" alt="...">
+      <div class="carousel-caption d-none d-md-block">
+        <h5>Метка первого слайда</h5>
+        <p>Некоторый репрезентативный заполнитель для первого слайда.</p>
+      </div>
+    </div>
+    <div class="carousel-item">
+      <img src="..." class="d-block w-100" alt="...">
+      <div class="carousel-caption d-none d-md-block">
+        <h5>Метка второго слайда</h5>
+        <p>Некоторый репрезентативный заполнитель для второго слайда.</p>
+      </div>
+    </div>
+    <div class="carousel-item">
+      <img src="..." class="d-block w-100" alt="...">
+      <div class="carousel-caption d-none d-md-block">
+        <h5>Метка третьего слайда</h5>
+        <p>Некоторый репрезентативный заполнитель для третьего слайда.</p>
+      </div>
+    </div>
+  </div>
+  <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Предыдущий</span>
+  </button>
+  <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Следующий</span>
+  </button>
+</div>
+
+
+
+
+
+
+                 */
+                //file_html="<img class='timeline-img' src='"+val.file[0].pathWeb+"'>"
             }
         }
         let person_html='';
@@ -43,7 +121,7 @@ async function buildEvent(){
         if (val.tag.length>0) {
             $.each(val.tag,function (i, v) {
                 // ССЫЛКИ НА ПЕРСОНАЛИЮ переделать??
-                tag_html+="<a href='?person=" + v.id + "'>[" + v.Name+ "]</a>";
+                tag_html+="<a href='?tag=" + v.id + "'>[" + v.Name+ "]</a>";
 
             });
             if (tag_html !== '') {
