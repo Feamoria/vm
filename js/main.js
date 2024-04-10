@@ -21,7 +21,7 @@ async function buildEvent(){
         let file_html='';
         if (val.file.length>0) {
             if (val.file.length===1){
-                file_html="<img class='timeline-img' src='"+val.file[0].pathWeb+" alt='"+val.file[0].Name+"''>"
+                file_html="<img class='timeline-img' src='"+val.file[0].pathWeb+"' alt='"+val.file[0].Name+"'>"
             } else {
                 let first=true;
                 let carousel_indicators='';
