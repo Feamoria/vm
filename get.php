@@ -12,7 +12,14 @@
     $data = [];
     $SQL = '';
     $input = json_decode(file_get_contents("php://input"), true);
-
+    if (isset($_GET['eventDisc'])){
+        $id=(int)$_POST["id"];
+        $SQL = "SELECT id,`Desc`,Name FROM event
+			where id=$id";
+        $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
+        $data['Desc'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
+        die(json_encode($data, JSON_UNESCAPED_UNICODE));
+    }
     ///var_dump($input);
     if (isset($_GET['event'])) {
         $YearN=(int)$input["year"][0];

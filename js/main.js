@@ -97,6 +97,24 @@ async function buildEvent(){
 }
 function getInfo(idEvent) {
     // TODO!
+    $.ajax({
+        async:true,
+        type: 'POST',
+        url: 'get.php?eventDisc',
+        data: 'id='+idEvent,
+        //contentType: 'application/json;',
+        dataType: 'json',
+        cache: false,    
+        success: function(data) {
+
+            $('#infoFM_title').html(data.Desc[0].Name);
+            $('#infoFM_body').html(data.Desc[0].Desc);
+            //console.log(data.Desc[0].Desc);
+            $("#infoFM").modal('show');
+        }
+    });
+
+
 }
  function loadEvent() {
     let them=$('.b1.btn-info').attr('value');
