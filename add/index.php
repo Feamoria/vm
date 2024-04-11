@@ -147,12 +147,6 @@
 				<textarea id="ev_Name" required name="ev_Name" class="form-control" aria-label=""></textarea>
 				<span class="input-group-text" id="ev_Name_COUNT"></span>
 			</div>
-			<!--
-			<div class="input-group">
-				<span style="width: 20%" class="input-group-text text-bg-success">Название события (краткая аннотация)</span>
-				<input id="ev_Name" name="ev_Name" type="text" class="form-control" placeholder="Название" aria-label="Название">
-			</div>
-			-->
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success">Дата начала<span style="color: red">*</span></span>
 				<input type="text" id='ev_Y_n' required name="ev_Y_n" aria-label="" class="form-control" placeholder="Год (обязательно)">
@@ -165,17 +159,10 @@
 				<input type="text" id='ev_M_e' name="ev_M_e" aria-label="" class="form-control" placeholder="Месяц (1-12)">
 				<input type="text" id='ev_D_e' name="ev_D_e" aria-label="" class="form-control" placeholder="День (1-31)">
 			</div>
-			<!--
-			<div class="input-group">
-				<span style="width: 20%" class="input-group-text text-bg-success">Событие кратко<span style="color: red">*</span></span>
-				<textarea id="ev_Desc_short" required name="ev_Desc_short" class="form-control" aria-label=""></textarea>
-				<span class="input-group-text" id="ev_Desc_short_COUNT"></span>
-			</div> -->
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success">Событие полное</span>
 				<textarea id="ev_Desc" name="ev_Desc" class="form-control" aria-label=""></textarea>
 			</div>
-			<!-- TODO Файлы -->
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success">Файл</span>
 				<select id="ev_file" name="ev_file[]" class="form-select" style="display: none" multiple aria-label="">
@@ -226,7 +213,7 @@
 				<span style="width: 20%" class="input-group-text text-bg-success">Ключевые слова</span>
 				<select id="ev_tag" name="ev_tag[]" class="form-select" multiple aria-label="">
 				</select>
-				<input style="width: 10%" type="text" id='ev_tag_add' aria-label="" class="form-control" placeholder="">
+				<input style="width: 30%" type="text" id='ev_tag_add' aria-label="" class="form-control" placeholder="">
 				<button class="btn btn-primary" id='ev_tag_add_btn'>Добавить</button>
 			</div>
 			<!--Место (координаты) -->
@@ -265,6 +252,11 @@
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success">Аннотация</span>
 				<textarea id="pers_Desc" name="pers_Desc" class="form-control" aria-label=""></textarea>
+				<span class="input-group-text" id="pers_Desc_short_COUNT"></span>
+			</div>
+			<div class="input-group">
+				<span style="width: 20%" class="input-group-text text-bg-success">Достяжения</span>
+				<textarea id="pers_Achievement" name="pers_Achievement" class="form-control" aria-label=""></textarea>
 				<span class="input-group-text" id="pers_Desc_short_COUNT"></span>
 			</div>
 			<!--Структурное подразделение -->

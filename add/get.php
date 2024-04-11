@@ -90,7 +90,12 @@
     }
     if (isset($_GET['tag'])) {
         $db = (new BDconnect())->connect();
-        $SQL = "SELECT tag.id,tag.Name,X.`SUMM` FROM tag 
+        $where ='';
+        if (isset($_GET['term'])){
+            $term=mysqli_escape_string($db,$_GET['term']);
+            $where ="where Name like '%$term%'";
+        }
+        $SQL = "SELECT tag.id,tag.Name as value,tag.Name,X.`SUMM` FROM tag 
                 left join (
                     SELECT Z.idTag,SUM(Z.count) as `SUMM` from (
                         SELECT idTag,count(*) as count  from tag_file group by idTag
@@ -100,6 +105,7 @@
                         SELECT idTag,count(*) as count  from tag_person group by idTag
                     ) as Z  group by Z.idTag
                     ) as X on X.idTag=tag.id
+                $where
                 order by X.SUMM desc 
                 ";
         $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));

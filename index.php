@@ -35,11 +35,10 @@
 	<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h1 id="infoFM_title" class="modal-title fs-5">Заголовок модального окна</h1>
+				<h1 id="infoFM_title" class="modal-title fs-5"></h1>
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
 			</div>
 			<div id="infoFM_body" class="modal-body">
-
 			</div>
 			<div class="modal-footer">
 				<!--<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button> -->

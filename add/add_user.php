@@ -11,8 +11,8 @@
         	if ($_POST['pass'] == $_POST['pass2']){
         		/*TODO проверка на дубль*/
 				$pass=hash('sha512', $_POST['pass']);
-        		$SQL="INSERT INTO user (role, FIO, login, pass) value 
-    				(2,'{$_POST['FIO']}','{$_POST['login']}','$pass')";
+        		$SQL="INSERT INTO user (role, FIO, login, pass,dep) value 
+    				(2,'{$_POST['FIO']}','{$_POST['login']}','$pass','{$_POST['dep']}')";
                 $result = mysqli_query($db, $SQL);
 					if (!$result) {
                         $_SESSION['err']=$SQL . "|Couldn't execute query." . mysqli_error($db);
@@ -61,6 +61,11 @@
                                     <span class="input-group-text bg-primary"><i
 												class="bi bi-envelope text-white"></i></span>
 							<input type="text" required name="login" class="form-control" placeholder="Логин">
+						</div>
+						<div class="input-group mb-3">
+                                    <span class="input-group-text bg-primary"><i
+												class="bi bi-envelope text-white"></i></span>
+							<input type="text" required name="dep" class="form-control" placeholder="Подразделение">
 						</div>
 						<div class="input-group mb-3">
                                     <span class="input-group-text bg-primary"><i

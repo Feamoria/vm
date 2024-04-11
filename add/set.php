@@ -1,5 +1,6 @@
 <?php
 
+
     ini_set('error_reporting', E_ALL);
     ini_set('display_errors', 1);
     ini_set('display_startup_errors', 1);
@@ -30,6 +31,8 @@
     {
         $db = (new BDconnect())->connect();
         //$USER_ID=$_SESSION['user']['id'];
+        // TODO ЗАПРОС КТО СОЗДАЛ ЗАПИСЬ ЕСЛИ НЕ РАВЕН С СЕССИОН ID то иди нах
+
         $id = (int)$id;
         $data = [];
         if ($id > 0) {
@@ -45,6 +48,28 @@
             $data = mysqli_fetch_all($query, MYSQLI_ASSOC);
         }
         return json_encode($data, JSON_UNESCAPED_UNICODE);
+    }
+
+    function checkPermition ($table,$id):bool
+    {
+        $db = (new BDconnect())->connect();
+        $SQL = "SELECT create_user FROM $table where id = '$id'";
+        $query=mysqli_query($db, $SQL) or
+            die(json_encode(['err' => $SQL . "|Couldn't execute query." . mysqli_error($db)], JSON_UNESCAPED_UNICODE));
+        $data = mysqli_fetch_all($query, MYSQLI_ASSOC);
+        $create_user=$data[0]['create_user'];
+        $USER_ID = $_SESSION['user']['id'];
+        $SQL = "SELECT id from user where 
+                          dep in
+                    (SELECT dep FROM user where id = '$USER_ID')
+                and id = '$create_user;'";
+        $query=mysqli_query($db, $SQL) or
+         die(json_encode(['err' => $SQL . "|Couldn't execute query." . mysqli_error($db)], JSON_UNESCAPED_UNICODE));
+        $count=mysqli_num_rows($query);
+
+        if ($count>0) return true;
+        else return false;
+
     }
 
     require_once '../php_class/connect.php';
@@ -149,6 +174,9 @@
             if (isset($_GET['del'])) {
                 /*Капец.. надо вырезать все связи*/
                 $text = 'ok';
+                if (!checkPermition('person',(int)$_POST['pers'])){
+                    die(json_encode(['err' => "Удалить чужую персоналию невозможно"]));
+                }
                 $del = del('person', $_POST['pers'], false);
                 if ($del !== false) {
                     $text = $del;
@@ -188,6 +216,10 @@
                         $SQL = "INSERT INTO person (F, I, O, comment, dol, dayN, dayD, create_user) value 
                         ('$pers_F','$pers_I','$pers_O','$pers_Desc','$pers_dol','$pers_date1',$pers_date2,'$USER_ID');";
                     } else {
+                        if (!checkPermition('person',(int)$persID)){
+                            die(json_encode(['err' => "Изменить чужую персоналию невозможно"]));
+                        }
+                        // TODO ЗАПРОС КТО СОЗДАЛ ЗАПИСЬ ЕСЛИ НЕ РАВЕН С СЕССИОН ID то иди нах
                         $SQL = "UPDATE person SET 
                                 F='$pers_F',
                                 I='$pers_I', 
@@ -277,7 +309,13 @@
             require_once '../php_class/fileUpload.php';
             $UPLOAD = new FileUpload();
             if (isset($_GET['del'])) {
+
+                //  ЗАПРОС КТО СОЗДАЛ ЗАПИСЬ ЕСЛИ НЕ РАВЕН С СЕССИОН ID то иди нах
                 $id_file = $_POST['file'];
+                if (!checkPermition('file',$id_file)){
+                    die(json_encode(['err' => "Удилить чужой файл невозможно"]));
+                }
+
                 $UPLOAD->delFile($id_file);
             } else {
                 if (empty($_POST['id_file'])) {
@@ -286,7 +324,11 @@
                     $dataFile['POST'] = $_POST;
                     $UPLOAD->setBD($_POST);
                 } else {
+                    // ЗАПРОС КТО СОЗДАЛ ЗАПИСЬ ЕСЛИ НЕ РАВЕН С СЕССИОН ID то иди нах
                     $dataFile['POST'] = $_POST;
+                    if (!checkPermition('file',(int)$_POST['id_file'])){
+                        die(json_encode(['err' => "Изменить чужой файл невозможно"]));
+                    }
                     $dataFile['UPDATE'] = $UPLOAD->updateBD($_POST);
                 }
             }
@@ -300,7 +342,11 @@
             $db = (new BDconnect())->connect();
             $ret = [];
             if (isset($_GET['del'])) {
+                //  ЗАПРОС КТО СОЗДАЛ ЗАПИСЬ ЕСЛИ НЕ РАВЕН С СЕССИОН ID то иди нах
                 $text = 'ok';
+                if (!checkPermition('event',(int)$_POST['event'])){
+                    die(json_encode(['err' => "Удалить чужое событие невозможно"]));
+                }
                 $del = del('event', $_POST['event'], false);
                 if ($del !== false) {
                     $text = $del;
@@ -346,6 +392,10 @@
                         $SQL = "INSERT INTO event (Name, DateN, DateK,  `Desc`, Doc, importance, latitude, longitude, create_user) value 
                         ('$Name','$DateN','$DateK','$Desc','$Doc','$importance','$latitude','$longitude',$USER_ID) ";
                     } else {
+                        //  ЗАПРОС КТО СОЗДАЛ ЗАПИСЬ ЕСЛИ НЕ РАВЕН С СЕССИОН ID то иди нах
+                        if (!checkPermition('event',(int)$eventID)){
+                            die(json_encode(['err' => "Изменить чужое событие невозможно"]));
+                        }
                         $SQL = "UPDATE event SET 
                                 Name='$Name',
                                 DateN='$DateN', 
