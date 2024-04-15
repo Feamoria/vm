@@ -9,7 +9,18 @@
                 $_POST[$i]=mysqli_escape_string($db,$val);
 			}
         	if ($_POST['pass'] == $_POST['pass2']){
-        		/*TODO проверка на дубль*/
+        		/* проверка на дубль*/
+				$SQL="SELECT * FROM user where login={$_POST['login']}";
+                $result = mysqli_query($db, $SQL);
+                if (!$result) {
+                    $_SESSION['err']=$SQL . "|Couldn't execute query." . mysqli_error($db);
+                }
+				$num=mysqli_num_rows($result);
+				if ($num >0) {
+                    $_SESSION['err']='Такой пользователь уже существует';
+					die();
+				}
+				/*добавление*/
 				$pass=hash('sha512', $_POST['pass']);
         		$SQL="INSERT INTO user (role, FIO, login, pass,dep) value 
     				(2,'{$_POST['FIO']}','{$_POST['login']}','$pass','{$_POST['dep']}')";
@@ -17,8 +28,6 @@
 					if (!$result) {
                         $_SESSION['err']=$SQL . "|Couldn't execute query." . mysqli_error($db);
 					}
-                //die(json_encode(['err' => $SQL . "|Couldn't execute query." . mysqli_error($db)], JSON_UNESCAPED_UNICODE));
-
             } else {
         		$_SESSION['err']='Пароли не совпадают';
 			}

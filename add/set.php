@@ -1,9 +1,4 @@
 <?php
-
-
-    ini_set('error_reporting', E_ALL);
-    ini_set('display_errors', 1);
-    ini_set('display_startup_errors', 1);
     function add($table, $tag)
     {
         $db = (new BDconnect())->connect();
@@ -206,6 +201,13 @@
                 }
                 $pers_Desc = $_POST['pers_Desc'];
                 $pers_dol = $_POST['pers_dol'];
+                /*
+                 *
+                 * pers_publications
+                 * pers_awards
+                */
+                $pers_publications = $_POST['pers_publications'];
+                $pers_awards = $_POST['pers_awards'];
                 $ret = [];
 
                 //die(json_encode($_POST, JSON_UNESCAPED_UNICODE));
@@ -213,13 +215,13 @@
                 mysqli_begin_transaction($db);
                 try {
                     if ($persID == null) {
-                        $SQL = "INSERT INTO person (F, I, O, comment, dol, dayN, dayD, create_user) value 
-                        ('$pers_F','$pers_I','$pers_O','$pers_Desc','$pers_dol','$pers_date1',$pers_date2,'$USER_ID');";
+                        $SQL = "INSERT INTO person (F, I, O, comment, dol, dayN, dayD, create_user,publications,awards) value 
+                        ('$pers_F','$pers_I','$pers_O','$pers_Desc','$pers_dol','$pers_date1',$pers_date2,'$USER_ID','$pers_publications','$pers_awards');";
                     } else {
                         if (!checkPermition('person',(int)$persID)){
                             die(json_encode(['err' => "Изменить чужую персоналию невозможно"]));
                         }
-                        // TODO ЗАПРОС КТО СОЗДАЛ ЗАПИСЬ ЕСЛИ НЕ РАВЕН С СЕССИОН ID то иди нах
+                        //  ЗАПРОС КТО СОЗДАЛ ЗАПИСЬ ЕСЛИ НЕ РАВЕН С СЕССИОН ID то иди нах
                         $SQL = "UPDATE person SET 
                                 F='$pers_F',
                                 I='$pers_I', 
@@ -227,7 +229,9 @@
                                 comment='$pers_Desc', 
                                 dol='$pers_dol', 
                                 dayN='$pers_date1', 
-                                dayD='$pers_date2'
+                                dayD='$pers_date2',
+                                publications='$pers_publications',
+                                awards='$pers_awards'
                                  where id=$persID;";
                     }
                     $result = mysqli_query($db, $SQL);

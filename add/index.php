@@ -97,6 +97,52 @@
         echo time(); ?>"></script>
 </head>
 <body>
+<style>
+    .ui-tooltip, .arrow:after {
+        background: black;
+        border: 2px solid white;
+    }
+    .ui-tooltip {
+        padding: 10px 20px;
+        color: white;
+        border-radius: 20px;
+        font: bold 14px "Helvetica Neue", Sans-Serif;
+        text-transform: uppercase;
+        box-shadow: 0 0 7px black;
+    }
+    .arrow {
+        width: 70px;
+        height: 16px;
+        overflow: hidden;
+        position: absolute;
+        left: 50%;
+        margin-left: -35px;
+        bottom: -16px;
+    }
+    .arrow.top {
+        top: -16px;
+        bottom: auto;
+    }
+    .arrow.left {
+        left: 20%;
+    }
+    .arrow:after {
+        content: "";
+        position: absolute;
+        left: 20px;
+        top: -20px;
+        width: 25px;
+        height: 25px;
+        box-shadow: 6px 5px 9px -9px black;
+        -webkit-transform: rotate(45deg);
+        -ms-transform: rotate(45deg);
+        transform: rotate(45deg);
+    }
+    .arrow.top:after {
+        bottom: -20px;
+        top: auto;
+    }
+</style>
 <div class="row">
 	<div class="col-md-12">Пользователей онлайн: <span id="UserOnline"></span></div>
 </div>
@@ -117,7 +163,7 @@
 						<select id="s_pers" name="s_pers[]" multiple class="form-select" aria-label="Персоналии"></select>
 					</div>
 					<div class="col">
-						<select id="s_tem" name="s_tem[]" multiple class="form-select" aria-label="Научная тематика"></select>
+						<select id="s_tem" name="s_tem[]" multiple class="form-select" aria-label="Направление науки"></select>
 					</div>
 					<div class="col">
 						<select id="s_tg" name="s_tag[]" multiple class="form-select" aria-label="Ключевые слова"></select>
@@ -136,7 +182,7 @@
 		<li><a href="#tabs-2">Персоналии</a></li>
 		<li><a href="#tabs-3">Файлы</a></li>
 		<li><a href="#tabs-4">Ключевые слова</a></li>
-		<li><a href="#tabs-5">Научная тематика</a></li>
+		<li><a href="#tabs-5">Направление науки</a></li>
 		<li><a href="#tabs-6">Структурное подразделение</a></li>
 	</ul>
 	<div id="tabs-1">
@@ -185,15 +231,14 @@
 			</div>
 			<!--Ссылки на архивный документ -->
 			<div class="input-group">
-				<span style="width: 20%" class="input-group-text text-bg-success">Ссылка на архивный документ</span>
-				<input type="text" id='ev_doc' name='ev_doc' aria-label="" class="form-control" placeholder="">
+				<span style="width: 20%" class="input-group-text text-bg-success">Ссылка</span>
+				<input type="text" id='ev_doc' name='ev_doc' aria-label="" class="form-control" title="ссылка на архивный документ/гиперссылка на сайт/видео/статью/книгу и др.)">
 			</div>
 			<!--Персоналии multiple -->
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success">Персоналии</span>
-				<select id="ev_pers" name="ev_pers[]" class="form-select" multiple aria-label="">
-
-				</select>
+				<select id="ev_pers" name="ev_pers[]" class="form-select" multiple aria-label=""></select>
+				<input style="width: 30%" type="text" id='ev_pers_add' aria-label="" class="form-control" placeholder="">
 			</div>
 			<!--Структурное подразделение -->
 			<div class="col-auto input-group">
@@ -202,9 +247,9 @@
 
 				</select>
 			</div>
-			<!--Научная тематика -->
+			<!--Направление науки -->
 			<div class="input-group">
-				<span style="width: 20%" class="input-group-text text-bg-success">Научная тематика</span>
+				<span style="width: 20%" class="input-group-text text-bg-success">Направление науки</span>
 				<select id="ev_tem" name="ev_tem[]" multiple class="form-select" aria-label="">
 				</select>
 			</div>
@@ -246,18 +291,23 @@
 				<input id="pers_date2" name="pers_date2" type="text" class="form-control" placeholder="по" aria-label="">
 			</div>
 			<div class="input-group">
-				<span style="width: 20%" class="input-group-text text-bg-success">Должность<span style="color: red">*</span></span>
+				<span style="width: 20%" class="input-group-text text-bg-success">Ученая степень/должность<span style="color: red">*</span></span>
 				<input id="pers_dol" name="pers_dol" required type="text" class="form-control" placeholder="" aria-label="">
 			</div>
 			<div class="input-group">
-				<span style="width: 20%" class="input-group-text text-bg-success">Аннотация</span>
-				<textarea id="pers_Desc" name="pers_Desc" class="form-control" aria-label=""></textarea>
+				<span style="width: 20%" class="input-group-text text-bg-success">Биографические данные (кратко)</span>
+				<textarea id="pers_Desc" name="pers_Desc" class="form-control" aria-label="" title="Пример: Окончил историко-филологический факультет Коми государственного пединститута (1971). С 1971 г. работает в ИЯЛИ Коми НЦ УрО РАН: до 1976 г. – лаборант, с 1976 г. – младший научный сотрудник, с 1982 г. по 1985 г.−  ученый секретарь, с 1985 г. по 1987 г. – заведующий сектором языка, с 1987 г. по 1997 г. – старший научный сотрудник, с 1997 г. по 2004 г. – ведущий научный сотрудник, с 2004 по настоящее время – главный научный сотрудник." ></textarea>
 				<span class="input-group-text" id="pers_Desc_short_COUNT"></span>
 			</div>
+			<!--Основные публикации -->
 			<div class="input-group">
-				<span style="width: 20%" class="input-group-text text-bg-success">Достяжения</span>
-				<textarea id="pers_Achievement" name="pers_Achievement" class="form-control" aria-label=""></textarea>
-				<span class="input-group-text" id="pers_Desc_short_COUNT"></span>
+				<span style="width: 20%" class="input-group-text text-bg-success">Основные публикации</span>
+				<textarea id="pers_publications" name="pers_publications" class="form-control" aria-label="" title="не более 10; по ГОСТу Р 7.0.5–2008"></textarea>
+			</div>
+			<!--Награды, звания -->
+			<div class="input-group">
+				<span style="width: 20%" class="input-group-text text-bg-success">Награды, звания</span>
+				<textarea id="pers_awards" name="pers_awards" class="form-control" aria-label="" title="от федеральных к региональным и ведомственным. Для примера:Почетная грамота Республики Коми (2002)."></textarea>
 			</div>
 			<!--Структурное подразделение -->
 			<div class="col-auto input-group">
@@ -266,9 +316,9 @@
 
 				</select>
 			</div>
-			<!--Научная тематика -->
+			<!--Направление науки -->
 			<div class="input-group">
-				<span style="width: 20%" class="input-group-text text-bg-success">Научная тематика</span>
+				<span style="width: 20%" class="input-group-text text-bg-success">Направление науки</span>
 				<select id="pers_tem" name="pers_tem[]" class="form-select" multiple aria-label="">
 				</select>
 			</div>
@@ -310,22 +360,23 @@
 			</div>
 			<!--Ссылки на архивный документ -->
 			<div class="input-group">
-				<span style="width: 20%" class="input-group-text text-bg-success">Ссылки на архивный документ</span>
-				<input style="width: 10%" type="text" id='file_doc' name='file_doc' aria-label="" class="form-control" placeholder="">
+				<span style="width: 20%" class="input-group-text text-bg-success">Ссылка</span>
+				<input style="width: 10%" type="text" id='file_doc' name='file_doc' aria-label="" class="form-control"  title="ссылка на архивный документ/гиперссылка на сайт/видео/статью/книгу и др.)">
 			</div>
 			<!--Персоналии -->
 			<div class="col-auto input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success" id="">Персоналии</span>
 				<select id="file_pers" name="file_pers[]" class="form-select" multiple aria-label=""></select>
+				<input style="width: 30%" type="text" id='file_pers_add' aria-label="" class="form-control" placeholder="">
 			</div>
 			<!--Структурное подразделение -->
 			<div class="col-auto input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success" id="">Структурное подразделение</span>
 				<select id="file_sci_department" name="file_sci_department[]" class="form-select" multiple aria-label=""></select>
 			</div>
-			<!--Научная тематика -->
+			<!--Направление науки -->
 			<div class="input-group">
-				<span style="width: 20%" class="input-group-text text-bg-success">Научная тематика</span>
+				<span style="width: 20%" class="input-group-text text-bg-success">Направление науки</span>
 				<select id="file_tem" name="file_tem[]" class="form-select" multiple aria-label="">
 
 				</select>
@@ -363,7 +414,7 @@
 	<div id="tabs-5">
 		<form class="row" method="post" id="sci_field">
 			<div class="input-group">
-				<span style="width: 30%" class="input-group-text text-bg-success">Научная тематика</span>
+				<span style="width: 30%" class="input-group-text text-bg-success">Направление науки</span>
 				<input style="width: 30%" type="text" id='sci_field_add' aria-label="" class="form-control" placeholder="">
 				<button class="btn btn-primary" id='sci_field_add_btn'>Добавить</button>
 			</div>

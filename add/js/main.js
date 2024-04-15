@@ -1,10 +1,26 @@
 let timerId;
 let first = true;
+/** TODO НЕЗАБЫТЬ ВЕРНУТЬ НА ПРОДЕ!*/
 let test = false;
+let cache_tag = {};
+let cache_pers = {};
 $(document).ready(function () {
     if (!test)
         timerId = setInterval(GetOnline, 0);
-
+    $( '#file_doc,#ev_doc,#pers_Desc,#pers_awards,#pers_publications' ).tooltip({
+        position: {
+            my: "center bottom-20",
+            at: "left top",
+            using: function( position, feedback ) {
+                $( this ).css( position );
+                $( "<div>" )
+                    .addClass( "arrow" )
+                    .addClass( feedback.vertical )
+                    .addClass( feedback.horizontal )
+                    .appendTo( this );
+            }
+        }
+    });
     $('#dialog_del').dialog({
         modal: true,
         resizable: false,
@@ -70,8 +86,10 @@ $(document).ready(function () {
                 let tbl = $("#tbl_tag");
                 tbl.html('');
                 $.each(data, function (i, v) {
-                    if (v.SUMM === null) {v.SUMM=0;}
-                    tbl.append('<tr><td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delTag(' + v.id + ')"><i class="bi bi-trash"></i></button></td><td>' + v.Name +' ('+v.SUMM+ ')</td></tr>')
+                    if (v.SUMM === null) {
+                        v.SUMM = 0;
+                    }
+                    tbl.append('<tr><td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delTag(' + v.id + ')"><i class="bi bi-trash"></i></button></td><td>' + v.Name + ' (' + v.SUMM + ')</td></tr>')
                 })
             }
             if (event.target.hash === '#tabs-5') {
@@ -79,8 +97,10 @@ $(document).ready(function () {
                 let tbl = $("#tbl_sci_field");
                 tbl.html('');
                 $.each(data, function (i, v) {
-                    if (v.SUMM === null) {v.SUMM=0;}
-                    tbl.append('<tr><td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delSci_field(' + v.id + ')"><i class="bi bi-trash"></i></button></td><td>' + v.Name +' ('+v.SUMM+ ')</td></tr>')
+                    if (v.SUMM === null) {
+                        v.SUMM = 0;
+                    }
+                    tbl.append('<tr><td style="width: 20px"><button type="button" class="btn btn-danger" onclick="delSci_field(' + v.id + ')"><i class="bi bi-trash"></i></button></td><td>' + v.Name + ' (' + v.SUMM + ')</td></tr>')
                 })
 
             }
@@ -103,7 +123,7 @@ $(document).ready(function () {
     let data_sci_department = load_sci_department();
     let data_file = load_file();
     let data_event = load_event();
-    let cache_tag = {};
+
     /*******************
      /*     EVENT
      /********************/
@@ -114,29 +134,13 @@ $(document).ready(function () {
     updateEvent(data_event);
     $('#ev_tag_add').autocomplete({
         minLength: 1,
-        source: function( request, response ) {
-            let term = request.term;
-            if ( term in cache_tag ) {
-                response( cache_tag[ term ] );
-                return;
-            }
-            $.getJSON( "get.php?tag", request, function( data, status, xhr ) {
-                cache_tag[ term ] = data;
-                response( data );
-            });
-        },
-        select: function( event, ui ) {
-            let el=$('#ev_tag');
-            let tag=el.val();
-            console.log(tag);
-            if (!Array.isArray(tag)) {
-                tag =[];
-            }
-            tag.push(ui.item.id)
-            el.val(tag).multiselect('refresh');
-            ui.item.value='';
-            $('#ev_tag_add').val('');
-        }
+        source: AutocompleteSourceTag,
+        select: AutocompleteSelect,
+    });
+    $('#ev_pers_add').autocomplete({
+        minLength: 1,
+        source: AutocompleteSourcePers,
+        select: AutocompleteSelect,
     });
     $('#ev_Y_n,#ev_M_n,#ev_D_n,#ev_Y_e,#ev_M_e,#ev_D_e').on('keyup', function (/*e*/) {
         this.value = this.value.replace(/\D/g, '');
@@ -228,7 +232,7 @@ $(document).ready(function () {
             success: function (data) {
                 $('#ev_file_text').empty();
                 $('#event').trigger("reset");
-                if (typeof data.err ==='undefined') {
+                if (typeof data.err === 'undefined') {
                     console.log(data);
                     updateEvent(load_event());
                 } else alert(data.err);
@@ -253,6 +257,11 @@ $(document).ready(function () {
     initTagAjax('#pers_tem', data_sci_field);
     initTagAjax('#pers_sci_department', data_sci_department);
     // initTagAjax('#pers_file',data_sci_field); TODO pers_file (?)
+    $('#pers_tag_add').autocomplete({
+        minLength: 1,
+        source: AutocompleteSourceTag,
+        select: AutocompleteSelect,
+    });
 
     $('#pers_Desc').on('keyup', function (/*e*/) {
         let text = $(this).val();
@@ -308,7 +317,7 @@ $(document).ready(function () {
                 console.log(data);
                 $('#pers').trigger("reset");
                 $('#persID').val('');
-                if (typeof data.err ==='undefined') {
+                if (typeof data.err === 'undefined') {
                     updatePerson(load_person());
                 } else alert(data.err);
             }
@@ -462,7 +471,16 @@ $(document).ready(function () {
     initTagAjax('#file_tem', data_sci_field);
     initTagAjax('#file_pers', data_pers);
     initTagAjax('#file_sci_department', data_sci_department);
-
+    $('#file_tag_add').autocomplete({
+        minLength: 1,
+        source: AutocompleteSourceTag,
+        select: AutocompleteSelect,
+    });
+    $('#file_pers_add').autocomplete({
+        minLength: 1,
+        source: AutocompleteSourcePers,
+        select: AutocompleteSelect,
+    });
     $('#file_Desc').on('keyup', function (/*e*/) {
         let text = $(this).val();
         if (text.length > 1000) {
@@ -515,7 +533,7 @@ $(document).ready(function () {
                 $('#file').trigger("reset");
                 $('#id_file').val('');
                 $('#file_F').prop('disabled', false);
-                if (typeof data.err ==='undefined') {
+                if (typeof data.err === 'undefined') {
                     updateFile(data.GET);
                 } else alert(data.err);
             }
@@ -523,6 +541,41 @@ $(document).ready(function () {
         datepic.datepicker("option", "dateFormat", "dd.mm.yy");
     })
 })
+function AutocompleteSourcePers(request, response) {
+    let term = request.term;
+    if (term in cache_pers) {
+        response(cache_pers[term]);
+        return;
+    }
+    $.getJSON("get.php?person", request, function (data, status, xhr) {
+        cache_pers[term] = data;
+        response(data);
+    });
+}
+function AutocompleteSourceTag(request, response) {
+    let term = request.term;
+    if (term in cache_tag) {
+        response(cache_tag[term]);
+        return;
+    }
+    $.getJSON("get.php?tag", request, function (data, status, xhr) {
+        cache_tag[term] = data;
+        response(data);
+    });
+}
+
+function AutocompleteSelect(event, ui) {
+    let element_id = event.target.id
+    element_id = element_id.replace("_add", '');
+    let el = $('#' + element_id);
+    let tag = el.val();
+    if (!Array.isArray(tag)) {
+        tag = [];
+    }
+    tag.push(ui.item.id)
+    el.val(tag).multiselect('refresh');
+    ui.item.value = '';
+}
 
 function GetOnline() {
     if (first) {
@@ -542,7 +595,7 @@ function GetOnline() {
                     $('#UserOnline').append(' [' + value.FIO + '] ');
                 });
             }
-            console.log(data);
+            //console.log(data);
         }
     });
 }
@@ -556,11 +609,11 @@ function editEvent(id) {
     let ev_n = info.DateN.split('.');
     let ev_k = info.DateK.split('.');
     $('#ev_Y_n').val(ev_n[0]);
-    $('#ev_M_n').val((ev_n[1])?ev_n[1]:'');
-    $('#ev_D_n').val((ev_n[2])?ev_n[2]:'');
-    $('#ev_Y_e').val((ev_k[0])?ev_k[0]:'');
-    $('#ev_M_e').val((ev_k[1])?ev_k[1]:'');
-    $('#ev_D_e').val((ev_k[2])?ev_k[2]:'');
+    $('#ev_M_n').val((ev_n[1]) ? ev_n[1] : '');
+    $('#ev_D_n').val((ev_n[2]) ? ev_n[2] : '');
+    $('#ev_Y_e').val((ev_k[0]) ? ev_k[0] : '');
+    $('#ev_M_e').val((ev_k[1]) ? ev_k[1] : '');
+    $('#ev_D_e').val((ev_k[2]) ? ev_k[2] : '');
     $('#ev_Desc').val(info.Desc);
     $('#ev_importance').val(info.importance);
     $('#ev_doc').val(info.Doc);
@@ -620,7 +673,7 @@ function editEvent(id) {
 function editPerson(id) {
     /**  #persID*/
     let data = load_person('s_id=' + id);
-    let info = data[id];
+    let info = data[0];
     $('#persID').val(info.id);
 
     //console.log(info);
@@ -634,6 +687,8 @@ function editPerson(id) {
     DT.datepicker("option", "dateFormat", "dd.mm.yy");
     $('#pers_dol').val(info.DOL);
     $('#pers_Desc').val(info.COMMENT);
+    $('#pers_publications').val(info.publications);
+    $('#pers_awards').val(info.awards);
     //pers_sci_department  - sci_department
     let sci_department = [];
     if (info.sci_department.length > 0) {
@@ -1218,12 +1273,12 @@ function initTagAjax(elem, data) {
     elem_g.html('');
 
     $.each(data, function (i, v) {
-        let SUMM='';
-        if (typeof v.SUMM !== 'undefined'){
-            if (v.SUMM ===null) v.SUMM=0;
-            SUMM="("+v.SUMM+")"
+        let SUMM = '';
+        if (typeof v.SUMM !== 'undefined') {
+            if (v.SUMM === null) v.SUMM = 0;
+            SUMM = "(" + v.SUMM + ")"
         }
-        $(elem).append('<option value="' + v.id + '">' + v.Name +SUMM+ '</option>');
+        $(elem).append('<option value="' + v.id + '">' + v.Name + SUMM + '</option>');
     });
     elem_g.multiselect('refresh');
 }
@@ -1239,6 +1294,11 @@ function initmultiselect(elem) {
         buttonW = '40%';
         menuWidth = '60%';
     }
+    if (elem.indexOf('_pers') > 0) {
+        buttonW = '40%';
+        menuWidth = '60%';
+    }
+
     if (elem.indexOf('s_') === 0) {
         buttonW = '100%';
         menuWidth = '100%';

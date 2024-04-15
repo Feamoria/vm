@@ -1,5 +1,7 @@
 <?php
-
+    ini_set('error_reporting', E_ALL);
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
     require_once '../php_class/connect.php';
     session_start([
                       'cookie_lifetime' => 86400,
@@ -56,12 +58,24 @@
             $data['POST']=$_POST;
             $where= ' where id = '.(int)$_POST['s_id'];
         }
-        $SQL = "SELECT `id`, CONCAT(F,' ',I,' ',O) as Name, F, I, O, COMMENT, DOL, DAYN, DAYD, CREATE_DATE, CREATE_USER FROM person $where;";
+        if (isset($_GET['term'])){
+            $term=mysqli_escape_string($db,$_GET['term']);
+            $SQL="SELECT id,CONCAT(F,' ',I,' ',O) as value FROM person 
+                    where CONCAT(F,' ',I,' ',O) like '%$term%'
+                    order by F,I,O;";
+            $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
+            $res = mysqli_fetch_all($query,MYSQLI_ASSOC);
+            die(json_encode($res, JSON_UNESCAPED_UNICODE));
+        }
+        $SQL = "SELECT `id`, CONCAT(F,' ',I,' ',O) as Name, F, I, O, COMMENT, DOL, DAYN, DAYD, CREATE_DATE, CREATE_USER,publications,awards 
+                FROM person 
+                    $where
+                    order by `id` desc";
         $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
         $res = mysqli_fetch_all($query,MYSQLI_ASSOC);
 
-        foreach ($res as $val) {
-            $i=$val['id'];
+        foreach ($res as $i=>$val) {
+            //$i=$val['id'];
             $data[$i]=$val;
             //ТЕГИ
             $SQL="SELECT tag.id, tag.Name FROM tag,(select * from tag_person where idPerson={$val['id']}) as tag_person
@@ -84,7 +98,6 @@
             $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
             $data[$i]['file']=mysqli_fetch_all($query, MYSQLI_ASSOC);
         }
-        /*Структурное подразделение */
 
         die(json_encode($data, JSON_UNESCAPED_UNICODE));
     }
