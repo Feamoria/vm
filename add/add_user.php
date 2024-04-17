@@ -1,5 +1,7 @@
 <?php
-
+    ini_set('error_reporting', E_ALL);
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
     require_once '../php_class/connect.php';
     $db = (new BDconnect())->connect();
     session_start();
@@ -10,7 +12,7 @@
 			}
         	if ($_POST['pass'] == $_POST['pass2']){
         		/* проверка на дубль*/
-				$SQL="SELECT * FROM user where login={$_POST['login']}";
+				$SQL="SELECT * FROM user where login='{$_POST['login']}'";
                 $result = mysqli_query($db, $SQL);
                 if (!$result) {
                     $_SESSION['err']=$SQL . "|Couldn't execute query." . mysqli_error($db);

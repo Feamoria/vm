@@ -15,12 +15,12 @@
         }
         $SQL = "SELECT * FROM event 
                 $where
-                order by create_date desc";
+                order by id desc";
         $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
         $res = mysqli_fetch_all($query,MYSQLI_ASSOC);
         $data=[];
-        foreach ($res as $val) {
-            $i=$val['id'];
+        foreach ($res as $i=>$val) {
+            //$i=$val['id'];
             $data[$i]=$val;
             //Персоналии
             $SQL="SELECT person.id,CONCAT(F,' ',I,' ',O) as Name FROM person,(select * from person_event where idEvent={$val['id']}) as person_event
