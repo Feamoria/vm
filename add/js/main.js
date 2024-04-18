@@ -603,7 +603,7 @@ function GetOnline() {
 function editEvent(id) {
     /** #eventID*/
     let data = load_event('s_id=' + id);
-    let info = data[id];
+    let info = data[0];
     $('#eventID').val(info.id);
     $('#ev_Name').val(info.Name);
     let ev_n = info.DateN.split('.');

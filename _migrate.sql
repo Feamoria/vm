@@ -1,0 +1,1 @@
+alter table tag modify Name varchar(30) null;
