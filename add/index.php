@@ -222,11 +222,12 @@
 				<span style="width: 20%" class="input-group-text text-bg-success" id="">Важность события<span style="color: red">*</span></span>
 				<select id="ev_importance" name="ev_importance" required class="form-select" aria-label="">
 					<option selected value="">--</option>
-					<option value="1">1е</option>
-					<option value="2">2е</option>
-					<option value="3">3е</option>
-					<option value="4">4е</option>
-					<option value="5">5е</option>
+					<option value="1">1 уровень</option>
+					<option value="2">2 уровень</option>
+					<option value="3">3 уровень</option>
+					<option value="4">4 уровень</option>
+					<option value="5">5 уровень</option>
+					<option value="6">6 уровень</option>
 				</select>
 			</div>
 			<!--Ссылки на архивный документ -->

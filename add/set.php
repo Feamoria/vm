@@ -197,7 +197,7 @@
                 if ($_POST['pers_date2'] == '') {
                     $pers_date2 = 'null';
                 } else {
-                    $pers_date2 = "'{$_POST['pers_date2']}'";
+                    $pers_date2 = "{$_POST['pers_date2']}";
                 }
                 $pers_Desc = $_POST['pers_Desc'];
                 $pers_dol = $_POST['pers_dol'];
