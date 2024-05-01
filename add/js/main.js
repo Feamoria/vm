@@ -7,7 +7,8 @@ let cache_pers = {};
 $(document).ready(function () {
     if (!test)
         timerId = setInterval(GetOnline, 0);
-    $( '#file_doc,#ev_doc,#pers_Desc,#pers_awards,#pers_publications' ).tooltip({
+    $( '#file_doc,#ev_doc,#ev_Name,#ev_Y_n,#ev_Desc,#div_ev_file,' +
+        '#pers_Desc,#pers_awards,#pers_publications,#div_persFio,#pers_date1,#pers_dol' ).tooltip({
         position: {
             my: "center bottom-20",
             at: "left top",
@@ -21,11 +22,33 @@ $(document).ready(function () {
             }
         }
     });
+    $('#my_event').on('click',function (e,ui){
+        updateEvent(load_event('dep='+$(this).prop('checked')));
+    })
+    $('#my_pers').on('click',function (e,ui){
+        updatePerson(load_person('dep='+$(this).prop('checked')));
+    })
+    $('#my_file').on('click',function (e,ui){
+        let search=null;
+        if ($(this).prop('checked') === 'true') {
+            search='dep='+$(this).prop('checked');
+        }
+        updateFile(load_file(search));
+    })
     $('#dialog_del').dialog({
         modal: true,
         resizable: false,
         autoOpen: false
     });
+    $('#dialogImportance').dialog({
+        modal: true,
+        resizable: false,
+        autoOpen: false,
+        width: 1000,
+    });
+    $('#importance').on('click',function () {
+        $('#dialogImportance').dialog('open');
+    })
     let dialog = $('#dialog_file').dialog({
         autoOpen: false,
         width: 1400,
@@ -79,7 +102,7 @@ $(document).ready(function () {
                 initmultiselect('file_pers');
                 initmultiselect('file_sci_department');
                 let data = load_file();
-                updateFile(data.GET);
+                updateFile(data);
             }
             if (event.target.hash === '#tabs-4') {
                 let data = load_tag();
@@ -114,6 +137,14 @@ $(document).ready(function () {
                 })
 
             }
+            if (event.target.hash === '#tabs-7') {
+                initmultiselect('collection_sci_department');
+            }
+            if (event.target.hash === '#tabs-8') {
+                initmultiselect('collectionItem_tag');
+                initmultiselect('collectionItem_tem');
+            }
+
         }
     })
     /*LOAD DATA*/
@@ -540,6 +571,35 @@ $(document).ready(function () {
         });
         datepic.datepicker("option", "dateFormat", "dd.mm.yy");
     })
+
+
+
+    /***********************
+     /*   collection
+     /***********************/
+    // TODO
+    initmultiselect('collection_sci_department');
+    initTagAjax('#collection_sci_department', data_sci_department);
+
+    $('#collection_add_btn').on('click', function (e) {
+        e.preventDefault();
+    });
+
+
+
+    /***********************
+     /*   collectionItem
+     /***********************/
+    // TODO
+    initmultiselect('collectionItem_tag');
+    initmultiselect('collectionItem_tem');
+    inittag('collectionItem_tag');
+    initTagAjax('#collectionItem_tag', data_tag);
+    initTagAjax('#collectionItem_tem', data_sci_field);
+
+    $('#collectionItem_add_btn').on('click', function (e) {
+        e.preventDefault();
+    });
 })
 function AutocompleteSourcePers(request, response) {
     let term = request.term;
@@ -768,12 +828,25 @@ function editFile(id) {
     $('#file_tag').val(tag).multiselect('refresh');
     $(window).scrollTop($('#UserOnline').offset().top);
 }
+function arrdata(data, href = false) {
+    let ret = '';
+    if (typeof data !== 'undefined')
+        if (data.length > 0) {
+            $.each(data, function (index, value) {
+                if (!href) {
+                    ret += '[' + value.Name + '] ';
+                } else {
+                    ret += '<a target="_blank" href="' + value.pathWeb + '">[' + value.name + ']</a> ';
+                }
+            });
+        }
+    return ret;
+}
 
 function updateFile(data) {
-    let tbl = $("#tbl_file");
-    tbl.html('<thead><tr>' +
+    let html='<table id="tbl_file" class="table table-bordered border-primary"><thead><tr>' +
         '<th>ID</th>' +
-        '<th></th>' +
+        '<th class="filter-false sorter-false"></th>' +
         '<th>Дата файла</th>' +
         '<th>Название файла</th>' +
         '<th>Аннотация</th>' +
@@ -783,26 +856,13 @@ function updateFile(data) {
         '<th>Ссылки на архивный докумен</th>' +
         '<th>Ключевые слова</th>' +
         '<th>Файл</th>' +
-        '</tr></thead>');
-
-    $.each(data, function (i, v) {
-        let tag = '';
-        $.each(v.tag, function (index, value) {
-            tag += "[" + value.Name + "]";
-        })
-        let sci_department = '';
-        $.each(v.sci_department, function (index, value) {
-            sci_department += "[" + value.Name + "]";
-        })
-        let sci_theme = '';
-        $.each(v.sci_theme, function (index, value) {
-            sci_theme += "[" + value.Name + "]";
-        })
-        let person = '';
-        $.each(v.person, function (index, value) {
-            person += "[" + value.Name + "]";
-        })
-        tbl.append('<tr>' +
+        '</tr></thead><tbody>';
+    $.each(data.GET, function (i, v) {
+        let sci_department = arrdata(v.sci_department);
+        let sci_theme = arrdata(v.sci_theme);
+        let tag = arrdata(v.tag);
+        let person = arrdata(v.pers);
+        html+='<tr>' +
             '<td>' + v.id + '</td>' +
             '<td style="width: 20px">' +
             '<div class="d-flex flex-column"><div>' +
@@ -818,16 +878,27 @@ function updateFile(data) {
             '<td>' + v.doc + '</td>' +
             '<td class="text-wrap">' + tag + '</td>' +
             '<td><a target="_blank" href="' + v.pathWeb + '">' + v.name + '</a></td>' +
-            '</tr>')
+            '</tr>';
     })
+    html+='</tbody></table>';
+    $("#div_tbl_file").html(html);
+    $('#tbl_file').tablesorter({
+        //theme : 'blue',
+        //widthFixed: true,
+        widgets : [ 'zebra', 'filter' ],
+        /*widgetOptions : {
+            filter_external: 'input.search',
+            filter_reset: '.reset'
+        }*/
+    });
 }
 
 function updateEvent(data) {
-    let tbl = $("#tbl_event");
+   // let tbl = $("#div_tbl_event");
     //console.log(data);
-    tbl.html('<thead><tr>' +
+    let html='<table id="tbl_event" class="table table-bordered border-primary"><thead><tr>' +
         '<th>ID</th>' +
-        '<th></th>' +
+        '<th class="filter-false sorter-false"></th>' +
         '<th>Название события</th>' +
         '<th>Дата</th>' +
         '<th>Событие полное</th>' +
@@ -838,32 +909,15 @@ function updateEvent(data) {
         '<th>Структурное подразделение</th>' +
         '<th>Научная тематика</th>' +
         '<th>Ключевые слова</th>' +
-        '</tr></thead>');
+        '</tr></thead><tbody>';
     $.each(data, function (i, v) {
         //console.log(v)
-        function arrdata(data, href = false) {
-            let ret = '';
-            if (typeof data !== 'undefined')
-                if (data.length > 0) {
-                    $.each(data, function (index, value) {
-                        if (!href) {
-                            ret += '[' + value.Name + ']';
-                        } else {
-                            ret += '<a target="_blank" href="' + value.pathWeb + '">' + value.name + '</a>';
-                        }
-                    });
-                }
-            return ret;
-        }
-
         let file = arrdata(v.file, true);
         let sci_department = arrdata(v.sci_department);
         let sci_theme = arrdata(v.sci_theme);
         let tag = arrdata(v.tag);
         let pers = arrdata(v.pers);
-
-
-        tbl.append('<tr>' +
+         html+='<tr>' +
             '<td>' + v.id + '</td>' +
             '<td style="width: 20px">' +
             '<div class="d-flex flex-column">' +
@@ -881,65 +935,75 @@ function updateEvent(data) {
             '<td>' + sci_theme + '</td>' +//Научная тематика
             '<td>' + tag + '</td>' +//Ключевые слова
             //'<td><a target="_blank" href="' + v.pathWeb + '">' + v.name + '</a></td>' +
-            '</tr>')
+            '</tr>'
     })
+    html+="</tbody></table>";
+    $("#div_tbl_event").html(html);
+    $('#tbl_event').tablesorter({
+        //theme : 'blue',
+        //widthFixed: true,
+        widgets : [ 'zebra', 'filter' ],
+        /*widgetOptions : {
+            filter_external: 'input.search',
+            filter_reset: '.reset'
+        }*/
+    });
 
 }
 
 function updatePerson(data) {
     initTagAjax('#ev_pers', data);
     initTagAjax('#file_pers', data);
-    let tbl = $("#tbl_person");
-    tbl.html('<thead><tr>' +
+
+    let html='<table id="tbl_person" class="table table-bordered border-primary"><thead><tr>' +
         '<th>ID</th>' +
-        '<th></th>' +
-        '<th>Фамилия</th>' +
-        '<th>Имя</th>' +
-        '<th>Отчество</th>' +
+        '<th class="filter-false sorter-false"></th>' +
+        '<th>ФИО</th>' +
+        //'<th>Имя</th>' +
+       // '<th>Отчество</th>' +
         '<th>Должность</th>' +
         '<th>Даты жизни</th>' +
         '<th>Аннотация</th>' +
         '<th>Ключевые</th>' +
         '<th>подразделение</th>' +
         '<th>тематика</th>' +
-        '<th>файлы</th>' +
-        '</tr></thead>');
+        '<th style="width: 10%">файлы</th>' +
+        '</tr></thead><tbody>';
     $.each(data, function (i, v) {
-        let file = '';
-        $.each(v.file, function (index, value) {
-            file += "<a href='" + value.pathWeb + "' target='_blank'>[" + value.name + "]</a> <br>";
-        })
-        let tag = '';
-        $.each(v.tag, function (index, value) {
-            tag += "[" + value.Name + "]";
-        })
-        let sci_department = '';
-        $.each(v.sci_department, function (index, value) {
-            sci_department += "[" + value.Name + "]";
-        })
-        let sci_theme = '';
-        $.each(v.sci_theme, function (index, value) {
-            sci_theme += "[" + value.Name + "]";
-        })
-        tbl.append('<tr>' +
+        let file = arrdata(v.file, true);
+        let sci_department = arrdata(v.sci_department);
+        let sci_theme = arrdata(v.sci_theme);
+        let tag = arrdata(v.tag);
+        html+='<tr>' +
             '<td>' + v.id + '</td>' +
             '<td style="width: 20px">' +
             '<div class="d-flex flex-column">' +
             '<div><button type="button" class="btn btn-danger" onclick="delPerson(' + v.id + ')"><i class="bi bi-trash"></i></button></div>' +
             '<div><button type="button" class="btn btn-info" onclick="editPerson(' + v.id + ')"><i class="bi bi-pencil-square"></i></button></div>' +
             '</div></td>' +
-            '<td>' + v.F + '</td>' +
-            '<td>' + v.I + '</td>' +
-            '<td>' + v.O + '</td>' +
+            '<td>' + v.F +' '+v.I +' '+ v.O + '</td>' +
+           //'<td>' + v.I + '</td>' +
+            //'<td>' + v.O + '</td>' +
             '<td>' + v.DOL + '</td>' +
             '<td>c ' + v.DAYN + ' по ' + v.DAYD + '</td>' +
             '<td><textarea style="width: 100%" class="form-control">' + v.COMMENT + '</textarea></td>' +
             '<td class="text-wrap">' + tag + '</td>' +
             '<td class="text-wrap">' + sci_department + '</td>' +
             '<td class="text-wrap">' + sci_theme + '</td>' +
-            '<td class="text-wrap">' + file + '</td>' +
-            '</tr>')
+            '<td style="width: 10%" class="text-wrap">' + file + '</td>' +
+            '</tr>'
     })
+    html+='</tbody></table>';
+    $("#div_tbl_person").html(html);
+    $('#tbl_person').tablesorter({
+        //theme : 'blue',
+        //widthFixed: true,
+        widgets : [ 'zebra', 'filter' ],
+        /*widgetOptions : {
+            filter_external: 'input.search',
+            filter_reset: '.reset'
+        }*/
+    });
 }
 
 function delEvent(tag, answer = null) {

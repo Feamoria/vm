@@ -95,12 +95,12 @@
                     $data[$i] = mysqli_escape_string($this->connect, $value);
                 }
             }
-            $id=(int)$data['id_file'];
-            $date=$data['file_date'];
-            $name=$data['file_name'];
-            $Desc=$data['file_Desc'];
-            $doc=$data['file_doc'];
-            $ret=[];
+            $id = (int)$data['id_file'];
+            $date = $data['file_date'];
+            $name = $data['file_name'];
+            $Desc = $data['file_Desc'];
+            $doc = $data['file_doc'];
+            $ret = [];
             /*Основа // И вообще оберёнм в транзацию ибо нех*/
             mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
             mysqli_begin_transaction($this->connect);
@@ -163,13 +163,19 @@
                 }
                 /** commit */
                 mysqli_commit($this->connect);
-                $ret=['ok'];
+                $ret = ['ok'];
             } catch (mysqli_sql_exception $exception) {
                 mysqli_rollback($this->connect);
-                $ret=['errorSQL','SQL'=>$SQL,'exception'=>$exception->getMessage(),'code'=>$exception->getCode()];
+                $ret = [
+                    'errorSQL',
+                    'SQL' => $SQL,
+                    'exception' => $exception->getMessage(),
+                    'code' => $exception->getCode()
+                ];
             }
             return $ret;
         }
+
         public function setBD($POST): bool
         {
             if (isset($this->FileArray['file_F'])) {
@@ -177,8 +183,11 @@
                     //session_start();
                     $data = $this->FileArray['file_F'];
                     $Date = $POST['file_date'];
-                    if ($Date =='') $Date='null';
-                    else $Date="'".$Date."'";
+                    if ($Date == '') {
+                        $Date = 'null';
+                    } else {
+                        $Date = "'" . $Date . "'";
+                    }
                     $name = $POST['file_name'];
                     $doc = $POST['file_doc'];
                     $Desc = $POST['file_Desc'];
@@ -268,55 +277,65 @@
         public function delFile($id): array
         {
             $File = $this->getBD($id);
-            $ret=[];
+            $ret = [];
             foreach ($File as $meta) {
                 $pathServ = $meta['pathServ'];
                 if (unlink($pathServ)) {
                     $SQL = "DELETE FROM file where id=$id";
                     if (!mysqli_query($this->connect, $SQL)) {
                         $ret = ['err' => $SQL . "|Couldn't execute query." . mysqli_error($this->connect)];
-                    } else $ret=['ok' => "ok" ];
-                } else $ret=['err' => 'Ошибка удаления файла'];
+                    } else {
+                        $ret = ['ok' => "ok"];
+                    }
+                } else {
+                    $ret = ['err' => 'Ошибка удаления файла'];
+                }
             }
             return $ret;
         }
 
-        public function getBD($id = null,$searth=null): array
+        public function getBD($id = null, $searth = null): array
         {
             $SQL = "SELECT id, cast(date as DATE ) as `date` , name, disc, doc, pathServ, pathWeb, type, create_date, create_user FROM file order by date";
             if ($id != null) {
                 $SQL = "SELECT id, cast(date as DATE ) as `date` , name, disc, doc, pathServ, pathWeb, type, create_date, create_user  FROM file where id=$id";
             }
             if ($searth != null) {
-                $Where='';
-                $and='';
-                if (isset($searth['s_id'])){
-                    $Where.=" $and `id` = '{$searth['s_id']}'";
-                    $and='and';
+                $Where = '';
+                $and = '';
+                if (isset($searth['s_id'])) {
+                    $Where .= " $and `id` = '{$searth['s_id']}'";
+                    $and = 'and';
                 }
-                if (isset($searth['s_Name'])){
-                    $Where.=" $and `name` like '%{$searth['s_Name']}%'";
-                    $and='and';
+                if (isset($searth['dep'])) {
+                    if ($searth['dep'] == 'true') {
+                        $Where .= " $and create_user in (SELECT id from user where dep = '{$_SESSION['user']['dep']}')";
+                    }
                 }
-                if (isset($searth['s_pers'])){
-                    $s=implode(',',$searth['s_pers']);
-                    $Where.=" $and id in (SELECT `idFile` from `file_person` where `idPerson` in ($s))";
+                if (isset($searth['s_Name'])) {
+                    $Where .= " $and `name` like '%{$searth['s_Name']}%'";
+                    $and = 'and';
+                }
+                if (isset($searth['s_pers'])) {
+                    $s = implode(',', $searth['s_pers']);
+                    $Where .= " $and id in (SELECT `idFile` from `file_person` where `idPerson` in ($s))";
                 }
                 //s_tem
-                if (isset($searth['s_tem'])){
-                    $s=implode(',',$searth['s_tem']);
-                    $Where.=" $and id in (SELECT `idFile` from `sci_theme_file` where `idSciTheme` in ($s))";
+                if (isset($searth['s_tem'])) {
+                    $s = implode(',', $searth['s_tem']);
+                    $Where .= " $and id in (SELECT `idFile` from `sci_theme_file` where `idSciTheme` in ($s))";
                 }
                 //s_tag
-                if (isset($searth['s_tag'])){
-                    $s=implode(',',$searth['s_tag']);
-                    $Where.=" $and id in (SELECT `idFile` from `tag_file` where `idTag` in ($s))";
+                if (isset($searth['s_tag'])) {
+                    $s = implode(',', $searth['s_tag']);
+                    $Where .= " $and id in (SELECT `idFile` from `tag_file` where `idTag` in ($s))";
                 }
-                $SQL="SELECT id, cast(date as DATE ) as `date` , name, disc, doc, pathServ, pathWeb, type, create_date, create_user 
+
+                $SQL = "SELECT id, cast(date as DATE ) as `date` , name, disc, doc, pathServ, pathWeb, type, create_date, create_user 
                         FROM file 
                         where $Where";
             }
-
+            //echo $SQL;
             $query = mysqli_query($this->connect, $SQL) or die(
                 $SQL . "|Couldn't execute query." . mysqli_error(
                     $this->connect
@@ -337,7 +356,7 @@
                     JSON_UNESCAPED_UNICODE
                 )
                 );
-                $data[$i]['tag'] = mysqli_fetch_all($query,MYSQLI_ASSOC);
+                $data[$i]['tag'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
                 /*Научная тематика */
                 $SQL = "SELECT sci_theme.id,sci_theme.Name FROM sci_theme,
                                         (select * from sci_theme_file where idFile={$val['id']}) as sci_theme_file
@@ -349,7 +368,7 @@
                     JSON_UNESCAPED_UNICODE
                 )
                 );
-                $data[$i]['sci_theme'] = mysqli_fetch_all($query,MYSQLI_ASSOC);
+                $data[$i]['sci_theme'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
                 /*Персоналии*/
                 $SQL = "SELECT person.id , CONCAT(F,' ',I,' ',O) as Name FROM person,
                                                       (select * from file_person where idFile={$val['id']}) as file_person
@@ -361,7 +380,7 @@
                     JSON_UNESCAPED_UNICODE
                 )
                 );
-                $data[$i]['person'] = mysqli_fetch_all($query,MYSQLI_ASSOC);
+                $data[$i]['person'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
 
                 /* Научное подразделение -file_sci_department*/
                 $SQL = "SELECT sci_department.id,sci_department.Name FROM sci_department,(select * from sci_department_file where idFile={$val['id']}) as sci_department_file
@@ -373,7 +392,7 @@
                     JSON_UNESCAPED_UNICODE
                 )
                 );
-                $data[$i]['sci_department'] = mysqli_fetch_all($query,MYSQLI_ASSOC);
+                $data[$i]['sci_department'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
             }
             return $data;
         }
