@@ -30,7 +30,7 @@ $(document).ready(function () {
     })
     $('#my_file').on('click',function (e,ui){
         let search=null;
-        if ($(this).prop('checked') === 'true') {
+        if ($(this).prop('checked') === true) {
             search='dep='+$(this).prop('checked');
         }
         updateFile(load_file(search));
@@ -969,7 +969,10 @@ function updatePerson(data) {
         '<th>тематика</th>' +
         '<th style="width: 10%">файлы</th>' +
         '</tr></thead><tbody>';
+
     $.each(data, function (i, v) {
+        console.log(i);
+        if (i==='POST') {return;}
         let file = arrdata(v.file, true);
         let sci_department = arrdata(v.sci_department);
         let sci_theme = arrdata(v.sci_theme);

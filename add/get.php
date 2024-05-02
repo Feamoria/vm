@@ -69,8 +69,9 @@
                 $where = ' where id = ' . (int)$_POST['s_id'];
             }
             if (isset($_POST['dep'])) {
-                $data['POST'] = $_POST;
+
                 if ($_POST['dep'] == 'true') {
+                    $data['POST'] = $_POST;
                     $where = " where create_user in (SELECT id from user where dep = '{$_SESSION['user']['dep']}')";
                 }
             }
