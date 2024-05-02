@@ -7,16 +7,27 @@
 
     class FileUpload
     {
+
         private array $FileArray;
         private $connect;
         private string $uploaddir;
         private string $client_path;
+        private string $regExpFile;
+        /**
+         * @var int $type 0-Обычные файлы, 1-Файлы для колекций
+         */
+        private int $type;
 
+        /**
+         *
+         */
         public function __construct(/*$arrFile*/)
         {
             $this->connect = (new BDconnect())->connect();
             $this->uploaddir = "{$_SERVER['DOCUMENT_ROOT']}/vm/img/";
             $this->client_path = '/vm/img/';
+            $this->regExpFile ='/.*\.(xls|xlsx|doc|docx|pdf|jpg|jpeg)$/i';
+            $this->type=0;
         }
 
         public function getDataFile(): array
@@ -53,7 +64,7 @@
                     ) . '.' . $info['extension']
                 );
                 $file_name = $OFileName;
-                if (preg_match('/.*\.(xls|xlsx|doc|docx|pdf|jpg|jpeg)$/i', $file_name)) {
+                if (preg_match($this->regExpFile, $file_name)) {
                     if (move_uploaded_file($OFileTemp, "/$uploadDir/$file_nameFull")) {
                         $path = realpath("$uploadDir/$file_nameFull");
                         $resp[$j]['ok'] = '1';
@@ -110,7 +121,8 @@
                     `name`='$name',
                     `date`='$date',
                     `disc`='$Desc',
-                    `doc`='$doc'
+                    `doc`='$doc',
+                    `type`=$this->type
                 WHERE id=$id;";
                 mysqli_query($this->connect, $SQL);
                 /*file_pers*/
@@ -191,10 +203,10 @@
                     $name = $POST['file_name'];
                     $doc = $POST['file_doc'];
                     $Desc = $POST['file_Desc'];
-                    $SQL = "insert into file (date, name, disc, doc, pathServ, pathWeb, type,  create_user)  values 
+                    $SQL = "insert into file (date, name, disc, doc, pathServ, pathWeb, type,  create_user,type)  values 
                             ($Date,'$name','$Desc','$doc','{$data['serv_path']}',
                              '{$data['client_path']}','{$data['info1']['type']}',                          
-                            '{$_SESSION['user']['id']}' );";
+                            '{$_SESSION['user']['id']}',$this->type );";
                     $result = mysqli_query($this->connect, $SQL) or die(
                     json_encode(
                         ['errorSQL' => "Couldn't execute query." . mysqli_error($this->connect) . "<br> " . $SQL]
@@ -294,40 +306,45 @@
             return $ret;
         }
 
-        public function getBD($id = null, $searth = null): array
+        public function getBD($id = null, $search = null): array
         {
-            $SQL = "SELECT id, cast(date as DATE ) as `date` , name, disc, doc, pathServ, pathWeb, type, create_date, create_user FROM file order by date";
+            $SQL = "SELECT id, cast(date as DATE ) as `date` , name, disc, doc, pathServ, pathWeb, type, create_date, create_user 
+                    FROM file 
+                    where type = $this->type
+                    order by date";
             if ($id != null) {
-                $SQL = "SELECT id, cast(date as DATE ) as `date` , name, disc, doc, pathServ, pathWeb, type, create_date, create_user  FROM file where id=$id";
+                $SQL = "SELECT id, cast(date as DATE ) as `date` , name, disc, doc, pathServ, pathWeb, type, create_date, create_user  
+                        FROM file 
+                        where id=$id";
             }
-            if ($searth != null) {
-                $Where = '';
-                $and = '';
-                if (isset($searth['s_id'])) {
-                    $Where .= " $and `id` = '{$searth['s_id']}'";
+            if ($search != null) {
+                $Where = " type = $this->type ";
+                $and = 'and';
+                if (isset($search['s_id'])) {
+                    $Where .= " $and `id` = '{$search['s_id']}'";
                     $and = 'and';
                 }
-                if (isset($searth['dep'])) {
-                    if ($searth['dep'] == 'true') {
+                if (isset($search['dep'])) {
+                    if ($search['dep'] == 'true') {
                         $Where .= " $and create_user in (SELECT id from user where dep = '{$_SESSION['user']['dep']}')";
                     }
                 }
-                if (isset($searth['s_Name'])) {
-                    $Where .= " $and `name` like '%{$searth['s_Name']}%'";
+                if (isset($search['s_Name'])) {
+                    $Where .= " $and `name` like '%{$search['s_Name']}%'";
                     $and = 'and';
                 }
-                if (isset($searth['s_pers'])) {
-                    $s = implode(',', $searth['s_pers']);
+                if (isset($search['s_pers'])) {
+                    $s = implode(',', $search['s_pers']);
                     $Where .= " $and id in (SELECT `idFile` from `file_person` where `idPerson` in ($s))";
                 }
                 //s_tem
-                if (isset($searth['s_tem'])) {
-                    $s = implode(',', $searth['s_tem']);
+                if (isset($search['s_tem'])) {
+                    $s = implode(',', $search['s_tem']);
                     $Where .= " $and id in (SELECT `idFile` from `sci_theme_file` where `idSciTheme` in ($s))";
                 }
                 //s_tag
-                if (isset($searth['s_tag'])) {
-                    $s = implode(',', $searth['s_tag']);
+                if (isset($search['s_tag'])) {
+                    $s = implode(',', $search['s_tag']);
                     $Where .= " $and id in (SELECT `idFile` from `tag_file` where `idTag` in ($s))";
                 }
 

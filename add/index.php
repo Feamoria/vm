@@ -521,16 +521,19 @@
 				<button class="btn btn-primary" id='collection_add_btn'>Добавить</button>
 			</div>
 		</form>
-		<table class="" id="tbl_collection">
 
-		</table>
+		<div id="div_tbl_collection">
+
+		</div>
 	</div>
 	<div id="tabs-8">
 		<form class="row" method="post" id="collectionItem">
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success">Раздел колекции<span style="color: red">*</span></span>
-				<input type="hidden" id="collectionItemCollId">
-				<input type="text" id='collectionItemColl' name='collectionItemColl' required aria-label="" class="form-control" placeholder="">
+
+				<select type="text" id='collectionItemColl' name='collectionItemColl' required aria-label="" class="form-select" >
+
+				</select>
 			</div>
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success">Предмет (название)<span style="color: red">*</span></span>
@@ -547,15 +550,17 @@
 				<span class="input-group-text" id="collectionItemDesc_COUNT"></span>
 			</div>
 			<div class="input-group">
-				<span style="width: 20%" class="input-group-text text-bg-success text-wrap">Место нахождения (памятник),Географический регион</span>
+				<span style="width: 20%" class="input-group-text text-bg-success text-wrap">Место нахождения (памятник), Географический регион</span>
 				<textarea id="collectionItemPlace" name="collectionItemPlace" class="form-control" aria-label=""></textarea>
 				<span class="input-group-text" id="collectionItemPlace_COUNT"></span>
 			</div>
 
-			<div class="input-group">
-				<span style="width: 20%" class="input-group-text text-bg-success">Авторство</span>
-				<input type="text" id='collectionItemAuthor' name='collectionItemAuthor' required aria-label="" class="form-control" placeholder="">
+			<div class="col-auto input-group">
+				<span style="width: 20%" class="input-group-text text-bg-success" id="">Авторство</span>
+				<select id="collectionItem_pers" name="collectionItem_pers[]" class="form-select" multiple aria-label=""></select>
+				<input style="width: 30%" type="text" id='collectionItem_pers_add' aria-label="" class="form-control" placeholder="">
 			</div>
+
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success">Время создания</span>
 				<input type="text" id='collectionItemTime' name='collectionItemTime' required aria-label="" class="form-control" placeholder="">

@@ -173,8 +173,28 @@
         die(json_encode($res, JSON_UNESCAPED_UNICODE));
     }
 
+    if (isset($_GET['collection'])) {
+        $db = (new BDconnect())->connect();
+        $data = [];
+        $SQL = "SELECT id,Name as value,Name,collection_Desc FROM collection 
+                order by Name";
+        $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
+        $res = mysqli_fetch_all($query, MYSQLI_ASSOC);
+        foreach ($res as $i => $val) {
+            //$i=$val['id'];
+            $data[$i] = $val;
+            /*Структурное подразделение */
+            $SQL = "SELECT sci_department.id,sci_department.Name FROM sci_department,
+                                                  (select * from sci_department_collection where idCollection={$val['id']}) as sci_department_person
+                    where sci_department.id=sci_department_person.idSciDepartment";
+            $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
+            $data[$i]['sci_department'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
+        }
+        die(json_encode($data, JSON_UNESCAPED_UNICODE));
+    }
+
     if (isset($_GET['file'])) {
-        require_once '../php_class/fileUpload.php';
+        require_once '../php_class/FileUpload.php';
         $UPLOAD = new FileUpload();
         $ret = [];
         if (!empty($_POST)) {

@@ -1,48 +1,67 @@
 /*
-Аннотация (описание): органичение символов?
-Текстовая информация о предмете
-Думаю, не надо ограничивать. Она так будет небольшой.
-Место нахождения (памятник),Географический регион: Возможно тут нужен какойто выподающий список (один и тотже гео объект могут назвать 2я разными названиями + ошибки,описки)
-Пока не надо.  Просто текстовое поле.
+
 Авторство: это немного не полнял.. просто текстовое поле? без превязки к персоналиям?
 Кто (ФИО) обнаружил предмет. С привязкой к персоналиям.
-Время создания: просто текстовое поле?
-Ага.
-Материал, техника: просто текстовое поле? или может набросать список?
-Пока не надо.
+
 */
-create table collection
+create table `vm`.collection
 (
-    id int auto_increment,
-    Name varchar(100) not null,
-    collection_Desc text null,
-    create_user int not null,
-    create_date timestamp default CURRENT_TIMESTAMP() not null,
+    id              int auto_increment,
+    Name            varchar(100)                          not null,
+    collection_Desc text                                  null,
+    create_user     int                                   not null,
+    create_date     timestamp default CURRENT_TIMESTAMP() not null,
     constraint collection_pk
         primary key (id)
-);
-create table collectionItem
+) ENGINE = InnoDB;
+
+create table `vm`.collectionItem
 (
-    id int auto_increment,
-    idCollection int not null,
-    `Desc` text null,
-    Place text null,
-    Author text null,
-    Time text null comment 'Время создания (??)',
-    Material text null,
-    Size text null,
-    Nom varchar(255) null,
+    id           int auto_increment,
+    idCollection int          not null,
+    `Desc`       text         null,
+    Place        text         null,
+    Author       text         null,
+    Time         text         null comment 'Время создания (??)',
+    Material     text         null,
+    Size         text         null,
+    Nom          varchar(255) null,
+    create_user int not null,
+    create_date timestamp default CURRENT_TIMESTAMP() not null,
+    INDEX (`idCollection`),
     constraint collectionItem_pk
         primary key (id),
     constraint table_name_collection_id_fk
         foreign key (idCollection) references collection (id)
-);
+) ENGINE = InnoDB;
 
-create index collectionItem_idCollection_index
-    on collectionItem (idCollection);
+CREATE TABLE `vm`.tag_collectionItem
+(
+    id               int auto_increment
+        primary key,
+    idTag            int not null,
+    idCollectionItem int not null,
+    INDEX (`idTag`),
+    INDEX (`idCollectionItem`)
+) ENGINE = InnoDB;
 
-alter table collectionItem
-    add create_user int not null;
 
-alter table collectionItem
-    add create_date timestamp default CURRENT_TIMESTAMP() not null;
+CREATE TABLE `vm`.`sci_theme_collectionItem`
+(
+    `id`               INT NOT NULL AUTO_INCREMENT,
+    `idCollectionItem` INT NOT NULL,
+    `idSciDepartment`  INT NOT NULL,
+    PRIMARY KEY (`id`),
+    INDEX (`idCollectionItem`),
+    INDEX (`idSciDepartment`)
+) ENGINE = InnoDB;
+
+CREATE TABLE `vm`.`sci_department_collection`
+(
+    `id`              INT NOT NULL AUTO_INCREMENT,
+    `idCollection`    INT NOT NULL,
+    `idSciDepartment` INT NOT NULL,
+    PRIMARY KEY (`id`),
+    INDEX (`idCollection`),
+    INDEX (`idSciDepartment`)
+) ENGINE = InnoDB;

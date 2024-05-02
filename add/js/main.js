@@ -139,10 +139,26 @@ $(document).ready(function () {
             }
             if (event.target.hash === '#tabs-7') {
                 initmultiselect('collection_sci_department');
+                updateCollection(load_collection());
             }
             if (event.target.hash === '#tabs-8') {
                 initmultiselect('collectionItem_tag');
                 initmultiselect('collectionItem_tem');
+                initmultiselect('collectionItem_pers');
+
+                // TODO
+                let coll=load_collection();
+                console.log(coll);
+                let select=$('#collectionItemColl');
+                select.empty().append('<option disabled value="" selected>--</option>')
+                $.each(coll,function (index, value) {
+                    select.append('<option value="'+this.id+'">'+this.value+'</option>')
+                    console.log(this);
+                });
+                /*$.getJSON('',function (){
+
+                })
+                $('#collectionItemColl')*/
             }
 
         }
@@ -468,7 +484,7 @@ $(document).ready(function () {
             dataType: 'json',
             cache: false,
             success: function (data) {
-                console.log(data);
+                //console.log(data);
                 if (typeof data.err === 'undefined') {
                     $('#sci_department').trigger("reset");
                     data_sci_department = data;
@@ -583,6 +599,42 @@ $(document).ready(function () {
 
     $('#collection_add_btn').on('click', function (e) {
         e.preventDefault();
+        let ret = false;
+        /*проверка на заполнение обязательных полей*/
+        $('#collection input, #collection textarea').each(function () {
+            if ($(this).prop('required')) {
+                if (!$(this).prop('disabled')) {
+                    let temp = $(this).val();
+                    if (temp === '' || temp.length < 2) {
+                        //console.log($(this));
+                        ret = true;
+                    }
+                }
+            }
+        })
+        if (ret) {
+            alert('Заполните обязательные поля!');
+            return;
+        }
+        let data = $('#collection').serialize();
+        $.ajax({
+            type: 'POST',
+            url: 'set.php?collection',
+            data: data,
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                if (typeof data.err === 'undefined') {
+                    $('#collection')[0].reset();
+                    //console.log(data);
+                    //let coll = load_collection();
+                    updateCollection(load_collection())
+                    //console.log(coll);
+                    //update_person('ev_pers');
+
+                } else alert(data.err);
+            }
+        });
     });
 
 
@@ -593,9 +645,21 @@ $(document).ready(function () {
     // TODO
     initmultiselect('collectionItem_tag');
     initmultiselect('collectionItem_tem');
+    initmultiselect('collectionItem_pers');
     inittag('collectionItem_tag');
     initTagAjax('#collectionItem_tag', data_tag);
     initTagAjax('#collectionItem_tem', data_sci_field);
+    initTagAjax('#collectionItem_pers', data_pers);
+    $('#collectionItem_pers_add').autocomplete({
+        minLength: 1,
+        source: AutocompleteSourcePers,
+        select: AutocompleteSelect,
+    });
+    $('#collectionItem_tag_add').autocomplete({
+        minLength: 1,
+        source: AutocompleteSourceTag,
+        select: AutocompleteSelect,
+    });
 
     $('#collectionItem_add_btn').on('click', function (e) {
         e.preventDefault();
@@ -883,6 +947,41 @@ function updateFile(data) {
     html+='</tbody></table>';
     $("#div_tbl_file").html(html);
     $('#tbl_file').tablesorter({
+        //theme : 'blue',
+        //widthFixed: true,
+        widgets : [ 'zebra', 'filter' ],
+        /*widgetOptions : {
+            filter_external: 'input.search',
+            filter_reset: '.reset'
+        }*/
+    });
+}
+
+function updateCollection(data) {
+    let html='<table id="tbl_Collection" class="table table-bordered border-primary"><thead><tr>' +
+        '<th>ID</th>' +
+        '<th class="filter-false sorter-false"></th>' +
+        '<th>Название колекции</th>' +
+        '<th>История формирования коллекции</th>' +
+        '<th>Структурное подразделение</th>' +
+        '</tr></thead><tbody>';
+    $.each(data, function (i, v) {
+        let sci_department = arrdata(v.sci_department);
+        html+='<tr>' +
+            '<td style="width: 20px">' + v.id + '</td>' +
+            '<td style="width: 20px">' +
+            '<div class="d-flex flex-column"><div>' +
+            '<button type="button" class="btn btn-danger" onclick="delCollection(' + v.id + ')"><i class="bi bi-trash"></i></button></div>' +
+            '<div><button type="button" class="btn btn-info" onclick="editCollection(' + v.id + ')"><i class="bi bi-pencil-square"></i></button></div>' +
+            '</td>' +
+            '<td>' + v.Name + '</td>' +
+            '<td><textarea style="width: 100%" class="form-control">' + v.collection_Desc + '</textarea></td>' +
+            '<td>' + sci_department + '</td>' +
+            '</tr>';
+    })
+    html+='</tbody></table>';
+    $("#div_tbl_collection").html(html);
+    $('#tbl_Collection').tablesorter({
         //theme : 'blue',
         //widthFixed: true,
         widgets : [ 'zebra', 'filter' ],
@@ -1255,6 +1354,25 @@ function load_person(search = null) {
     }).responseJSON;
 }
 
+function load_collection(search = null) {
+    let data_search = '';
+    if (search !== null) {
+        data_search = search;
+    }
+    return $.ajax({
+        async: false,
+        type: 'POST',
+        url: 'get.php?collection',
+        data: data_search,
+        dataType: 'json',
+        cache: false,
+        success: function (data) {
+            //console.log(data);
+            // do something with ajax data
+        }
+    }).responseJSON;
+}
+
 function load_sci_field() {
     return $.ajax({
         async: false,
@@ -1373,9 +1491,10 @@ function initmultiselect(elem) {
     let select = $('#' + elem);
     let ariaLabel = select.attr('aria-label');
     select.multiselect({
+
         buttonWidth: buttonW, // (integer | string | 'auto' | null) Sets the min/max/exact width of the button.
         menuWidth: menuWidth, // (integer | string | 'auto' | null) If a number is provided, sets the exact menu width.
-
+        //multiple:false,
         //header: ['Всё', 'Ничего'],
         noneSelectedText: ariaLabel,
         selectedText: '#',
