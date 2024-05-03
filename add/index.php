@@ -11,7 +11,7 @@
     if (isset($_GET['auth'])) {
         $db = (new BDconnect())->connect();
         $SQL = "SELECT *,dep FROM user WHERE login='" . mysqli_real_escape_string($db, $_POST['login']) . "' LIMIT 1";
-        $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));;
+        $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
         $data = mysqli_fetch_assoc($query);
         # Сравниваем пароли
 
@@ -108,60 +108,10 @@
 	<!-- MY -->
 	<script src="js/main.js?<?php
         echo time(); ?>"></script>
+	<link href="css/main.css?<?php
+        echo time(); ?>" rel="stylesheet">
 </head>
 <body>
-<style>
-    .ui-tooltip, .arrow:after {
-        background: black;
-        border: 2px solid white;
-    }
-
-    .ui-tooltip {
-        padding: 10px 20px;
-        color: white;
-        border-radius: 20px;
-        font: bold 14px "Helvetica Neue", Sans-Serif;
-        text-transform: uppercase;
-        box-shadow: 0 0 7px black;
-    }
-
-    .arrow {
-        width: 70px;
-        height: 16px;
-        overflow: hidden;
-        position: absolute;
-        left: 50%;
-        margin-left: -35px;
-        bottom: -16px;
-    }
-
-    .arrow.top {
-        top: -16px;
-        bottom: auto;
-    }
-
-    .arrow.left {
-        left: 20%;
-    }
-
-    .arrow:after {
-        content: "";
-        position: absolute;
-        left: 20px;
-        top: -20px;
-        width: 25px;
-        height: 25px;
-        box-shadow: 6px 5px 9px -9px black;
-        -webkit-transform: rotate(45deg);
-        -ms-transform: rotate(45deg);
-        transform: rotate(45deg);
-    }
-
-    .arrow.top:after {
-        bottom: -20px;
-        top: auto;
-    }
-</style>
 <div class="row">
 	<div class="col-md-12">Пользователей онлайн: <span id="UserOnline"></span></div>
 </div>
@@ -505,16 +455,16 @@
 	<div id="tabs-7">
 		<form class="row" method="post" id="collection">
 			<div class="input-group">
-				<span style="width: 20%" class="input-group-text text-bg-success">Название колекции<span style="color: red">*</span></span>
+				<span style="width: 20%" class="input-group-text text-bg-success text-wrap">Название колекции<span style="color: red">*</span></span>
 				<input type="text" id='collection_name' name='collection_name' required aria-label="" class="form-control" placeholder="">
 			</div>
 			<div class="input-group">
-				<span style="width: 20%" class="input-group-text text-bg-success">История формирования коллекции</span>
+				<span style="width: 20%" class="input-group-text text-bg-success text-wrap">История формирования коллекции</span>
 				<textarea id="collection_Desc" name="collection_Desc" class="form-control" aria-label=""></textarea>
 				<span class="input-group-text" id="collection_Desc"></span>
 			</div>
 			<div class="col-auto input-group">
-				<span style="width: 20%" class="input-group-text text-bg-success" id="">Структурное подразделение (???)</span>
+				<span style="width: 20%" class="input-group-text text-bg-success text-wrap" id="">Структурное подразделение</span>
 				<select id="collection_sci_department" name="collection_sci_department[]" class="form-select" multiple aria-label=""></select>
 			</div>
 			<div class="input-group">
@@ -525,6 +475,7 @@
 		<div id="div_tbl_collection">
 
 		</div>
+
 	</div>
 	<div id="tabs-8">
 		<form class="row" method="post" id="collectionItem">
@@ -541,7 +492,7 @@
 			</div>
 			<div class="input-group">
 				<input id="id_file" name="id_file" type="hidden">
-				<span style="width: 20%" class="input-group-text text-bg-success">Цифровое изображение (фотография)<span style="color: red">*</span></span>
+				<span style="width: 20%" class="input-group-text text-bg-success text-wrap">Цифровое изображение (фотография)<span style="color: red">*</span></span>
 				<input id="collectionItemFile" name="collectionItemFile" required type="file" class="form-control" placeholder="" aria-label="">
 			</div>
 			<div class="input-group">
@@ -590,12 +541,20 @@
 				<input style="width: 10%" type="text" id='collectionItem_tag_add' aria-label="" class="form-control" placeholder="">
 				<button class="btn btn-primary" id='collectionItem_tag_add_btn'>+</button>
 			</div>
-
+			<div class="input-group">
+				<span style="width: 20%" class="input-group-text text-bg-success">Координаты</span>
+				<input type="text" id='collectionItem_latitude' name='latitude' aria-label="" class="form-control" placeholder="Ю.Ш.">
+				<input type="text" id='collectionItem_longitude' name='longitude' aria-label="" class="form-control" placeholder="В.Д.">
+			</div>
 			<div class="input-group">
 				<button class="btn btn-primary" id='collectionItem_add_btn'>Добавить</button>
 			</div>
 
 		</form>
+
+		<div id="div_tbl_collectionItem">
+
+		</div>
 	</div>
 </div>
 </body>

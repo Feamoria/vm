@@ -215,7 +215,7 @@
                 $pers_publications = $_POST['pers_publications'];
                 $pers_awards = $_POST['pers_awards'];
                 $ret = [];
-
+                $SQL='';
                 //die(json_encode($_POST, JSON_UNESCAPED_UNICODE));
                 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
                 mysqli_begin_transaction($db);
@@ -350,6 +350,7 @@
         if (isset($_GET['event'])) {
             $db = (new BDconnect())->connect();
             $ret = [];
+            $SQL='';
             if (isset($_GET['del'])) {
                 //  ЗАПРОС КТО СОЗДАЛ ЗАПИСЬ ЕСЛИ НЕ РАВЕН С СЕССИОН ID то иди нах
                 $text = 'ok';
@@ -553,6 +554,104 @@
                             }
                         }
                     }
+                    mysqli_commit($db);
+                    $ret = ['ok'];
+                } catch (mysqli_sql_exception $exception) {
+                    mysqli_rollback($db);
+                    $ret = [
+                        'errorSQL',
+                        'SQL' => $SQL,
+                        'exception' => $exception->getMessage(),
+                        'code' => $exception->getCode()
+                    ];
+                }
+            }
+            die(json_encode($ret, JSON_UNESCAPED_UNICODE));
+        }
+        /*********
+         * collection
+         ********/
+        //var_dump($_GET);
+        if (isset($_GET['collectionItem'])) {
+            $db = (new BDconnect())->connect();
+            $ret = [];
+            if (isset($_GET['del'])) {
+                //  ЗАПРОС КТО СОЗДАЛ ЗАПИСЬ ЕСЛИ НЕ РАВЕН С СЕССИОН ID то иди нах
+                $text = 'ok';
+                /*
+                if (!checkPermition('event', (int)$_POST['event'])) {
+                    die(json_encode(['err' => "Удалить чужое событие невозможно"]));
+                }
+                $del = del('event', $_POST['event'], false);
+                if ($del !== false) {
+                    $text = $del;
+                }*/
+                $ret = ['ok' => "$text"];
+            } else {
+                /*Очистка от каки*/
+                foreach ($_POST as $i => $value) {
+                    if (!is_array($value)) {
+                        $_POST[$i] = mysqli_escape_string($db, $value);
+                    }
+                }
+                $_POST['FILE']=$_FILES;
+                die(json_encode($_POST));
+                /** Основные*/
+                mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+                mysqli_begin_transaction($db);
+                try {
+                    //var_dump($_POST);
+
+                    $idColl=$_POST['collectionItemColl'];
+                    $Name=$_POST['collectionItemName'];
+                    $Desc=$_POST['collectionItemDesc'];
+                    $Place=$_POST['collectionItemPlace'];
+                    $Time=$_POST['collectionItemTime'];
+                    $Material=$_POST['collectionItemMaterial'];
+                    $Size=$_POST['collectionItemSize'];
+                    $Nom=$_POST['collectionItemNom'];
+                    $latitude=$_POST['latitude'];
+                    $longitude=$_POST['longitude'];
+
+                    $SQL = "INSERT INTO collectionItem 
+    (idCollection,Name, `Desc`, Place, Time, Material, Size, Nom, create_user, latitude, longitude) value 
+    ('$idColl','$Name','$Desc','$Place','$Time','$Material','$Size','$Nom','{$_SESSION['user']['id']}','$latitude','$longitude')";
+                    mysqli_query($db, $SQL);
+                    $InsertId = mysqli_insert_id($db);
+
+                    if (!empty($_POST['collectionItem_pers'])) {
+                        foreach ($_POST['collectionItem_pers'] as $i => $value) {
+                            if (is_numeric($value)) {
+                                $value = (int)$value;
+                                /* TODO ТАБЛИЦУ СДЕЛАЙ! АЛАБАЙ !
+                                $SQL = "INSERT INTO sci_department_collection (idCollection, idSciDepartment)  value ($InsertId,$value)";
+                                mysqli_query($db, $SQL);*/
+                            }
+                        }
+                    }
+                    if (!empty($_POST['collectionItem_tem'])) {
+                        foreach ($_POST['collectionItem_tem'] as $i => $value) {
+                            if (is_numeric($value)) {
+                                $value = (int)$value;
+                                $SQL = "INSERT INTO sci_theme_collectionItem 
+                                        (idCollectionItem, idSciDepartment)  value 
+                                        ($InsertId,$value)";
+                                mysqli_query($db, $SQL);
+                            }
+                        }
+                    }
+                    if (!empty($_POST['collectionItem_tag'])) {
+                        foreach ($_POST['collectionItem_tag'] as $i => $value) {
+                            if (is_numeric($value)) {
+                                $value = (int)$value;
+                                $SQL = "INSERT INTO tag_collectionItem (idCollectionItem, idTag)  value ($InsertId,$value)";
+                                mysqli_query($db, $SQL);
+                            }
+                        }
+                    }
+                    /* TODO
+                    !file!
+                    */
                     mysqli_commit($db);
                     $ret = ['ok'];
                 } catch (mysqli_sql_exception $exception) {

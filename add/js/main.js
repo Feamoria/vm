@@ -148,17 +148,12 @@ $(document).ready(function () {
 
                 // TODO
                 let coll=load_collection();
-                console.log(coll);
                 let select=$('#collectionItemColl');
                 select.empty().append('<option disabled value="" selected>--</option>')
                 $.each(coll,function (index, value) {
                     select.append('<option value="'+this.id+'">'+this.value+'</option>')
-                    console.log(this);
                 });
-                /*$.getJSON('',function (){
 
-                })
-                $('#collectionItemColl')*/
             }
 
         }
@@ -438,7 +433,7 @@ $(document).ready(function () {
         dateFormat: 'dd.mm.yy',
     });
     initmultiselect('sci_department_owner');
-    initTagAjax('#sci_department_owner', data_sci_department); //TODO
+    initTagAjax('#sci_department_owner', data_sci_department);
 
     /*ЗАГРУЗКА НА СЕРВЕР*/
     $('#sci_department_add_btn').on('click', function (e) {
@@ -606,7 +601,6 @@ $(document).ready(function () {
                 if (!$(this).prop('disabled')) {
                     let temp = $(this).val();
                     if (temp === '' || temp.length < 2) {
-                        //console.log($(this));
                         ret = true;
                     }
                 }
@@ -626,12 +620,7 @@ $(document).ready(function () {
             success: function (data) {
                 if (typeof data.err === 'undefined') {
                     $('#collection')[0].reset();
-                    //console.log(data);
-                    //let coll = load_collection();
                     updateCollection(load_collection())
-                    //console.log(coll);
-                    //update_person('ev_pers');
-
                 } else alert(data.err);
             }
         });
@@ -663,6 +652,38 @@ $(document).ready(function () {
 
     $('#collectionItem_add_btn').on('click', function (e) {
         e.preventDefault();
+        let ret = false;
+        /*проверка на заполнение обязательных полей*/
+        $('#collectionItem input, #collectionItem textarea').each(function () {
+            if ($(this).prop('required')) {
+                if (!$(this).prop('disabled')) {
+                    let temp = $(this).val();
+                    if (temp === '' || temp.length < 2) {
+                        ret = true;
+                    }
+                }
+            }
+        })
+        if (ret) {
+            alert('Заполните обязательные поля!');
+            return;
+        }
+        let form = $('#collectionItem')[0];
+        $.ajax({
+            type: 'POST',
+            url: 'set.php?collectionItem',
+            dataType: 'json',
+            data: new FormData(form),
+            processData: false,
+            contentType: false,
+            cache: false,
+            success: function (data) {
+                if (typeof data.err === 'undefined') {
+                    $('#collectionItem')[0].reset();
+                    updateCollectionItem(load_collectionItem())
+                } else alert(data.err);
+            }
+        });
     });
 })
 function AutocompleteSourcePers(request, response) {
@@ -956,7 +977,9 @@ function updateFile(data) {
         }*/
     });
 }
-
+function updateCollectionItem(data) {
+    console.log(data);
+}
 function updateCollection(data) {
     let html='<table id="tbl_Collection" class="table table-bordered border-primary"><thead><tr>' +
         '<th>ID</th>' +
@@ -1353,7 +1376,24 @@ function load_person(search = null) {
         }
     }).responseJSON;
 }
-
+function load_collectionItem(search = null){
+    let data_search = '';
+    if (search !== null) {
+        data_search = search;
+    }
+    return $.ajax({
+        async: false,
+        type: 'POST',
+        url: 'get.php?collectionItem',
+        data: data_search,
+        dataType: 'json',
+        cache: false,
+        success: function (data) {
+            //console.log(data);
+            // do something with ajax data
+        }
+    }).responseJSON;
+}
 function load_collection(search = null) {
     let data_search = '';
     if (search !== null) {
