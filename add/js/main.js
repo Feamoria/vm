@@ -576,7 +576,7 @@ $(document).ready(function () {
                 $('#id_file').val('');
                 $('#file_F').prop('disabled', false);
                 if (typeof data.err === 'undefined') {
-                    updateFile(data.GET);
+                    updateFile(data);
                 } else alert(data.err);
             }
         });
@@ -880,7 +880,7 @@ function editFile(id) {
     if (info.person.length > 0) {
         let dt = info.person;
         $.each(dt, function (index, value) {
-            person.push(value[0])
+            person.push(value.id)
         });
     }
     $('#file_pers').val(person).multiselect('refresh');//refresh
@@ -946,7 +946,7 @@ function updateFile(data) {
         let sci_department = arrdata(v.sci_department);
         let sci_theme = arrdata(v.sci_theme);
         let tag = arrdata(v.tag);
-        let person = arrdata(v.pers);
+        let person = arrdata(v.person);
         html+='<tr>' +
             '<td>' + v.id + '</td>' +
             '<td style="width: 20px">' +
@@ -1093,7 +1093,7 @@ function updatePerson(data) {
         '</tr></thead><tbody>';
 
     $.each(data, function (i, v) {
-        console.log(i);
+       // console.log(i);
         if (i==='POST') {return;}
         let file = arrdata(v.file, true);
         let sci_department = arrdata(v.sci_department);
@@ -1182,7 +1182,7 @@ function delFile(tag, answer = null) {
             cache: false,
             success: function (data) {
                 if (typeof data.err === 'undefined') {
-                    updateFile(data.GET);
+                    updateFile(data);
                 } else alert(data.err);
             }
         })

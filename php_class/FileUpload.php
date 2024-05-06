@@ -136,6 +136,7 @@
                     $VALUES = implode(',', $VALUES);
                     $SQL = "INSERT INTO file_person (idFile, idPerson) VALUES $VALUES";
                     mysqli_query($this->connect, $SQL);
+                    $ret['file_person']=$SQL;
                 }
                 /*file_sci_department*/
                 $VALUES = [];
@@ -175,7 +176,7 @@
                 }
                 /** commit */
                 mysqli_commit($this->connect);
-                $ret = ['ok'];
+                $ret['ok']='ok';
             } catch (mysqli_sql_exception $exception) {
                 mysqli_rollback($this->connect);
                 $ret = [
@@ -203,9 +204,9 @@
                     $name = $POST['file_name'];
                     $doc = $POST['file_doc'];
                     $Desc = $POST['file_Desc'];
-                    $SQL = "insert into file (date, name, disc, doc, pathServ, pathWeb, type,  create_user,type)  values 
+                    $SQL = "insert into file (date, name, disc, doc, pathServ, pathWeb,   create_user,type)  values 
                             ($Date,'$name','$Desc','$doc','{$data['serv_path']}',
-                             '{$data['client_path']}','{$data['info1']['type']}',                          
+                             '{$data['client_path']}',                         
                             '{$_SESSION['user']['id']}',$this->type );";
                     $result = mysqli_query($this->connect, $SQL) or die(
                     json_encode(
@@ -219,6 +220,7 @@
                             if (is_numeric($value)) {
                                 $value = (int)$value;
                                 $SQL = "INSERT INTO file_person (idPerson, idFile)  value ($value,$InsertId)";
+
                                 $result = mysqli_query($this->connect, $SQL) or
                                 die(
                                 json_encode(

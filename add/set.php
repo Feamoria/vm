@@ -255,7 +255,7 @@
                                 $SQL = "INSERT INTO tag_person (idTag, idPerson) value ($value,$InsertId)";
                             } else {
                                 $value = mysqli_escape_string($db, $value);
-                                $SQL = "INSERT INTO tag (Name,create_user) value ($value,$USER_ID)";
+                                $SQL = "INSERT INTO tag (Name,create_user) value ('$value',$USER_ID)";
                                 mysqli_query($db, $SQL);
                                 $InsertIdTag = mysqli_insert_id($db);
                                 $SQL = "INSERT INTO tag_person (idTag, idPerson) value ($InsertIdTag,$InsertId)";
