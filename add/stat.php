@@ -4,10 +4,10 @@
     ini_set('display_startup_errors', 1);
     require_once '../php_class/connect.php';
     $db = (new BDconnect())->connect();
-    $SQL = "SELECT * FROM user order by dep";
+    $SQL = "SELECT * FROM user order by dep,FIO";
     $SQL1='';
     mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
-    echo "<table border='1'><tr>
+    echo "<h1>Статистика заполненных данных</h1><table border='1'><tr>
                 <th>Подразделение</th>
                 <th>ФИО</th>
                 <th>Событий</th>
@@ -15,6 +15,7 @@
                 <th>Персон</th>
             </tr>";
     try {
+
         $query = mysqli_query($db, $SQL);
         $data = mysqli_fetch_all($query,MYSQLI_ASSOC);
        // var_dump($data);
@@ -23,6 +24,9 @@
         $CountEvent=0;
         $CountFile=0;
         $CountPerson=0;
+        $AllEvent=0;
+        $AllFile=0;
+        $AllPerson=0;
         $st="style='background-color: grey;'";
         foreach ($data as $user) {
             if ($first) {
@@ -41,6 +45,11 @@
                     <td $st><strong>$CountPerson</strong></td>
                     </tr>";
                 $dep=$user['dep'];
+
+                $AllEvent+=$CountEvent;
+                $AllFile+=$CountFile;
+                $AllPerson+=$CountPerson;
+
                 $CountEvent=0;
                 $CountFile=0;
                 $CountPerson=0;
@@ -70,7 +79,37 @@
                     <td $st><strong>$CountFile</strong></td>
                     <td $st><strong>$CountPerson</strong></td>
                     </tr>";
+        $AllEvent+=$CountEvent;
+        $AllFile+=$CountFile;
+        $AllPerson+=$CountPerson;
+        echo "<tr>
+                    <td></td>
+                    <td $st><strong>ВСЕГО:</strong></td>
+                    <td $st><strong>$AllEvent</strong></td>
+                    <td $st><strong>$AllFile</strong></td>
+                    <td $st><strong>$AllPerson</strong></td>
+                    </tr>";
         echo "</table>";
+
+        echo "<h1>Кол-во событий по важности</h1>
+            <table border='1'>
+            <tr>
+                <th>Важность</th>
+                <th>Кол-во</th>
+            </tr>";
+        $SQL = "SELECT `importance`,count(*) as `count` FROM event 
+                group by importance
+                order by importance";
+        $query = mysqli_query($db, $SQL);
+        $data = mysqli_fetch_all($query,MYSQLI_ASSOC);
+        foreach ($data as $user) {
+            echo "<tr>
+                    <td>{$user['importance']}</td>
+                    <td>{$user['count']}</td>
+                    </tr>";
+        }
+        echo "</table>";
+
     } catch (mysqli_sql_exception $exception) {
        // mysqli_rollback($db);
         $ret = [

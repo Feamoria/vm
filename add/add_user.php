@@ -67,16 +67,15 @@
 												class="bi bi-person-plus-fill text-white"></i></span>
 							<input type="text" required name="FIO" class="form-control" placeholder="ФИО">
 						</div>
-
-						<div class="input-group mb-3">
-                                    <span class="input-group-text bg-primary"><i
-												class="bi bi-envelope text-white"></i></span>
-							<input type="text" required name="login" class="form-control" placeholder="Логин">
-						</div>
 						<div class="input-group mb-3">
                                     <span class="input-group-text bg-primary"><i
 												class="bi bi-envelope text-white"></i></span>
 							<input type="text" required name="dep" class="form-control" placeholder="Подразделение">
+						</div>
+						<div class="input-group mb-3">
+                                    <span class="input-group-text bg-primary"><i
+												class="bi bi-envelope text-white"></i></span>
+							<input type="text" required name="login" class="form-control" placeholder="Логин">
 						</div>
 						<div class="input-group mb-3">
                                     <span class="input-group-text bg-primary"><i

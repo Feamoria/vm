@@ -1175,6 +1175,7 @@ function delFile(tag, answer = null) {
         }).dialog("open");
     } else if (answer === true) {
         $.ajax({
+            async:true,
             type: 'POST',
             url: 'set.php?file&del',
             data: 'file=' + tag,
@@ -1328,6 +1329,10 @@ function load_event(search = null) {
     let data_search = '';
     if (search !== null) {
         data_search = search;
+    } else {
+        if ($('#my_event').prop('checked')) {
+            data_search='dep=true';
+        }
     }
     return $.ajax({
         async: false,
@@ -1362,6 +1367,10 @@ function load_person(search = null) {
     let data_search = '';
     if (search !== null) {
         data_search = search;
+    } else {
+        if ($('#my_pers').prop('checked')) {
+            data_search='dep=true';
+        }
     }
     return $.ajax({
         async: false,
@@ -1447,6 +1456,10 @@ function load_file(search = null) {
     let data_search = '';
     if (search !== null) {
         data_search = search;
+    } else {
+        if ($('#my_file').prop('checked')) {
+            data_search='dep=true';
+        }
     }
     return $.ajax({
         async: false,
