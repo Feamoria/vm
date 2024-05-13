@@ -45,6 +45,25 @@
 	<script src='../js/bootstrap/bootstrap.bundle.min.js'></script>
 </head>
 <body>
+<pre><?php
+		$arr=['Bo382ko',
+'Va708va',
+'Go395va',
+'De686na',
+'Ka706va',
+'Ko626uk',
+'Ma173va',
+'Ma150ev',
+'Pa893ov',
+'Po798ev',
+'Ri873na',
+'Sa583la',
+'Su841ev',
+'Sh843ov',
+];
+		foreach ($arr as $val)
+			//echo hash('sha512', $val).'<br>';
+	?></pre>
 <div class="container-fluid vh-100" style="margin-top:20px">
 	<div class="" style="margin-top:20px">
 		<div class="rounded d-flex justify-content-center">

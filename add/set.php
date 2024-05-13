@@ -623,9 +623,10 @@
                         foreach ($_POST['collectionItem_pers'] as $i => $value) {
                             if (is_numeric($value)) {
                                 $value = (int)$value;
-                                /* TODO ТАБЛИЦУ СДЕЛАЙ! АЛАБАЙ !
-                                $SQL = "INSERT INTO sci_department_collection (idCollection, idSciDepartment)  value ($InsertId,$value)";
-                                mysqli_query($db, $SQL);*/
+                                $SQL = "INSERT INTO  person_collectionItem
+                                        (idCollectionItem, idPerson)  value 
+                                        ($InsertId,$value)";
+                                mysqli_query($db, $SQL);
                             }
                         }
                     }
