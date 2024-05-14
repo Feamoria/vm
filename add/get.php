@@ -205,4 +205,55 @@
         $ret['GET'] = $UPLOAD->getBD(null, $_POST);
         die(json_encode($ret, JSON_UNESCAPED_UNICODE));
     }
+    if (isset($_GET['collectionItem'])) {
+        $db = (new BDconnect())->connect();
+
+        $data = [];
+        mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+        //mysqli_begin_transaction($db);
+        try {
+            $SQL = "SELECT collectionItem.id as CollectionItemId, collectionItem.Name, collectionItem.`Desc`, collectionItem.Place, 
+                        collectionItem.Time, collectionItem.Material, collectionItem.Size, collectionItem.Nom, 
+                        collectionItem.create_user, collectionItem.create_date, 
+                        collectionItem.latitude, collectionItem.longitude, 
+                        collection.id as CollectionId,
+                        collection.Name as CollectionName,      
+                        file.id as FileId,file.name,  file.pathServ, file.pathWeb
+                FROM collectionItem,collection,file
+                where collectionItem.idCollection=collection.id
+                and collectionItem.idFile=file.id
+                order by collection.Name";
+            $query = mysqli_query($db, $SQL);
+            $res = mysqli_fetch_all($query, MYSQLI_ASSOC);
+            foreach ($res as $i => $val) {
+                $data[$i] = $val;
+                // 1. Выгрузить направление sci_theme
+                $SQL = "SELECT t1.id,t1.Name FROM sci_theme as t1,
+                                                  (select * from sci_theme_collectionItem where idCollectionItem={$val['CollectionItemId']}) as t2
+                    where t1.id=t2.idSciDepartment";
+                $query = mysqli_query($db, $SQL);
+                $data[$i]['sci_theme'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
+                // 2. Выгрузить теги tag
+                $SQL = "SELECT t1.id,t1.Name FROM tag as t1,
+                                                  (select * from tag_collectionItem where idCollectionItem={$val['CollectionItemId']}) as t2
+                    where t1.id=t2.idTag";
+                $query = mysqli_query($db, $SQL);
+                $data[$i]['tag'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
+                // 3. Выгрузить персон person
+                $SQL = "SELECT t1.id,CONCAT(t1.F,' ',t1.I,' ',t1.O) as Name FROM person as t1,
+                                                  (select * from person_collectionItem where idCollectionItem={$val['CollectionItemId']}) as t2
+                    where t1.id=t2.idPerson";
+                $query = mysqli_query($db, $SQL);
+                $data[$i]['person'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
+            }
+        }  catch (mysqli_sql_exception $exception) {
+            $data = [
+                'errorSQL',
+                'SQL' => $SQL,
+                'exception' => $exception->getMessage(),
+                'code' => $exception->getCode()
+            ];
+        }
+        die(json_encode($data, JSON_UNESCAPED_UNICODE));
+    }
 

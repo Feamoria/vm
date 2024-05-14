@@ -203,15 +203,10 @@
                 if ($_POST['pers_date2'] == '') {
                     $pers_date2 = 'null';
                 } else {
-                    $pers_date2 = "{$_POST['pers_date2']}";
+                    $pers_date2 = "'".$_POST['pers_date2']."'";
                 }
                 $pers_Desc = $_POST['pers_Desc'];
                 $pers_dol = $_POST['pers_dol'];
-                /*
-                 *
-                 * pers_publications
-                 * pers_awards
-                */
                 $pers_publications = $_POST['pers_publications'];
                 $pers_awards = $_POST['pers_awards'];
                 $ret = [];
@@ -257,8 +252,11 @@
                                 $value = mysqli_escape_string($db, $value);
                                 $SQL = "INSERT INTO tag (Name,create_user) value ('$value',$USER_ID)";
                                 mysqli_query($db, $SQL);
+                                $ret['SQL_TAG'][]=$SQL;
                                 $InsertIdTag = mysqli_insert_id($db);
                                 $SQL = "INSERT INTO tag_person (idTag, idPerson) value ($InsertIdTag,$InsertId)";
+                                $ret['SQL_TAG'][]=$SQL;
+
                             }
                             mysqli_query($db, $SQL);
                         }
@@ -298,7 +296,7 @@
                         }
                     }
                     mysqli_commit($db);
-                    $ret = ['ok'];
+                    $ret['ok'] = ['ok'];
                 } catch (mysqli_sql_exception $exception) {
                     mysqli_rollback($db);
                     $ret = [
@@ -574,19 +572,63 @@
         //var_dump($_GET);
         if (isset($_GET['collectionItem'])) {
             $db = (new BDconnect())->connect();
+            require_once '../php_class/FileUpload.php';
+            class FileUploadCollect extends FileUpload {
+                protected const UploadDIR="/vm/collect/"; // Куда загружать на сервере
+                protected const ClientPath="/vm/collect/"; // откуда будет отображатся файл на клиенте
+                protected const RegExpFile='/.*\.(jpg|jpeg)$/i'; //регулярка валидации файлов
+                protected const TYPE=1; // тип файла  0-Обычные файлы, 1-Файлы для колекций
+                protected const HTMLINPUT = 'collectionItemFile'; //
+                public function setBD($POST): array {
+                    $ret = [];
+                    if (isset($this->FileArray[$this->HtmlInput])) {
+                        if ($this->FileArray[$this->HtmlInput]['ok'] == '1') {
+                            $data = $this->FileArray[$this->HtmlInput];
+                            $name=$POST['collectionItemName'];
+                            mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+                            mysqli_begin_transaction($this->connect);
+                            try {
+                                $SQL = "insert into file (name, pathServ, pathWeb,   create_user,type)  values 
+                                ('$name','{$data['serv_path']}',
+                                 '{$data['client_path']}',                         
+                                '{$_SESSION['user']['id']}',$this->type );";
+                                mysqli_query($this->connect, $SQL);
+                                $InsertId = mysqli_insert_id($this->connect);
+                                /*Персоналии -file_pers*/
+                                $ret['InsertIdFile'] = $InsertId;
+                                $ret['ok'] = 'ok';
+                                mysqli_commit($this->connect);
+                            } catch (mysqli_sql_exception $exception) {
+                                mysqli_rollback($this->connect);
+                                $ret = [
+                                    'errorSQL',
+                                    'SQL' => $SQL,
+                                    'exception' => $exception->getMessage(),
+                                    'code' => $exception->getCode()
+                                ];
+                            }
+                            return $ret;
+                        } else {
+                            $ret['err'] = 'FileArray is not ok';
+                        }
+                    } else {
+                        $ret['err'] = 'FileArray empty';
+                    }
+                    return $ret;
+                }
+
+            }
+            $UPLOAD = new FileUploadCollect();
             $ret = [];
             if (isset($_GET['del'])) {
+                // TODO Удаление!
                 //  ЗАПРОС КТО СОЗДАЛ ЗАПИСЬ ЕСЛИ НЕ РАВЕН С СЕССИОН ID то иди нах
-                $text = 'ok';
                 /*
-                if (!checkPermition('event', (int)$_POST['event'])) {
-                    die(json_encode(['err' => "Удалить чужое событие невозможно"]));
+                $id_file = $_POST['file'];
+                if (!checkPermition('file', $id_file)) {
+                    die(json_encode(['err' => "Удилить чужой файл невозможно"]));
                 }
-                $del = del('event', $_POST['event'], false);
-                if ($del !== false) {
-                    $text = $del;
-                }*/
-                $ret = ['ok' => "$text"];
+                $UPLOAD->delFile($id_file);*/
             } else {
                 /*Очистка от каки*/
                 foreach ($_POST as $i => $value) {
@@ -595,13 +637,10 @@
                     }
                 }
                 $_POST['FILE']=$_FILES;
-                die(json_encode($_POST));
                 /** Основные*/
                 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
                 mysqli_begin_transaction($db);
                 try {
-                    //var_dump($_POST);
-
                     $idColl=$_POST['collectionItemColl'];
                     $Name=$_POST['collectionItemName'];
                     $Desc=$_POST['collectionItemDesc'];
@@ -612,13 +651,12 @@
                     $Nom=$_POST['collectionItemNom'];
                     $latitude=$_POST['latitude'];
                     $longitude=$_POST['longitude'];
-
                     $SQL = "INSERT INTO collectionItem 
-    (idCollection,Name, `Desc`, Place, Time, Material, Size, Nom, create_user, latitude, longitude) value 
-    ('$idColl','$Name','$Desc','$Place','$Time','$Material','$Size','$Nom','{$_SESSION['user']['id']}','$latitude','$longitude')";
+                    (idCollection,Name, `Desc`, Place, Time, Material, Size, Nom, create_user, latitude, longitude) value 
+                    ('$idColl','$Name','$Desc','$Place','$Time','$Material','$Size','$Nom','{$_SESSION['user']['id']}',
+                        '$latitude','$longitude')";
                     mysqli_query($db, $SQL);
                     $InsertId = mysqli_insert_id($db);
-
                     if (!empty($_POST['collectionItem_pers'])) {
                         foreach ($_POST['collectionItem_pers'] as $i => $value) {
                             if (is_numeric($value)) {
@@ -645,16 +683,37 @@
                         foreach ($_POST['collectionItem_tag'] as $i => $value) {
                             if (is_numeric($value)) {
                                 $value = (int)$value;
-                                $SQL = "INSERT INTO tag_collectionItem (idCollectionItem, idTag)  value ($InsertId,$value)";
+                                $SQL = "INSERT INTO tag_collectionItem 
+                                        (idCollectionItem, idTag)  value 
+                                        ($InsertId,$value)";
                                 mysqli_query($db, $SQL);
                             }
                         }
                     }
-                    /* TODO
+                    /*
                     !file!
                     */
+                    $UPLOAD->getFiles($_FILES);
+                    $dataFile['UPLOAD'] = $UPLOAD->getDataFile();
+                    $dataFile['POST'] =$_POST;
+                    $dataFile['setBD']=$UPLOAD->setBD($_POST);
+                    if (isset($dataFile['setBD']['err'])) {
+                        mysqli_rollback($db);
+                        $ret['FILE']=$dataFile;
+                        $ret['err']=$dataFile['setBD']['err'];
+                        $ret['_FILES']=$_FILES;
+                        die(json_encode($ret, JSON_UNESCAPED_UNICODE));
+                    }
+                    $InsertIdFile=$dataFile['setBD']['InsertIdFile'];
+                    $dataFile['InsertIdFile']=$dataFile['setBD']['InsertIdFile'];
+                    /*** ДОБАВИТЬ id файла колекции */
+                    $SQL = "Update collectionItem set 
+                                idFile= $InsertIdFile
+                                where id=$InsertId";
+                    mysqli_query($db, $SQL);
+                    $ret['FILE']=$dataFile;
                     mysqli_commit($db);
-                    $ret = ['ok'];
+                    $ret['ok'] = ['ok'];
                 } catch (mysqli_sql_exception $exception) {
                     mysqli_rollback($db);
                     $ret = [

@@ -153,6 +153,7 @@ $(document).ready(function () {
                 $.each(coll,function (index, value) {
                     select.append('<option value="'+this.id+'">'+this.value+'</option>')
                 });
+                updateCollectionItem(load_collectionItem());
 
             }
 
@@ -361,6 +362,11 @@ $(document).ready(function () {
                 $('#persID').val('');
                 if (typeof data.err === 'undefined') {
                     updatePerson(load_person());
+
+                    //initmultiselect('pers_tag');
+                    //inittag('pers');
+                    initTagAjax('#pers_tag', load_tag());
+
                 } else alert(data.err);
             }
         });
@@ -978,7 +984,64 @@ function updateFile(data) {
     });
 }
 function updateCollectionItem(data) {
-    console.log(data);
+    //console.log(data);
+    let html='<table id="tbl_CollectionItem" class="table table-bordered border-primary"><thead><tr>' +
+        '<th>ID</th>' +
+        '<th class="filter-false sorter-false"></th>' +
+        '<th>CollectionName</th>' +
+        '<th>Название экземпляра</th>' +
+        '<th>Аннотация </th>' +
+        '<th>Место нахождения</th>' +
+        '<th>Время создания</th>' +
+        '<th>Материал, техника</th>' +
+        '<th>Размер</th>' +
+        '<th>Учетный номер</th>' +
+        '<th>Координаты</th>' +
+        '<th>Файл</th>' +
+        '<th>Направление науки</th>'+
+        '<th>Ключевые слова</th>' +
+        '<th>Авторство</th>' +
+        '</tr></thead><tbody>';
+    $.each(data, function (i, v) {
+        let sci_theme = arrdata(v.sci_theme);
+        let tag = arrdata(v.tag);
+        let person = arrdata(v.person);
+        html+='<tr>' +
+            '<td style="width: 20px">' + v.CollectionItemId + '</td>' +
+            '<td style="width: 20px">' +
+            '<div class="d-flex flex-column"><div>' +
+            '<button type="button" class="btn btn-danger" onclick="delCollectionItem(' + v.CollectionItemId + ')"><i class="bi bi-trash"></i></button></div>' +
+            '<div><button type="button" class="btn btn-info" onclick="editCollectionItem(' + v.CollectionItemId + ')"><i class="bi bi-pencil-square"></i></button></div>' +
+            '</td>' +
+            '<td>' + v.Name + '</td>' +
+            '<td>' + v.CollectionName + '</td>' +
+            '<td><textarea style="width: 100%" class="form-control">' + v.Desc + '</textarea></td>' +
+            '<td><textarea style="width: 100%" class="form-control">' + v.Place + '</textarea></td>' +
+            '<td>' + v.Time + '</td>' +
+            '<td>' + v.Material + '</td>' +
+            '<td>' + v.Size + '</td>' +
+            '<td>' + v.Nom + '</td>' +
+            '<td>' + v.latitude+'/'+v.longitude + '</td>' +
+            '<td>' +
+            '<a target="_blank" href="' + v.pathWeb + '">[Файл:' + v.Name + ']</a>' +
+            '<img src="' + v.pathWeb + '" width="100px">'+
+            '</td>' +
+            '<td>' + sci_theme + '</td>' +
+            '<td>' + tag + '</td>' +
+            '<td>' + person + '</td>' +
+            '</tr>';
+    })
+    html+='</tbody></table>';
+    $("#div_tbl_collectionItem").html(html);
+    $('#tbl_CollectionItem').tablesorter({
+        //theme : 'blue',
+        //widthFixed: true,
+        widgets : [ 'zebra', 'filter' ],
+        /*widgetOptions : {
+            filter_external: 'input.search',
+            filter_reset: '.reset'
+        }*/
+    });
 }
 function updateCollection(data) {
     let html='<table id="tbl_Collection" class="table table-bordered border-primary"><thead><tr>' +
@@ -1495,7 +1558,13 @@ function inittag(elem) {
     $('#' + elem + '_tag_add_btn').on('click', function (e) {
         e.preventDefault();
         let tag = $('#' + elem + '_tag_add');
-        $('#' + elem + '_tag').append('<option>' + tag.val() + '</option>').multiselect('refresh');
+        let tag_sel=$('#' + elem + '_tag');
+        let val_tag=tag_sel.val();
+        val_tag.push(tag.val());
+        tag_sel
+            .prepend('<option>' + tag.val() + '</option>')
+            .val(val_tag)
+            .multiselect('refresh');
         $('#' + elem + '_tag_ms').addClass('form-control');
         tag.val('');
     })

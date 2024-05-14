@@ -8,26 +8,34 @@
     class FileUpload
     {
 
-        private array $FileArray;
-        private $connect;
-        private string $uploaddir;
-        private string $client_path;
-        private string $regExpFile;
+        protected array $FileArray;
+        protected $connect;
+        protected string $uploaddir;
+        protected string $client_path;
+        protected string $regExpFile;
+        protected string $HtmlInput;
         /**
          * @var int $type 0-Обычные файлы, 1-Файлы для колекций
          */
-        private int $type;
+        protected int $type;
 
         /**
-         *
+         * Статика которую на наследнике можно менять
          */
-        public function __construct(/*$arrFile*/)
+        protected const UploadDIR = "/vm/img"; // Куда загружать на сервере
+        protected const ClientPath = "/vm/img/"; // откуда будет отображатся файл на клиенте
+        protected const RegExpFile = '/.*\.(xls|xlsx|doc|docx|pdf|jpg|jpeg)$/i'; //регулярка валидации файлов
+        protected const TYPE = 0; // тип файла  0-Обычные файлы, 1-Файлы для колекций
+        protected const HTMLINPUT = 'file_F'; //
+
+        public function __construct()
         {
             $this->connect = (new BDconnect())->connect();
-            $this->uploaddir = "{$_SERVER['DOCUMENT_ROOT']}/vm/img/";
-            $this->client_path = '/vm/img/';
-            $this->regExpFile ='/.*\.(xls|xlsx|doc|docx|pdf|jpg|jpeg)$/i';
-            $this->type=0;
+            $this->uploaddir = $_SERVER['DOCUMENT_ROOT'] . static::UploadDIR;
+            $this->client_path = static::ClientPath;
+            $this->regExpFile = static::RegExpFile;
+            $this->type = static::TYPE;
+            $this->HtmlInput = static::HTMLINPUT;
         }
 
         public function getDataFile(): array
@@ -39,6 +47,10 @@
          * chmode /var/www/html/vm/img/
          * sudo chmod -R 777 /var/www/html/vm/img/
          * sudo chown -R  www-data:www-data /var/www/html/vm/
+         * TODO
+         * chmode /var/www/html/vm/collect/
+         * sudo chmod -R 777 /var/www/html/vm/collect/
+         * sudo chown -R  www-data:www-data /var/www/html/vm/collect/
          * */
         public function getFiles($files)
         {
@@ -65,7 +77,7 @@
                 );
                 $file_name = $OFileName;
                 if (preg_match($this->regExpFile, $file_name)) {
-                    if (move_uploaded_file($OFileTemp, "/$uploadDir/$file_nameFull")) {
+                    if (move_uploaded_file($OFileTemp, "$uploadDir/$file_nameFull")) {
                         $path = realpath("$uploadDir/$file_nameFull");
                         $resp[$j]['ok'] = '1';
                         $resp[$j]['file'] = $file_name;
@@ -136,7 +148,7 @@
                     $VALUES = implode(',', $VALUES);
                     $SQL = "INSERT INTO file_person (idFile, idPerson) VALUES $VALUES";
                     mysqli_query($this->connect, $SQL);
-                    $ret['file_person']=$SQL;
+                    $ret['file_person'] = $SQL;
                 }
                 /*file_sci_department*/
                 $VALUES = [];
@@ -176,7 +188,7 @@
                 }
                 /** commit */
                 mysqli_commit($this->connect);
-                $ret['ok']='ok';
+                $ret['ok'] = 'ok';
             } catch (mysqli_sql_exception $exception) {
                 mysqli_rollback($this->connect);
                 $ret = [
@@ -189,12 +201,12 @@
             return $ret;
         }
 
-        public function setBD($POST): bool
+        public function setBD($POST): array
         {
-            if (isset($this->FileArray['file_F'])) {
-                if ($this->FileArray['file_F']['ok'] == '1') {
-                    //session_start();
-                    $data = $this->FileArray['file_F'];
+            $ret = [];
+            if (isset($this->FileArray[$this->HtmlInput])) {
+                if ($this->FileArray[$this->HtmlInput]['ok'] == '1') {
+                    $data = $this->FileArray[$this->HtmlInput];
                     $Date = $POST['file_date'];
                     if ($Date == '') {
                         $Date = 'null';
@@ -204,88 +216,74 @@
                     $name = $POST['file_name'];
                     $doc = $POST['file_doc'];
                     $Desc = $POST['file_Desc'];
-                    $SQL = "insert into file (date, name, disc, doc, pathServ, pathWeb,   create_user,type)  values 
+                    mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+                    mysqli_begin_transaction($this->connect);
+                    try {
+                        $SQL = "insert into file (date, name, disc, doc, pathServ, pathWeb,   create_user,type)  values 
                             ($Date,'$name','$Desc','$doc','{$data['serv_path']}',
                              '{$data['client_path']}',                         
                             '{$_SESSION['user']['id']}',$this->type );";
-                    $result = mysqli_query($this->connect, $SQL) or die(
-                    json_encode(
-                        ['errorSQL' => "Couldn't execute query." . mysqli_error($this->connect) . "<br> " . $SQL]
-                    )
-                    );
-                    $InsertId = mysqli_insert_id($this->connect);
-                    /*Персоналии -file_pers*/
-                    if (!empty($POST['file_pers'])) {
-                        foreach ($POST['file_pers'] as $i => $value) {
-                            if (is_numeric($value)) {
-                                $value = (int)$value;
-                                $SQL = "INSERT INTO file_person (idPerson, idFile)  value ($value,$InsertId)";
-
-                                $result = mysqli_query($this->connect, $SQL) or
-                                die(
-                                json_encode(
-                                    ['err' => $SQL . "|Couldn't execute query." . mysqli_error($this->connect)],
-                                    JSON_UNESCAPED_UNICODE
-                                )
-                                );
+                        mysqli_query($this->connect, $SQL);
+                        $InsertId = mysqli_insert_id($this->connect);
+                        /*Персоналии -file_pers*/
+                        if (!empty($POST['file_pers'])) {
+                            foreach ($POST['file_pers'] as $i => $value) {
+                                if (is_numeric($value)) {
+                                    $value = (int)$value;
+                                    $SQL = "INSERT INTO file_person (idPerson, idFile)  value ($value,$InsertId)";
+                                    mysqli_query($this->connect, $SQL);
+                                }
                             }
                         }
-                    }
-                    /*Научная тематика - file_tem*/
-                    if (!empty($POST['file_tem'])) {
-                        foreach ($POST['file_tem'] as $i => $value) {
-                            if (is_numeric($value)) {
-                                $value = (int)$value;
-                                $SQL = "INSERT INTO sci_theme_file (idSciTheme, idFile)  value ($value,$InsertId)";
-                                $result = mysqli_query($this->connect, $SQL) or
-                                die(
-                                json_encode(
-                                    ['err' => $SQL . "|Couldn't execute query." . mysqli_error($this->connect)],
-                                    JSON_UNESCAPED_UNICODE
-                                )
-                                );
+                        /*Научная тематика - file_tem*/
+                        if (!empty($POST['file_tem'])) {
+                            foreach ($POST['file_tem'] as $i => $value) {
+                                if (is_numeric($value)) {
+                                    $value = (int)$value;
+                                    $SQL = "INSERT INTO sci_theme_file (idSciTheme, idFile)  value ($value,$InsertId)";
+                                    mysqli_query($this->connect, $SQL);
+                                }
                             }
                         }
-                    }
-                    /*Ключевые слова -file_tag*/
-                    if (!empty($POST['file_tag'])) {
-                        foreach ($POST['file_tag'] as $i => $value) {
-                            if (is_numeric($value)) {
-                                $value = (int)$value;
-                                $SQL = "INSERT INTO tag_file (idTag, idFile)  value ($value,$InsertId)";
-                                $result = mysqli_query($this->connect, $SQL) or
-                                die(
-                                json_encode(
-                                    ['err' => $SQL . "|Couldn't execute query." . mysqli_error($this->connect)],
-                                    JSON_UNESCAPED_UNICODE
-                                )
-                                );
+                        /*Ключевые слова -file_tag*/
+                        if (!empty($POST['file_tag'])) {
+                            foreach ($POST['file_tag'] as $i => $value) {
+                                if (is_numeric($value)) {
+                                    $value = (int)$value;
+                                    $SQL = "INSERT INTO tag_file (idTag, idFile)  value ($value,$InsertId)";
+                                    mysqli_query($this->connect, $SQL);
+                                }
                             }
                         }
-                    }
-                    /*Научное подразделение -file_sci_department*/
-                    if (!empty($POST['file_sci_department'])) {
-                        foreach ($POST['file_sci_department'] as $i => $value) {
-                            if (is_numeric($value)) {
-                                $value = (int)$value;
-                                $SQL = "INSERT INTO sci_department_file (idSciDepartment, idFile)  value ($value,$InsertId)";
-                                $result = mysqli_query($this->connect, $SQL) or
-                                die(
-                                json_encode(
-                                    ['err' => $SQL . "|Couldn't execute query." . mysqli_error($this->connect)],
-                                    JSON_UNESCAPED_UNICODE
-                                )
-                                );
+                        /*Научное подразделение -file_sci_department*/
+                        if (!empty($POST['file_sci_department'])) {
+                            foreach ($POST['file_sci_department'] as $i => $value) {
+                                if (is_numeric($value)) {
+                                    $value = (int)$value;
+                                    $SQL = "INSERT INTO sci_department_file (idSciDepartment, idFile)  value ($value,$InsertId)";
+                                    mysqli_query($this->connect, $SQL);
+                                }
                             }
                         }
+                        $ret['ok'] = 'ok';
+                        mysqli_commit($this->connect);
+                    } catch (mysqli_sql_exception $exception) {
+                        mysqli_rollback($this->connect);
+                        $ret = [
+                            'errorSQL',
+                            'SQL' => $SQL,
+                            'exception' => $exception->getMessage(),
+                            'code' => $exception->getCode()
+                        ];
                     }
-                    return true;
+                    return $ret;
                 } else {
-                    return false;
+                    $ret['err'] = 'FileArray is not ok';
                 }
             } else {
-                return false;
+                $ret['err'] = 'FileArray empty';
             }
+            return $ret;
         }
 
         public function delFile($id): array
