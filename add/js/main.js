@@ -968,7 +968,10 @@ function updateFile(data) {
             '<td>' + sci_department + '</td>' +
             '<td>' + v.doc + '</td>' +
             '<td class="text-wrap">' + tag + '</td>' +
-            '<td><a target="_blank" href="' + v.pathWeb + '">' + v.name + '</a></td>' +
+            '<td>' +
+            '<a target="_blank" href="' + v.pathWeb + '">' + v.name + '</a><br>' +
+            '<img src="' + v.pathWeb + '" width="100px">' +
+            '</td>' +
             '</tr>';
     })
     html+='</tbody></table>';
