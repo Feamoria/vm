@@ -300,7 +300,7 @@
                         $ret = ['ok' => "ok"];
                     }
                 } else {
-                    $ret = ['err' => 'Ошибка удаления файла'];
+                    $ret = ['err' => 'Ошибка удаления файла. '.var_export(error_get_last(), true)];
                 }
             }
             return $ret;

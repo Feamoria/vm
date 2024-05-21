@@ -869,7 +869,26 @@ function editPerson(id) {
     $('#pers_tag').val(tag).multiselect('refresh');
     $(window).scrollTop($('#UserOnline').offset().top);
 }
-
+function editCollection(id) {
+    let data = load_collection('s_id=' + id);
+    let info = data[0];
+    //id_collection
+    console.log(info);
+    $('#id_collection').val(info.id);
+    $('#collection_name').val(info.Name);
+    $('#collection_Desc').val(info.collection_Desc);
+    $('#collection_url').val(info.url);
+    ///$('#').val();
+    //pers_sci_department  - sci_department
+    let sci_department = [];
+    if (info.sci_department.length > 0) {
+        let dt = info.sci_department;
+        $.each(dt, function (index, value) {
+            sci_department.push(value.id)
+        });
+    }
+    $('#collection_sci_department').val(sci_department).multiselect('refresh');
+}
 function editFile(id) {
     $('#file_F').prop('disabled', true);
     let data = load_file('s_id=' + id);
@@ -1012,8 +1031,8 @@ function updateCollectionItem(data) {
         html+='<tr>' +
             '<td style="width: 20px">' + v.CollectionItemId + '</td>' +
             '<td style="width: 20px">' +
-            '<div class="d-flex flex-column"><div>' +
-            '<button type="button" class="btn btn-danger" onclick="delCollectionItem(' + v.CollectionItemId + ')"><i class="bi bi-trash"></i></button></div>' +
+            '<div class="d-flex flex-column">' +
+            '<div><button type="button" class="btn btn-danger" onclick="delCollectionItem(' + v.CollectionItemId + ')"><i class="bi bi-trash"></i></button></div>' +
             '<div><button type="button" class="btn btn-info" onclick="editCollectionItem(' + v.CollectionItemId + ')"><i class="bi bi-pencil-square"></i></button></div>' +
             '</td>' +
             '<td>' + v.Name + '</td>' +
@@ -1052,10 +1071,15 @@ function updateCollection(data) {
         '<th class="filter-false sorter-false"></th>' +
         '<th>Название колекции</th>' +
         '<th>История формирования коллекции</th>' +
+        '<th>Ссылка на коллекцию</th>' +
         '<th>Структурное подразделение</th>' +
         '</tr></thead><tbody>';
     $.each(data, function (i, v) {
         let sci_department = arrdata(v.sci_department);
+        let url='<a target="_blank" href="' + v.url + '">Ссылка</a>'
+        if (v.url === null) {
+            url='';
+        }
         html+='<tr>' +
             '<td style="width: 20px">' + v.id + '</td>' +
             '<td style="width: 20px">' +
@@ -1065,6 +1089,7 @@ function updateCollection(data) {
             '</td>' +
             '<td>' + v.Name + '</td>' +
             '<td><textarea style="width: 100%" class="form-control">' + v.collection_Desc + '</textarea></td>' +
+            '<td>'+url+'</td>' +
             '<td>' + sci_department + '</td>' +
             '</tr>';
     })
@@ -1196,7 +1221,62 @@ function updatePerson(data) {
         }*/
     });
 }
-
+function delCollectionItem(id, answer = null){
+    if (answer == null) {
+        $('#dialog_del').dialog({
+            buttons: {
+                "Да": function () {
+                    $(this).dialog("close");
+                    delCollectionItem(id, true)
+                },
+                'Нет': function () {
+                    $(this).dialog("close");
+                }
+            }
+        }).dialog("open");
+    } else if (answer === true) {
+        $.ajax({
+            type: 'POST',
+            url: 'set.php?collectionItem&del',
+            data: 'collectionItem=' + id,
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                if (typeof data.err === 'undefined') {
+                    updateCollectionItem(load_collectionItem());
+                } else alert(data.err);
+            }
+        })
+    }
+}
+function delCollection(id, answer = null){
+    if (answer == null) {
+        $('#dialog_del').dialog({
+            buttons: {
+                "Да": function () {
+                    $(this).dialog("close");
+                    delCollection(id, true)
+                },
+                'Нет': function () {
+                    $(this).dialog("close");
+                }
+            }
+        }).dialog("open");
+    } else if (answer === true) {
+        $.ajax({
+            type: 'POST',
+            url: 'set.php?collection&del',
+            data: 'collection=' + id,
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                if (typeof data.err === 'undefined') {
+                    updateCollection(load_collection());
+                } else alert(data.err);
+            }
+        })
+    }
+}
 function delEvent(tag, answer = null) {
     if (answer == null) {
         $('#dialog_del').dialog({

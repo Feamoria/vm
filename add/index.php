@@ -454,6 +454,7 @@
 	</div>
 	<div id="tabs-7">
 		<form class="row" method="post" id="collection">
+			<input id="id_collection" name="id_collection" type="hidden">
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success text-wrap">Название колекции<span style="color: red">*</span></span>
 				<input type="text" id='collection_name' name='collection_name' required aria-label="" class="form-control" placeholder="">
@@ -462,6 +463,11 @@
 				<span style="width: 20%" class="input-group-text text-bg-success text-wrap">История формирования коллекции</span>
 				<textarea id="collection_Desc" name="collection_Desc" class="form-control" aria-label=""></textarea>
 				<span class="input-group-text" id="collection_Desc"></span>
+			</div>
+			<div class="input-group">
+				<span style="width: 20%" class="input-group-text text-bg-success text-wrap">Ссылка на коллекцию</span>
+				<input id="collection_url" name="collection_url" class="form-control" aria-label="">
+				<span class="input-group-text" id="collection_url"></span>
 			</div>
 			<div class="col-auto input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success text-wrap" id="">Структурное подразделение</span>
@@ -479,6 +485,7 @@
 	</div>
 	<div id="tabs-8">
 		<form class="row" method="post" id="collectionItem">
+			<input id="collectionItemId" name="collectionItemId" type="hidden">
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success">Раздел колекции<span style="color: red">*</span></span>
 

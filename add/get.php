@@ -176,7 +176,15 @@
     if (isset($_GET['collection'])) {
         $db = (new BDconnect())->connect();
         $data = [];
-        $SQL = "SELECT id,Name as value,Name,collection_Desc FROM collection 
+        $where = '';
+        if (!empty($_POST)) {
+            if (isset($_POST['s_id'])) {
+                //$data['POST'] = $_POST;
+                $where = ' where id = ' . (int)$_POST['s_id'];
+            }
+        }
+        $SQL = "SELECT id,Name as value,Name,collection_Desc,url FROM collection 
+                $where
                 order by Name";
         $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
         $res = mysqli_fetch_all($query, MYSQLI_ASSOC);

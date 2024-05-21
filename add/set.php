@@ -1,4 +1,5 @@
 <?php
+
     ini_set('error_reporting', E_ALL);
     ini_set('display_errors', 1);
     ini_set('display_startup_errors', 1);
@@ -30,15 +31,29 @@
     {
         $db = (new BDconnect())->connect();
         //$USER_ID=$_SESSION['user']['id'];
-        // TODO ЗАПРОС КТО СОЗДАЛ ЗАПИСЬ ЕСЛИ НЕ РАВЕН С СЕССИОН ID то иди нах
+        //  ЗАПРОС КТО СОЗДАЛ ЗАПИСЬ ЕСЛИ НЕ РАВЕН С СЕССИОН ID то иди нах
 
         $id = (int)$id;
         $data = [];
         if ($id > 0) {
-            $SQL = "DELETE FROM $table where id = '$id'";
-            mysqli_query($db, $SQL) or
-            die(json_encode(['err' => $SQL . "|Couldn't execute query." . mysqli_error($db)], JSON_UNESCAPED_UNICODE));
-            $data = ['ok'];
+            mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+            try {
+                $SQL = "DELETE FROM $table where id = '$id'";
+                mysqli_query($db, $SQL);
+                $data = ['ok'];
+            } catch (mysqli_sql_exception $exception) {
+                mysqli_rollback($db);
+                $ret = [
+                    'errorSQL',
+                    'SQL' => $SQL,
+                    'exception' => $exception->getMessage(),
+                    'code' => $exception->getCode()
+                ];
+                if ($exception->getCode()==1451) {
+                    $ret['err']='Удалить связаные элементы невозможно. Обратитесь к разработчику';
+                }
+                die(json_encode($ret, JSON_UNESCAPED_UNICODE));
+            }
         }
         if ($show) {
             $SQL = "SELECT * FROM $table order by Name";
@@ -203,14 +218,14 @@
                 if ($_POST['pers_date2'] == '') {
                     $pers_date2 = 'null';
                 } else {
-                    $pers_date2 = "'".$_POST['pers_date2']."'";
+                    $pers_date2 = "'" . $_POST['pers_date2'] . "'";
                 }
                 $pers_Desc = $_POST['pers_Desc'];
                 $pers_dol = $_POST['pers_dol'];
                 $pers_publications = $_POST['pers_publications'];
                 $pers_awards = $_POST['pers_awards'];
                 $ret = [];
-                $SQL='';
+                $SQL = '';
                 //die(json_encode($_POST, JSON_UNESCAPED_UNICODE));
                 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
                 mysqli_begin_transaction($db);
@@ -252,11 +267,10 @@
                                 $value = mysqli_escape_string($db, $value);
                                 $SQL = "INSERT INTO tag (Name,create_user) value ('$value',$USER_ID)";
                                 mysqli_query($db, $SQL);
-                                $ret['SQL_TAG'][]=$SQL;
+                                $ret['SQL_TAG'][] = $SQL;
                                 $InsertIdTag = mysqli_insert_id($db);
                                 $SQL = "INSERT INTO tag_person (idTag, idPerson) value ($InsertIdTag,$InsertId)";
-                                $ret['SQL_TAG'][]=$SQL;
-
+                                $ret['SQL_TAG'][] = $SQL;
                             }
                             mysqli_query($db, $SQL);
                         }
@@ -348,7 +362,7 @@
         if (isset($_GET['event'])) {
             $db = (new BDconnect())->connect();
             $ret = [];
-            $SQL='';
+            $SQL = '';
             if (isset($_GET['del'])) {
                 //  ЗАПРОС КТО СОЗДАЛ ЗАПИСЬ ЕСЛИ НЕ РАВЕН С СЕССИОН ID то иди нах
                 $text = 'ok';
@@ -517,14 +531,13 @@
             if (isset($_GET['del'])) {
                 //  ЗАПРОС КТО СОЗДАЛ ЗАПИСЬ ЕСЛИ НЕ РАВЕН С СЕССИОН ID то иди нах
                 $text = 'ok';
-                /*
-                if (!checkPermition('event', (int)$_POST['event'])) {
-                    die(json_encode(['err' => "Удалить чужое событие невозможно"]));
+                if (!checkPermition('collection', (int)$_POST['collection'])) {
+                    die(json_encode(['err' => "Удалить чужую колекцию невозможно"]));
                 }
-                $del = del('event', $_POST['event'], false);
+                $del = del('collection', $_POST['collection'], false);
                 if ($del !== false) {
                     $text = $del;
-                }*/
+                }
                 $ret = ['ok' => "$text"];
             } else {
                 /*Очистка от каки*/
@@ -539,10 +552,25 @@
                 try {
                     //var_dump($_POST);
                     //collection_name collection_Desc collection_sci_department
-                    $SQL = "INSERT INTO collection (Name, collection_Desc, create_user) value 
-                        ('{$_POST['collection_name']}','{$_POST['collection_Desc']}',{$_SESSION['user']['id']})";
-                    mysqli_query($db, $SQL);
-                    $InsertId = mysqli_insert_id($db);
+                    if (empty($_POST['id_collection'])) {
+                        $SQL = "INSERT INTO collection (Name, collection_Desc, create_user,url) value 
+                        ('{$_POST['collection_name']}','{$_POST['collection_Desc']}',{$_SESSION['user']['id']},'{$_POST['collection_url']}')";
+                        mysqli_query($db, $SQL);
+                        $InsertId = mysqli_insert_id($db);
+                    } else {
+                        $id=(int)$_POST['id_collection'];
+                        $SQL = "UPDATE collection set 
+                            Name='{$_POST['collection_name']}' ,
+                            collection_Desc='{$_POST['collection_Desc']}' ,
+                            url='{$_POST['collection_url']}'
+                        where id =$id";
+                        mysqli_query($db, $SQL);
+                        $InsertId = $id;
+                    }
+                    if (!empty($_POST['id_collection'])) {
+                        $SQL = "DELETE FROM sci_department_collection where idCollection=$InsertId";
+                        mysqli_query($db, $SQL);
+                    }
                     if (!empty($_POST['collection_sci_department'])) {
                         foreach ($_POST['collection_sci_department'] as $i => $value) {
                             if (is_numeric($value)) {
@@ -567,24 +595,28 @@
             die(json_encode($ret, JSON_UNESCAPED_UNICODE));
         }
         /*********
-         * collection
+         * collectionItem
          ********/
         //var_dump($_GET);
         if (isset($_GET['collectionItem'])) {
             $db = (new BDconnect())->connect();
             require_once '../php_class/FileUpload.php';
-            class FileUploadCollect extends FileUpload {
-                protected const UploadDIR="/vm/collect/"; // Куда загружать на сервере
-                protected const ClientPath="/vm/collect/"; // откуда будет отображатся файл на клиенте
-                protected const RegExpFile='/.*\.(jpg|jpeg)$/i'; //регулярка валидации файлов
-                protected const TYPE=1; // тип файла  0-Обычные файлы, 1-Файлы для колекций
+
+            class FileUploadCollect extends FileUpload
+            {
+                protected const UploadDIR = "/vm/collect/"; // Куда загружать на сервере
+                protected const ClientPath = "/vm/collect/"; // откуда будет отображатся файл на клиенте
+                protected const RegExpFile = '/.*\.(jpg|jpeg)$/i'; //регулярка валидации файлов
+                protected const TYPE = 1; // тип файла  0-Обычные файлы, 1-Файлы для колекций
                 protected const HTMLINPUT = 'collectionItemFile'; //
-                public function setBD($POST): array {
+
+                public function setBD($POST): array
+                {
                     $ret = [];
                     if (isset($this->FileArray[$this->HtmlInput])) {
                         if ($this->FileArray[$this->HtmlInput]['ok'] == '1') {
                             $data = $this->FileArray[$this->HtmlInput];
-                            $name=$POST['collectionItemName'];
+                            $name = $POST['collectionItemName'];
                             mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
                             mysqli_begin_transaction($this->connect);
                             try {
@@ -618,17 +650,40 @@
                 }
 
             }
+
             $UPLOAD = new FileUploadCollect();
             $ret = [];
             if (isset($_GET['del'])) {
-                // TODO Удаление!
+                //  Удаление!
                 //  ЗАПРОС КТО СОЗДАЛ ЗАПИСЬ ЕСЛИ НЕ РАВЕН С СЕССИОН ID то иди нах
-                /*
-                $id_file = $_POST['file'];
-                if (!checkPermition('file', $id_file)) {
+
+                $id = $_POST['collectionItem'];
+                if (!checkPermition('collectionItem', $id)) {
                     die(json_encode(['err' => "Удилить чужой файл невозможно"]));
                 }
-                $UPLOAD->delFile($id_file);*/
+                mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+                try {
+                    $SQL="SELECT id,idFile from collectionItem where id=$id";
+                    $query=mysqli_query($db, $SQL);
+                    $res = mysqli_fetch_all($query, MYSQLI_ASSOC);
+                    $idFile=null;
+                    foreach ($res as $val) {
+                        $idFile=$val['idFile'];
+                    }
+                    $del=$UPLOAD->delFile($idFile);
+                    if (isset($del['ok']) )
+                        del('collectionItem',$id);
+                    else $ret['err']=$del['err'];
+
+                } catch (mysqli_sql_exception $exception) {
+                $ret = [
+                    'errorSQL',
+                    'SQL' => $SQL,
+                    'exception' => $exception->getMessage(),
+                    'code' => $exception->getCode()
+                ];
+            }
+
             } else {
                 /*Очистка от каки*/
                 foreach ($_POST as $i => $value) {
@@ -636,27 +691,33 @@
                         $_POST[$i] = mysqli_escape_string($db, $value);
                     }
                 }
-                $_POST['FILE']=$_FILES;
+                $_POST['FILE'] = $_FILES;
                 /** Основные*/
                 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
                 mysqli_begin_transaction($db);
                 try {
-                    $idColl=$_POST['collectionItemColl'];
-                    $Name=$_POST['collectionItemName'];
-                    $Desc=$_POST['collectionItemDesc'];
-                    $Place=$_POST['collectionItemPlace'];
-                    $Time=$_POST['collectionItemTime'];
-                    $Material=$_POST['collectionItemMaterial'];
-                    $Size=$_POST['collectionItemSize'];
-                    $Nom=$_POST['collectionItemNom'];
-                    $latitude=$_POST['latitude'];
-                    $longitude=$_POST['longitude'];
-                    $SQL = "INSERT INTO collectionItem 
+                    $idColl = $_POST['collectionItemColl'];
+                    $Name = $_POST['collectionItemName'];
+                    $Desc = $_POST['collectionItemDesc'];
+                    $Place = $_POST['collectionItemPlace'];
+                    $Time = $_POST['collectionItemTime'];
+                    $Material = $_POST['collectionItemMaterial'];
+                    $Size = $_POST['collectionItemSize'];
+                    $Nom = $_POST['collectionItemNom'];
+                    $latitude = $_POST['latitude'];
+                    $longitude = $_POST['longitude'];
+                    //collectionItemId
+                    if (empty($_POST['collectionItemId'])){
+                        $SQL = "INSERT INTO collectionItem 
                     (idCollection,Name, `Desc`, Place, Time, Material, Size, Nom, create_user, latitude, longitude) value 
                     ('$idColl','$Name','$Desc','$Place','$Time','$Material','$Size','$Nom','{$_SESSION['user']['id']}',
                         '$latitude','$longitude')";
-                    mysqli_query($db, $SQL);
-                    $InsertId = mysqli_insert_id($db);
+                        mysqli_query($db, $SQL);
+                        $InsertId = mysqli_insert_id($db);
+                    } else {
+                        $InsertId=(int)$_POST['collectionItemId'];
+                    }
+
                     if (!empty($_POST['collectionItem_pers'])) {
                         foreach ($_POST['collectionItem_pers'] as $i => $value) {
                             if (is_numeric($value)) {
@@ -695,23 +756,23 @@
                     */
                     $UPLOAD->getFiles($_FILES);
                     $dataFile['UPLOAD'] = $UPLOAD->getDataFile();
-                    $dataFile['POST'] =$_POST;
-                    $dataFile['setBD']=$UPLOAD->setBD($_POST);
+                    $dataFile['POST'] = $_POST;
+                    $dataFile['setBD'] = $UPLOAD->setBD($_POST);
                     if (isset($dataFile['setBD']['err'])) {
                         mysqli_rollback($db);
-                        $ret['FILE']=$dataFile;
-                        $ret['err']=$dataFile['setBD']['err'];
-                        $ret['_FILES']=$_FILES;
+                        $ret['FILE'] = $dataFile;
+                        $ret['err'] = $dataFile['setBD']['err'];
+                        $ret['_FILES'] = $_FILES;
                         die(json_encode($ret, JSON_UNESCAPED_UNICODE));
                     }
-                    $InsertIdFile=$dataFile['setBD']['InsertIdFile'];
-                    $dataFile['InsertIdFile']=$dataFile['setBD']['InsertIdFile'];
+                    $InsertIdFile = $dataFile['setBD']['InsertIdFile'];
+                    $dataFile['InsertIdFile'] = $dataFile['setBD']['InsertIdFile'];
                     /*** ДОБАВИТЬ id файла колекции */
                     $SQL = "Update collectionItem set 
                                 idFile= $InsertIdFile
                                 where id=$InsertId";
                     mysqli_query($db, $SQL);
-                    $ret['FILE']=$dataFile;
+                    $ret['FILE'] = $dataFile;
                     mysqli_commit($db);
                     $ret['ok'] = ['ok'];
                 } catch (mysqli_sql_exception $exception) {
@@ -726,4 +787,6 @@
             }
             die(json_encode($ret, JSON_UNESCAPED_UNICODE));
         }
-    } else die(json_encode(['err'=>'Сессия закрыта, обновите страницу'], JSON_UNESCAPED_UNICODE));
+    } else {
+        die(json_encode(['err' => 'Сессия закрыта, обновите страницу'], JSON_UNESCAPED_UNICODE));
+    }
