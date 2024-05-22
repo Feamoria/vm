@@ -512,6 +512,7 @@
                 } catch (mysqli_sql_exception $exception) {
                     mysqli_rollback($db);
                     $ret = [
+                        'err'=>'Ошибка запроса.\nCODE:'.$exception->getCode().'\nException:'.$exception->getMessage(),
                         'errorSQL',
                         'SQL' => $SQL,
                         'exception' => $exception->getMessage(),
