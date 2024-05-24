@@ -65,7 +65,7 @@ $(document).ready(function () {
                     if ($(this).prop('checked')) {
                         let id = $(this).val();
                         chk.push(id);
-                        text.append("<a target='_blank' href='" + data_file.GET[id].pathWeb + "'>" + data_file.GET[id].name + " </a>  ")
+                        text.append("<a target='_blank' href='" + data_file.GET[id].pathWeb + "'>[" + data_file.GET[id].name + "] </a>  ")
                         sel.append('<option value="' + id + '">' + id + '</option>');
                     }
 
@@ -204,17 +204,39 @@ $(document).ready(function () {
     /*Форма выбора файла*/
     $('#btn_open_file').on('click', function (e) {
         e.preventDefault();
+/*
+let chk = [];
+                let text = $('#ev_file_text');
+                text.html('');
+                let sel = $('#ev_file');
+                sel.html('');
+                $('#dialog_file_cont .form-check-input').each(function () {
+                    if ($(this).prop('checked')) {
+                        let id = $(this).val();
+                        chk.push(id);
+                        text.append("<a target='_blank' href='" + data_file.GET[id].pathWeb + "'>[" + data_file.GET[id].name + "] </a>  ")
+                        sel.append('<option value="' + id + '">' + id + '</option>');
+                    }
 
+                })
+                sel.val(chk);
+* */
         function load(search = null) {
             data_file = load_file(search);
+
+            let sel = $('#ev_file');
+            let ev_file_val=sel.val()
             let cont = $('#dialog_file_cont').html('');
             $.each(data_file.GET, function (index, value) {
-                //console.log(value);
+                let chk = '';
+                if (ev_file_val.indexOf( value.id ) !== -1){
+                    chk=' checked ';
+                }
                 let html = '<div class="card" style="width: 18rem;">' +
-                    '<img src="' + value.pathWeb + '" class="card-img-top" alt=""' +
+                    '<img style="height: 200px;width: max-content;" src="' + value.pathWeb + '" class="card-img-top" alt=""' +
                     '<div class="card-body">' +
                     '<h5 class="card-title">' +
-                    '<input value="' + value.id + '" id="chk_' + value.id + '" name="chk[]" type="checkbox" class="form-check-input">' +
+                    '<input value="' + value.id + '"  id="chk_' + value.id + '" name="chk[]" type="checkbox" class="form-check-input" '+chk+'>' +
                     '<label class="" for="chk_' + value.id + '">' + value.name + '</label></h5>' +
                     '<p class="card-text">' + value.disc + '</p>' +
 
@@ -226,8 +248,11 @@ $(document).ready(function () {
                 cont.append(html);
             });
         }
-
-        load();
+        let search =''
+        if ($('#my_Efile').prop('checked')) {
+            search='dep=true';
+        }
+        load(search);
         dialog.dialog("open");
         /**/
         initmultiselect('s_tg');
@@ -238,8 +263,12 @@ $(document).ready(function () {
         initTagAjax('#s_tem', data_sci_field);
         initTagAjax('#s_pers', data_pers);
 
-        $('#s_Name,#s_tg,#s_tem,#s_pers').on('change keyup', function () {
-            load($('#s_form').serialize());
+        $('#s_Name,#s_tg,#s_tem,#s_pers,#my_Efile').on('change keyup', function () {
+            search='';
+            if ($('#my_Efile').prop('checked')) {
+                search='&dep=true';
+            }
+            load($('#s_form').serialize()+search);
 
         })
         /**/
@@ -276,7 +305,8 @@ $(document).ready(function () {
                 $('#ev_file_text').empty();
                 $('#event').trigger("reset");
                 if (typeof data.err === 'undefined') {
-                    console.log(data);
+                    //console.log(data);
+                    $('#eventID').val('');
                     updateEvent(load_event());
                 } else alert(data.err);
             }
@@ -578,11 +608,11 @@ $(document).ready(function () {
             contentType: false,
             cache: false,
             success: function (data, /*status*/) {
-                $('#file').trigger("reset");
-                $('#id_file').val('');
-                $('#file_F').prop('disabled', false);
                 if (typeof data.err === 'undefined') {
                     updateFile(data);
+                    $('#file').trigger("reset");
+                    $('#id_file').val('');
+                    $('#file_F').prop('disabled', false);
                 } else alert(data.err);
             }
         });
@@ -808,16 +838,19 @@ function editEvent(id) {
     $('#ev_pers').val(pers).multiselect('refresh');
     // ev_file - file
     let file = [];
+    let ev_file=$('#ev_file');
+    ev_file.html('');
     if (info.file.length > 0) {
         let dt = info.file;
         let text = $('#ev_file_text');
         text.html('');
         $.each(dt, function (index, value) {
             file.push(value.id)
+            ev_file.append('<option value="'+value.id+'">'+value.id+'</option>')
             text.append("<a target='_blank' href='" + value.pathWeb + "'>[" + value.name + "] </a>  ")
         });
     }
-    $('#ev_file').val(file);
+    ev_file.val(file);
     $(window).scrollTop($('#UserOnline').offset().top);
 }
 
@@ -1641,6 +1674,10 @@ function inittag(elem) {
     $('#' + elem + '_tag_add_btn').on('click', function (e) {
         e.preventDefault();
         let tag = $('#' + elem + '_tag_add');
+        if (tag.val()==='') {
+            alert('Пустое ключевое!');
+            return false;
+        }
         let tag_sel=$('#' + elem + '_tag');
         let val_tag=tag_sel.val();
         val_tag.push(tag.val());

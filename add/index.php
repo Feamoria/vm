@@ -150,6 +150,12 @@
 					<div class="col">
 						<select id="s_tg" name="s_tag[]" multiple class="form-select" aria-label="Ключевые слова"></select>
 					</div>
+					<div class="col">
+						<div class="form-check form-switch">
+							<input class="form-check-input" type="checkbox" role="switch" id="my_Efile">
+							<label class="form-check-label" for="my_Efile">Показать файлы моего отдела</label>
+						</div>
+					</div>
 				</div>
 			</div>
 		</form>

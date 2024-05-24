@@ -245,7 +245,7 @@
                                 comment='$pers_Desc', 
                                 dol='$pers_dol', 
                                 dayN='$pers_date1', 
-                                dayD='$pers_date2',
+                                dayD=$pers_date2,
                                 publications='$pers_publications',
                                 awards='$pers_awards'
                                  where id=$persID;";
@@ -265,12 +265,14 @@
                                 $SQL = "INSERT INTO tag_person (idTag, idPerson) value ($value,$InsertId)";
                             } else {
                                 $value = mysqli_escape_string($db, $value);
-                                $SQL = "INSERT INTO tag (Name,create_user) value ('$value',$USER_ID)";
-                                mysqli_query($db, $SQL);
-                                $ret['SQL_TAG'][] = $SQL;
-                                $InsertIdTag = mysqli_insert_id($db);
-                                $SQL = "INSERT INTO tag_person (idTag, idPerson) value ($InsertIdTag,$InsertId)";
-                                $ret['SQL_TAG'][] = $SQL;
+                                if ($value ==! '') {
+                                    $SQL = "INSERT INTO tag (Name,create_user) value ('$value',$USER_ID)";
+                                    mysqli_query($db, $SQL);
+                                    $ret['SQL_TAG'][] = $SQL;
+                                    $InsertIdTag = mysqli_insert_id($db);
+                                    $SQL = "INSERT INTO tag_person (idTag, idPerson) value ($InsertIdTag,$InsertId)";
+                                    $ret['SQL_TAG'][] = $SQL;
+                                }
                             }
                             mysqli_query($db, $SQL);
                         }
@@ -314,6 +316,7 @@
                 } catch (mysqli_sql_exception $exception) {
                     mysqli_rollback($db);
                     $ret = [
+                        'err'=>'Ошибка запроса. Отправьте ошибку на hohlov.r.n@ib.komisc.ru\nCODE:'.$exception->getCode().'\nException:'.$exception->getMessage(),
                         'errorSQL',
                         'SQL' => $SQL,
                         'exception' => $exception->getMessage(),
@@ -343,7 +346,10 @@
                     $UPLOAD->getFiles($_FILES);
                     $dataFile['UPLOAD'] = $UPLOAD->getDataFile();
                     $dataFile['POST'] = $_POST;
-                    $UPLOAD->setBD($_POST);
+                    $dataFile['setBD']=$UPLOAD->setBD($_POST);
+                    if (isset($dataFile['setBD']['err'])) {
+                        $dataFile['err']=$dataFile['setBD']['err'];
+                    }
                 } else {
                     // ЗАПРОС КТО СОЗДАЛ ЗАПИСЬ ЕСЛИ НЕ РАВЕН С СЕССИОН ID то иди нах
                     $dataFile['POST'] = $_POST;
@@ -353,7 +359,7 @@
                     $dataFile['UPDATE'] = $UPLOAD->updateBD($_POST);
                 }
             }
-            $dataFile['GET'] = $UPLOAD->getBD();
+            $dataFile['GET'] = $UPLOAD->getBD(null, $_POST);
             die(json_encode($dataFile, JSON_UNESCAPED_UNICODE));
         }
         /*********

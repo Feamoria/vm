@@ -2,9 +2,11 @@
     require_once '../php_class/connect.php';
     $db = (new BDconnect())->connect();
     session_start();
+    //HTTP_USER_AGENT
     if (isset($_SESSION['user'])) {
         $SQL="UPDATE user set  
-                online=CURRENT_TIMESTAMP() 
+                online=CURRENT_TIMESTAMP(),
+                UserAgent='{$_SERVER['HTTP_USER_AGENT']}'
                 where id=".$_SESSION['user']['id'];
         $result = mysqli_query($db, $SQL) or
         die(json_encode(['err' => $SQL . "|Couldn't execute query." . mysqli_error($db)], JSON_UNESCAPED_UNICODE));
@@ -16,5 +18,6 @@
         $result = mysqli_query($db, $SQL) or
         die(json_encode(['err' => $SQL . "|Couldn't execute query." . mysqli_error($db)], JSON_UNESCAPED_UNICODE));
         $ret['user']=mysqli_fetch_all($result, MYSQLI_ASSOC);
+        //$ret['$_CLIENT']=$_SERVER;
         die(json_encode($ret));
     }

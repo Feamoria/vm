@@ -24,7 +24,7 @@
          */
         protected const UploadDIR = "/vm/img"; // Куда загружать на сервере
         protected const ClientPath = "/vm/img/"; // откуда будет отображатся файл на клиенте
-        protected const RegExpFile = '/.*\.(xls|xlsx|doc|docx|pdf|jpg|jpeg)$/i'; //регулярка валидации файлов
+        protected const RegExpFile = '/.*\.(pdf|jpg|jpeg)$/i'; //регулярка валидации файлов
         protected const TYPE = 0; // тип файла  0-Обычные файлы, 1-Файлы для колекций
         protected const HTMLINPUT = 'file_F'; //
 
@@ -270,6 +270,7 @@
                     } catch (mysqli_sql_exception $exception) {
                         mysqli_rollback($this->connect);
                         $ret = [
+                            'err'=>'Ошибка запроса. Отправьте ошибку на hohlov.r.n@ib.komisc.ru\nCODE:'.$exception->getCode().'\nException:'.$exception->getMessage(),
                             'errorSQL',
                             'SQL' => $SQL,
                             'exception' => $exception->getMessage(),
@@ -278,7 +279,7 @@
                     }
                     return $ret;
                 } else {
-                    $ret['err'] = 'FileArray is not ok';
+                    $ret['err'] = 'FileArray is not ok.'.$this->FileArray[$this->HtmlInput]['mess'];
                 }
             } else {
                 $ret['err'] = 'FileArray empty';
