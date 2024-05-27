@@ -78,6 +78,20 @@
 			where file.id=file_event.idFile";
         $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
         $data['event'][$i]['file'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
+        /*sci_theme*/
+        $SQL = "
+			SELECT sci_theme.id,sci_theme.Name
+				FROM sci_theme, (SELECT * from sci_theme_event where idEvent={$val['id']}) as sci_theme_event
+			where sci_theme.id=sci_theme_event.idTheme";
+        $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
+        $data['event'][$i]['sci_theme'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
+        /**/
+        $SQL = "
+			SELECT sci_department.id,sci_department.Name
+				FROM sci_department, (SELECT * from sci_department_event where idEvent={$val['id']}) as sci_department_event
+			where sci_department.id=sci_department_event.idSciDepartment";
+        $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
+        $data['event'][$i]['sci_department'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
     }
 
 
