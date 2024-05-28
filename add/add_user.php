@@ -26,6 +26,7 @@
 				$pass=hash('sha512', $_POST['pass']);
         		$SQL="INSERT INTO user (role, FIO, login, pass,dep) value 
     				(2,'{$_POST['FIO']}','{$_POST['login']}','$pass','{$_POST['dep']}')";
+                //$_SESSION['err']=$SQL;
                 $result = mysqli_query($db, $SQL);
 					if (!$result) {
                         $_SESSION['err']=$SQL . "|Couldn't execute query." . mysqli_error($db);
@@ -36,6 +37,7 @@
         }
     } else {
         http_response_code(403);
+        exit;
     }
 ?>
 <head>
@@ -46,7 +48,7 @@
 </head>
 <body>
 <pre><?php
-		$arr=['Bo382ko',
+		$arr=['319727',
 'Va708va',
 'Go395va',
 'De686na',
@@ -74,10 +76,9 @@
 				<div class="p-4">
 					<form method="post">
 						<?php if(isset($_SESSION['err'])) {
-                            echo "
-						<div class='input-group mb-3'>
-                                    <span class='input-group-text bg-warning'>{$_SESSION['err']}</span>
-						</div>";
+                            echo "<div class='input-group mb-3'>
+											<span class='input-group-text bg-warning'>{$_SESSION['err']}</span>
+								</div>";
                             $_SESSION['err']=null;
                         }
                         ?>

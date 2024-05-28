@@ -44,14 +44,15 @@
         $data['SQL']=$SQL;
     } elseif (isset($_POST['person'])) {
         // Выбрать ВСЮ инфу о персоналии
-        $SQL = "SELECT id,Name,DateN as `Date`,`doc`,importance as `level` FROM event
-			where importance <= $level
-			order by DateN";
+        $idPers=(int)$_POST['person'];
+        $SQL="SELECT * from person where id=$idPers";
         $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
         $data['person'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
-        //Выбрать события с этой персоналией (без разбивки по важности?) where importance <= {$_SESSION['level']}
+        $SQL="SELECT * from file where id in (SELECT idFile from file_person where idPerson=$idPers)";
+        $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
+        $data['personFile'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
         $SQL = "SELECT id,Name,DateN as `Date`,`doc`,importance as `level` FROM event
-			
+			where id in (SELECT idEvent from person_event where idPerson=$idPers)
 			order by DateN";
     }
     $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
