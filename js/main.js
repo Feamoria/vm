@@ -194,6 +194,19 @@ function getInfo(idEvent) {
 
 
 }
+function loadPerson(){
+    let personID=$('#personID').val();
+    return $.ajax({
+        async:false,
+        type: 'POST',
+        url: 'get.php?person',
+        data: 'person='+personID,
+        //contentType: 'application/json;',
+        dataType: 'json',
+        cache: false,
+        //success: function(data) {}
+    }).responseJSON;
+}
  function loadEvent() {
     let them=$('.b1.btn-info').attr('value');
      if (typeof them ==='undefined')
@@ -220,6 +233,11 @@ function getInfo(idEvent) {
 let mod=16;
 let lastBtn=null;
 $(document).ready(function () {
+    if ($('#personID').length >0) {
+        let data=loadPerson();
+        $('#person').html(JSON.stringify(data));
+        return;
+    }
     let min=$('#custom-handle-min').attr('year');
     let max=$('#custom-handle-max').attr('year');
     mod = (max-min)/5
@@ -253,4 +271,6 @@ $(document).ready(function () {
         lastBtn=$(this);
         buildEvent();
     })
+    /*let temp=loadEvent();
+    $('#tempCont').html(JSON.stringify(temp));*/
 })

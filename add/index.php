@@ -250,7 +250,7 @@
 				<select id="ev_tag" name="ev_tag[]" class="form-select" multiple aria-label="">
 				</select>
 				<input style="width: 30%" type="text" id='ev_tag_add' aria-label="" class="form-control" placeholder="">
-				<button class="btn btn-primary" id='ev_tag_add_btn'>Добавить</button>
+				<button class="btn btn-primary" id='ev_tag_add_btn'>Новое</button>
 			</div>
 			<!--Место (координаты) -->
 			<div class="input-group">
@@ -260,7 +260,7 @@
 
 			</div>
 			<div class="input-group">
-				<button class="btn btn-primary" id='ev_btn_send'>Отправить</button>
+				<button class="btn btn-primary" id='ev_btn_send'>Сохранить событие</button>
 			</div>
 		</form>
 		<div class="col-md-12" style="margin-top: 15px;margin-bottom: 15px;">
@@ -326,7 +326,7 @@
 				<select id="pers_tag" name="pers_tag[]" class="form-select" multiple aria-label="">
 				</select>
 				<input style="width: 10%" type="text" id='pers_tag_add' aria-label="" class="form-control" placeholder="">
-				<button class="btn btn-primary" id='pers_tag_add_btn'>+</button>
+				<button class="btn btn-primary" id='pers_tag_add_btn'>Новое</button>
 			</div>
 			<div class="input-group">
 				<button class="btn btn-primary" id='pers_btn_send'>Сохранить персоналию</button>
@@ -394,18 +394,19 @@
 
 				</select>
 				<input style="width: 10%" type="text" id='file_tag_add' aria-label="" class="form-control" placeholder="">
-				<button class="btn btn-primary" id='file_tag_add_btn'>+</button>
+				<button class="btn btn-primary" id='file_tag_add'>Новое</button>
 			</div>
 			<div class="input-group">
 				<button class="btn btn-primary" id='file_btn_send'>Сохранить файл</button>
 			</div>
-		</form>
+
 		<div class="col-md-12" style="margin-top: 15px;margin-bottom: 15px;">
 			<div class="form-check form-switch">
-				<input class="form-check-input" type="checkbox" role="switch" id="my_file">
+				<input class="form-check-input" name="dep" type="checkbox" role="switch" id="my_file">
 				<label class="form-check-label" for="my_file">Показать файлы моего отдела</label>
 			</div>
 		</div>
+		</form>
 		<div id="div_tbl_file">
 
 		</div>
@@ -415,7 +416,7 @@
 			<div class="input-group">
 				<span style="width: 30%" class="input-group-text text-bg-success">Ключевое слово</span>
 				<input style="width: 30%" type="text" id='tag_add' aria-label="" class="form-control" placeholder="">
-				<button class="btn btn-primary" id='tag_add_btn'>Добавить</button>
+				<button class="btn btn-primary" id='tag_add_btn'>Новое</button>
 			</div>
 		</form>
 		<table class="" id="tbl_tag">
@@ -552,7 +553,7 @@
 				<select id="collectionItem_tag" name="collectionItem_tag[]" class="form-select" multiple aria-label="">
 				</select>
 				<input style="width: 10%" type="text" id='collectionItem_tag_add' aria-label="" class="form-control" placeholder="">
-				<button class="btn btn-primary" id='collectionItem_tag_add_btn'>+</button>
+				<button class="btn btn-primary" id='collectionItem_tag_add_btn'>Новое</button>
 			</div>
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success">Координаты</span>

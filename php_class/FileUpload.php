@@ -326,6 +326,9 @@
                     $and = 'and';
                 }
                 if (isset($search['dep'])) {
+                    if( $search['dep']=='on') {
+                        $search['dep'] = 'true';
+                    }
                     if ($search['dep'] == 'true') {
                         $Where .= " $and create_user in (SELECT id from user where dep = '{$_SESSION['user']['dep']}')";
                     }

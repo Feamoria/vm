@@ -598,6 +598,7 @@ let chk = [];
         /**/
         datepic.datepicker("option", "dateFormat", "yy-mm-dd");
         let form = $('#file')[0];
+        let my_file =$('#my_file').prop('checked');
         $.ajax({
             type: 'POST',
             url: 'set.php?file',
@@ -613,6 +614,7 @@ let chk = [];
                     $('#file').trigger("reset");
                     $('#id_file').val('');
                     $('#file_F').prop('disabled', false);
+                    $('#my_file').prop('checked',my_file);
                 } else alert(data.err);
             }
         });
@@ -1357,7 +1359,7 @@ function delFile(tag, answer = null) {
             async:true,
             type: 'POST',
             url: 'set.php?file&del',
-            data: 'file=' + tag,
+            data: 'file=' + tag+'&dep=true',
             dataType: 'json',
             cache: false,
             success: function (data) {

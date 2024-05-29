@@ -49,8 +49,8 @@
                     'exception' => $exception->getMessage(),
                     'code' => $exception->getCode()
                 ];
-                if ($exception->getCode()==1451) {
-                    $ret['err']='Удалить связаные элементы невозможно. Обратитесь к разработчику';
+                if ($exception->getCode() == 1451) {
+                    $ret['err'] = 'Удалить связаные элементы невозможно. Обратитесь к разработчику';
                 }
                 die(json_encode($ret, JSON_UNESCAPED_UNICODE));
             }
@@ -265,7 +265,7 @@
                                 $SQL = "INSERT INTO tag_person (idTag, idPerson) value ($value,$InsertId)";
                             } else {
                                 $value = mysqli_escape_string($db, $value);
-                                if ($value ==! '') {
+                                if ($value == !'') {
                                     $SQL = "INSERT INTO tag (Name,create_user) value ('$value',$USER_ID)";
                                     mysqli_query($db, $SQL);
                                     $ret['SQL_TAG'][] = $SQL;
@@ -316,7 +316,8 @@
                 } catch (mysqli_sql_exception $exception) {
                     mysqli_rollback($db);
                     $ret = [
-                        'err'=>'Ошибка запроса. Отправьте ошибку на hohlov.r.n@ib.komisc.ru\nCODE:'.$exception->getCode().'\nException:'.$exception->getMessage(),
+                        'err' => 'Ошибка запроса. Отправьте ошибку на hohlov.r.n@ib.komisc.ru\nCODE:' . $exception->getCode(
+                            ) . '\nException:' . $exception->getMessage(),
                         'errorSQL',
                         'SQL' => $SQL,
                         'exception' => $exception->getMessage(),
@@ -346,9 +347,9 @@
                     $UPLOAD->getFiles($_FILES);
                     $dataFile['UPLOAD'] = $UPLOAD->getDataFile();
                     $dataFile['POST'] = $_POST;
-                    $dataFile['setBD']=$UPLOAD->setBD($_POST);
+                    $dataFile['setBD'] = $UPLOAD->setBD($_POST);
                     if (isset($dataFile['setBD']['err'])) {
-                        $dataFile['err']=$dataFile['setBD']['err'];
+                        $dataFile['err'] = $dataFile['setBD']['err'];
                     }
                 } else {
                     // ЗАПРОС КТО СОЗДАЛ ЗАПИСЬ ЕСЛИ НЕ РАВЕН С СЕССИОН ID то иди нах
@@ -518,7 +519,8 @@
                 } catch (mysqli_sql_exception $exception) {
                     mysqli_rollback($db);
                     $ret = [
-                        'err'=>'Ошибка запроса. Отправьте ошибку на hohlov.r.n@ib.komisc.ru\nCODE:'.$exception->getCode().'\nException:'.$exception->getMessage(),
+                        'err' => 'Ошибка запроса. Отправьте ошибку на hohlov.r.n@ib.komisc.ru\nCODE:' . $exception->getCode(
+                            ) . '\nException:' . $exception->getMessage(),
                         'errorSQL',
                         'SQL' => $SQL,
                         'exception' => $exception->getMessage(),
@@ -565,7 +567,7 @@
                         mysqli_query($db, $SQL);
                         $InsertId = mysqli_insert_id($db);
                     } else {
-                        $id=(int)$_POST['id_collection'];
+                        $id = (int)$_POST['id_collection'];
                         $SQL = "UPDATE collection set 
                             Name='{$_POST['collection_name']}' ,
                             collection_Desc='{$_POST['collection_Desc']}' ,
@@ -670,26 +672,27 @@
                 }
                 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
                 try {
-                    $SQL="SELECT id,idFile from collectionItem where id=$id";
-                    $query=mysqli_query($db, $SQL);
+                    $SQL = "SELECT id,idFile from collectionItem where id=$id";
+                    $query = mysqli_query($db, $SQL);
                     $res = mysqli_fetch_all($query, MYSQLI_ASSOC);
-                    $idFile=null;
+                    $idFile = null;
                     foreach ($res as $val) {
-                        $idFile=$val['idFile'];
+                        $idFile = $val['idFile'];
                     }
-                    $del=$UPLOAD->delFile($idFile);
-                    if (isset($del['ok']) )
-                        del('collectionItem',$id);
-                    else $ret['err']=$del['err'];
-
+                    $del = $UPLOAD->delFile($idFile);
+                    if (isset($del['ok'])) {
+                        del('collectionItem', $id);
+                    } else {
+                        $ret['err'] = $del['err'];
+                    }
                 } catch (mysqli_sql_exception $exception) {
-                $ret = [
-                    'errorSQL',
-                    'SQL' => $SQL,
-                    'exception' => $exception->getMessage(),
-                    'code' => $exception->getCode()
-                ];
-            }
+                    $ret = [
+                        'errorSQL',
+                        'SQL' => $SQL,
+                        'exception' => $exception->getMessage(),
+                        'code' => $exception->getCode()
+                    ];
+                }
 
             } else {
                 /*Очистка от каки*/
@@ -714,7 +717,7 @@
                     $latitude = $_POST['latitude'];
                     $longitude = $_POST['longitude'];
                     //collectionItemId
-                    if (empty($_POST['collectionItemId'])){
+                    if (empty($_POST['collectionItemId'])) {
                         $SQL = "INSERT INTO collectionItem 
                     (idCollection,Name, `Desc`, Place, Time, Material, Size, Nom, create_user, latitude, longitude) value 
                     ('$idColl','$Name','$Desc','$Place','$Time','$Material','$Size','$Nom','{$_SESSION['user']['id']}',
@@ -722,7 +725,7 @@
                         mysqli_query($db, $SQL);
                         $InsertId = mysqli_insert_id($db);
                     } else {
-                        $InsertId=(int)$_POST['collectionItemId'];
+                        $InsertId = (int)$_POST['collectionItemId'];
                     }
 
                     if (!empty($_POST['collectionItem_pers'])) {
@@ -795,5 +798,5 @@
             die(json_encode($ret, JSON_UNESCAPED_UNICODE));
         }
     } else {
-        die(json_encode(['err' => 'Сессия закрыта, обновите страницу'], JSON_UNESCAPED_UNICODE));
+        die(json_encode(['err' => 'Сессия закрыта, обновите страницу','errCode'=>1], JSON_UNESCAPED_UNICODE));
     }

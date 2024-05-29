@@ -1,7 +1,9 @@
 <?php
     require_once '../php_class/connect.php';
     $db = (new BDconnect())->connect();
-    session_start();
+    session_start([
+                      'cookie_lifetime' => 86400,
+                  ]);
     //HTTP_USER_AGENT
     if (isset($_SESSION['user'])) {
         $SQL="UPDATE user set  
