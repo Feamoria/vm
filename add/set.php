@@ -263,6 +263,7 @@
                             if (is_numeric($value)) {
                                 $value = (int)$value;
                                 $SQL = "INSERT INTO tag_person (idTag, idPerson) value ($value,$InsertId)";
+                                mysqli_query($db, $SQL);
                             } else {
                                 $value = mysqli_escape_string($db, $value);
                                 if ($value == !'') {
@@ -272,9 +273,10 @@
                                     $InsertIdTag = mysqli_insert_id($db);
                                     $SQL = "INSERT INTO tag_person (idTag, idPerson) value ($InsertIdTag,$InsertId)";
                                     $ret['SQL_TAG'][] = $SQL;
+                                    mysqli_query($db, $SQL);
                                 }
                             }
-                            mysqli_query($db, $SQL);
+                            //mysqli_query($db, $SQL);
                         }
                     }
                     /** структурное подразделение *** pers_SP[] */
@@ -511,6 +513,17 @@
                                 $value = (int)$value;
                                 $SQL = "INSERT INTO tag_event (idEvent, idTag)  value ($InsertId,$value)";
                                 mysqli_query($db, $SQL);
+                            } else {
+                                $value = mysqli_escape_string($db, $value);
+                                if ($value == !'') {
+                                    $SQL = "INSERT INTO tag (Name,create_user) value ('$value',$USER_ID)";
+                                    mysqli_query($db, $SQL);
+                                    $ret['SQL_TAG'][] = $SQL;
+                                    $InsertIdTag = mysqli_insert_id($db);
+                                    $SQL = "INSERT INTO tag_event (idEvent, idTag)  value ($InsertIdTag,$value)";
+                                    $ret['SQL_TAG'][] = $SQL;
+                                    mysqli_query($db, $SQL);
+                                }
                             }
                         }
                     }
