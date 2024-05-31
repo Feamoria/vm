@@ -11,7 +11,7 @@
     $db = (new BDconnect())->connect();
     $data = [];
     $SQL = '';
-    $input = json_decode(file_get_contents("php://input"), true);
+    //$input = json_decode(file_get_contents("php://input"), true);
     if (isset($_GET['eventDisc'])){
         $id=(int)$_POST["id"];
         $SQL = "SELECT id,`Desc`,Name FROM event
@@ -22,17 +22,23 @@
     }
     ///var_dump($input);
     if (isset($_GET['event'])) {
-        $YearN=(int)$input["year"][0];
-        $YearE=(int)$input["year"][1];
-        $mod =$input["mod"];// round(((int)$input["year"][1]-(int)$input["year"][0])/5);
-        $level =ceil((5.0001)-($YearE-$YearN)/$mod);
-        $data['level']=$level;
-        $data['mod']=$mod;
+        $data=json_decode($_POST["data"],true);
+       // var_dump($data);
+        $YearN=(int)$data['year'][0];
+        $YearE=(int)$data['year'][1];
+        if (!empty($data["mod"])) {
+            $mod = $data["mod"];// round(((int)$input["year"][1]-(int)$input["year"][0])/5);
+            $level = ceil((5.0001) - ($YearE - $YearN) / $mod);
+            $data['level'] = $level;
+            $data['mod'] = $mod;
+        } else {
+            $level = $data['level'];
+        }
         //$level = 5;
         $YearN=$YearN-1;
         $YearE=$YearE+1;
         $them_sql='';
-        $them=(int)$input["them"];
+        $them=(int)$data["them"];
         if ($them>0) {
             $them_sql="and id in (SELECT idEvent from sci_theme_event where idTheme=$them)";
         }
@@ -42,13 +48,14 @@
             $them_sql
 			order by DateN";
         $data['SQL']=$SQL;
+
     } elseif (isset($_POST['person'])) {
         // Выбрать ВСЮ инфу о персоналии
         $idPers=(int)$_POST['person'];
         $SQL="SELECT * from person where id=$idPers";
         $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
         $data['person'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
-        $SQL="SELECT * from file where id in (SELECT idFile from file_person where idPerson=$idPers)";
+        $SQL="SELECT file.id,file.Name,file.pathWeb,file.disc from file where id in (SELECT idFile from file_person where idPerson=$idPers)";
         $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
         $data['personFile'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
         $SQL = "SELECT id,Name,DateN as `Date`,`doc`,importance as `level` FROM event

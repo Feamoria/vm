@@ -718,6 +718,8 @@ let chk = [];
             success: function (data) {
                 if (typeof data.err === 'undefined') {
                     $('#collectionItem')[0].reset();
+                    $('#collectionItemId').val('');
+                    $('#collectionItemFile').prop('disabled', false);
                     updateCollectionItem(load_collectionItem())
                 } else alert(data.err);
             }
@@ -924,6 +926,54 @@ function editCollection(id) {
     }
     $('#collection_sci_department').val(sci_department).multiselect('refresh');
 }
+
+function editCollectionItem(id) {
+    $('#collectionItemFile').prop('disabled', true);
+    let data = load_collectionItem('s_id=' + id);
+    let info = data.GET[0];
+    console.log(info);
+    $('#collectionItemName').val(info.Name);
+    $('#collectionItemColl').val(info.CollectionId);
+    $('#collectionItemId').val(info.CollectionItemId);
+    $('#collectionItemDesc').val(info.Desc);
+    $('#collectionItemMaterial').val(info.Material);
+    $('#collectionItemPlace').val(info.Place);
+    $('#collectionItemTime').val(info.Time);
+    $('#collectionItemSize').val(info.Size);
+    $('#collectionItemNom').val(info.Nom);
+    $('#collectionItem_latitude').val(info.latitude);
+    $('#collectionItem_longitude').val(info.longitude);
+    /*collectionItem_pers[]*/
+    let person = [];
+    if (info.person.length > 0) {
+        let dt = info.person;
+        $.each(dt, function (index, value) {
+            person.push(value.id)
+        });
+    }
+    $('#collectionItem_pers').val(person).multiselect('refresh');//refresh
+    //collectionItem_tem[]
+    let sci_theme = [];
+    if (info.sci_theme.length > 0) {
+        let dt = info.sci_theme;
+        $.each(dt, function (index, value) {
+            sci_theme.push(value.id)
+        });
+    }
+    $('#collectionItem_tem').val(sci_theme).multiselect('refresh');
+    //collectionItem_tag[]
+    let tag = [];
+    if (info.tag.length > 0) {
+        let dt = info.tag;
+        $.each(dt, function (index, value) {
+            tag.push(value.id)
+        });
+    }
+    $('#collectionItem_tag').val(tag).multiselect('refresh');
+
+    $(window).scrollTop($('#UserOnline').offset().top);
+}
+
 function editFile(id) {
     $('#file_F').prop('disabled', true);
     let data = load_file('s_id=' + id);
@@ -1059,7 +1109,7 @@ function updateCollectionItem(data) {
         '<th>Ключевые слова</th>' +
         '<th>Авторство</th>' +
         '</tr></thead><tbody>';
-    $.each(data, function (i, v) {
+    $.each(data.GET, function (i, v) {
         let sci_theme = arrdata(v.sci_theme);
         let tag = arrdata(v.tag);
         let person = arrdata(v.person);
@@ -1112,7 +1162,7 @@ function updateCollection(data) {
     $.each(data, function (i, v) {
         let sci_department = arrdata(v.sci_department);
         let url='<a target="_blank" href="' + v.url + '">Ссылка</a>'
-        if (v.url === null) {
+        if ((v.url === null) || (v.url === '')) {
             url='';
         }
         html+='<tr>' +

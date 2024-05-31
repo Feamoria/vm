@@ -252,6 +252,17 @@
                                     $value = (int)$value;
                                     $SQL = "INSERT INTO tag_file (idTag, idFile)  value ($value,$InsertId)";
                                     mysqli_query($this->connect, $SQL);
+                                } else {
+                                    $value = mysqli_escape_string($this->connect, $value);
+                                    if ($value == !'') {
+                                        $SQL = "INSERT INTO tag (Name,create_user) value ('$value',{$_SESSION['user']['id']})";
+                                        mysqli_query($this->connect, $SQL);
+                                        $ret['SQL_TAG'][] = $SQL;
+                                        $InsertIdTag = mysqli_insert_id($this->connect);
+                                        $SQL = "INSERT INTO tag_file (idTag, idFile)  value ($InsertIdTag,$InsertId)";
+                                        $ret['SQL_TAG'][] = $SQL;
+                                        mysqli_query($this->connect, $SQL);
+                                    }
                                 }
                             }
                         }

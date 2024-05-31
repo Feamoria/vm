@@ -215,7 +215,13 @@
     }
     if (isset($_GET['collectionItem'])) {
         $db = (new BDconnect())->connect();
-
+        $where = '';
+        if (!empty($_POST)) {
+            if (isset($_POST['s_id'])) {
+                //$data['POST'] = $_POST;
+                $where = ' and collectionItem.id = ' . (int)$_POST['s_id'];
+            }
+        }
         $data = [];
         mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
         //mysqli_begin_transaction($db);
@@ -230,30 +236,33 @@
                 FROM collectionItem,collection,file
                 where collectionItem.idCollection=collection.id
                 and collectionItem.idFile=file.id
+                $where
                 order by collection.Name";
             $query = mysqli_query($db, $SQL);
             $res = mysqli_fetch_all($query, MYSQLI_ASSOC);
             foreach ($res as $i => $val) {
-                $data[$i] = $val;
+                $data['GET'][$i] = $val;
                 // 1. Выгрузить направление sci_theme
                 $SQL = "SELECT t1.id,t1.Name FROM sci_theme as t1,
                                                   (select * from sci_theme_collectionItem where idCollectionItem={$val['CollectionItemId']}) as t2
                     where t1.id=t2.idSciDepartment";
                 $query = mysqli_query($db, $SQL);
-                $data[$i]['sci_theme'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
+                $data['GET'][$i]['sci_theme'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
                 // 2. Выгрузить теги tag
                 $SQL = "SELECT t1.id,t1.Name FROM tag as t1,
                                                   (select * from tag_collectionItem where idCollectionItem={$val['CollectionItemId']}) as t2
                     where t1.id=t2.idTag";
                 $query = mysqli_query($db, $SQL);
-                $data[$i]['tag'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
+                $data['GET'][$i]['tag'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
                 // 3. Выгрузить персон person
                 $SQL = "SELECT t1.id,CONCAT(t1.F,' ',t1.I,' ',t1.O) as Name FROM person as t1,
                                                   (select * from person_collectionItem where idCollectionItem={$val['CollectionItemId']}) as t2
                     where t1.id=t2.idPerson";
                 $query = mysqli_query($db, $SQL);
-                $data[$i]['person'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
+                $data['GET'][$i]['person'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
             }
+            //$data['GET']=$data;
+
         }  catch (mysqli_sql_exception $exception) {
             $data = [
                 'errorSQL',

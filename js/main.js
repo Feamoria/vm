@@ -191,8 +191,6 @@ function getInfo(idEvent) {
             $("#infoFM").modal('show');
         }
     });
-
-
 }
 function loadPerson(){
     let personID=$('#personID').val();
@@ -223,8 +221,7 @@ function loadPerson(){
         async:false,
         type: 'POST',
         url: 'get.php?event',
-        data: JSON.stringify(param),
-        contentType: 'application/json;',
+        data: 'data='+JSON.stringify(param),
         dataType: 'json',
         cache: false,
         //success: function(data) {}

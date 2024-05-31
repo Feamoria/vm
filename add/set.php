@@ -266,7 +266,7 @@
                                 mysqli_query($db, $SQL);
                             } else {
                                 $value = mysqli_escape_string($db, $value);
-                                if ($value == !'') {
+                                if ($value != '') {
                                     $SQL = "INSERT INTO tag (Name,create_user) value ('$value',$USER_ID)";
                                     mysqli_query($db, $SQL);
                                     $ret['SQL_TAG'][] = $SQL;
@@ -515,12 +515,12 @@
                                 mysqli_query($db, $SQL);
                             } else {
                                 $value = mysqli_escape_string($db, $value);
-                                if ($value == !'') {
+                                if ($value != '') {
                                     $SQL = "INSERT INTO tag (Name,create_user) value ('$value',$USER_ID)";
                                     mysqli_query($db, $SQL);
                                     $ret['SQL_TAG'][] = $SQL;
                                     $InsertIdTag = mysqli_insert_id($db);
-                                    $SQL = "INSERT INTO tag_event (idEvent, idTag)  value ($InsertIdTag,$value)";
+                                    $SQL = "INSERT INTO tag_event (idEvent, idTag)  value ($InsertId,$InsertIdTag)";
                                     $ret['SQL_TAG'][] = $SQL;
                                     mysqli_query($db, $SQL);
                                 }
@@ -706,7 +706,6 @@
                         'code' => $exception->getCode()
                     ];
                 }
-
             } else {
                 /*Очистка от каки*/
                 foreach ($_POST as $i => $value) {
@@ -739,8 +738,26 @@
                         $InsertId = mysqli_insert_id($db);
                     } else {
                         $InsertId = (int)$_POST['collectionItemId'];
+                        $SQL = "UPDATE collectionItem set 
+                            idCollection='$idColl',
+                            Name='$Name',
+                            `Desc`='$Desc',
+                            Place='$Place', 
+                            Time='$Time', 
+                            Material='$Material', 
+                            Size='$Size', 
+                            Nom='$Nom',  
+                            latitude='$latitude', 
+                            longitude='$longitude',
+                            create_user='{$_SESSION['user']['id']}'
+                            where id= $InsertId";
+                        mysqli_query($db, $SQL);
+                        //$InsertId = (int)$_POST['collectionItemId'];
                     }
-
+                    if (!empty($_POST['collectionItemId'])) {
+                        $SQL = "DELETE FROM person_collectionItem where idCollectionItem=$InsertId";
+                        mysqli_query($db, $SQL);
+                    }
                     if (!empty($_POST['collectionItem_pers'])) {
                         foreach ($_POST['collectionItem_pers'] as $i => $value) {
                             if (is_numeric($value)) {
@@ -751,6 +768,10 @@
                                 mysqli_query($db, $SQL);
                             }
                         }
+                    }
+                    if (!empty($_POST['collectionItemId'])) {
+                        $SQL = "DELETE FROM sci_theme_collectionItem where idCollectionItem=$InsertId";
+                        mysqli_query($db, $SQL);
                     }
                     if (!empty($_POST['collectionItem_tem'])) {
                         foreach ($_POST['collectionItem_tem'] as $i => $value) {
@@ -763,6 +784,10 @@
                             }
                         }
                     }
+                    if (!empty($_POST['collectionItemId'])) {
+                        $SQL = "DELETE FROM tag_collectionItem where idCollectionItem=$InsertId";
+                        mysqli_query($db, $SQL);
+                    }
                     if (!empty($_POST['collectionItem_tag'])) {
                         foreach ($_POST['collectionItem_tag'] as $i => $value) {
                             if (is_numeric($value)) {
@@ -771,31 +796,46 @@
                                         (idCollectionItem, idTag)  value 
                                         ($InsertId,$value)";
                                 mysqli_query($db, $SQL);
+                            } else {
+                                $value = mysqli_escape_string($db, $value);
+                                if ($value == !'') {
+                                    $SQL = "INSERT INTO tag (Name,create_user) value ('$value',$USER_ID)";
+                                    mysqli_query($db, $SQL);
+                                    $ret['SQL_TAG'][] = $SQL;
+                                    $InsertIdTag = mysqli_insert_id($db);
+                                    $SQL = "INSERT INTO tag_collectionItem 
+                                        (idCollectionItem, idTag)  value 
+                                        ($InsertId,$InsertIdTag)";
+                                    $ret['SQL_TAG'][] = $SQL;
+                                    mysqli_query($db, $SQL);
+                                }
                             }
                         }
                     }
                     /*
                     !file!
                     */
-                    $UPLOAD->getFiles($_FILES);
-                    $dataFile['UPLOAD'] = $UPLOAD->getDataFile();
-                    $dataFile['POST'] = $_POST;
-                    $dataFile['setBD'] = $UPLOAD->setBD($_POST);
-                    if (isset($dataFile['setBD']['err'])) {
-                        mysqli_rollback($db);
-                        $ret['FILE'] = $dataFile;
-                        $ret['err'] = $dataFile['setBD']['err'];
-                        $ret['_FILES'] = $_FILES;
-                        die(json_encode($ret, JSON_UNESCAPED_UNICODE));
-                    }
-                    $InsertIdFile = $dataFile['setBD']['InsertIdFile'];
-                    $dataFile['InsertIdFile'] = $dataFile['setBD']['InsertIdFile'];
-                    /*** ДОБАВИТЬ id файла колекции */
-                    $SQL = "Update collectionItem set 
+                    if (empty($_POST['collectionItemId'])) {
+                        $UPLOAD->getFiles($_FILES);
+                        $dataFile['UPLOAD'] = $UPLOAD->getDataFile();
+                        $dataFile['POST'] = $_POST;
+                        $dataFile['setBD'] = $UPLOAD->setBD($_POST);
+                        if (isset($dataFile['setBD']['err'])) {
+                            mysqli_rollback($db);
+                            $ret['FILE'] = $dataFile;
+                            $ret['err'] = $dataFile['setBD']['err'];
+                            $ret['_FILES'] = $_FILES;
+                            die(json_encode($ret, JSON_UNESCAPED_UNICODE));
+                        }
+                        $InsertIdFile = $dataFile['setBD']['InsertIdFile'];
+                        $dataFile['InsertIdFile'] = $dataFile['setBD']['InsertIdFile'];
+                        /*** ДОБАВИТЬ id файла колекции */
+                        $SQL = "Update collectionItem set 
                                 idFile= $InsertIdFile
                                 where id=$InsertId";
-                    mysqli_query($db, $SQL);
-                    $ret['FILE'] = $dataFile;
+                        mysqli_query($db, $SQL);
+                        $ret['FILE'] = $dataFile;
+                    }
                     mysqli_commit($db);
                     $ret['ok'] = ['ok'];
                 } catch (mysqli_sql_exception $exception) {
@@ -811,5 +851,5 @@
             die(json_encode($ret, JSON_UNESCAPED_UNICODE));
         }
     } else {
-        die(json_encode(['err' => 'Сессия закрыта, обновите страницу','errCode'=>1], JSON_UNESCAPED_UNICODE));
+        die(json_encode(['err' => 'Сессия закрыта, обновите страницу', 'errCode' => 1], JSON_UNESCAPED_UNICODE));
     }
