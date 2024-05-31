@@ -608,7 +608,7 @@ let chk = [];
             processData: false,
             contentType: false,
             cache: false,
-            success: function (data, /*status*/) {
+            success: function (data/*, /*status*/) {
                 if (typeof data.err === 'undefined') {
                     updateFile(data);
                     $('#file').trigger("reset");
@@ -771,7 +771,7 @@ function GetOnline() {
         url: 'getOnline.php',
         dataType: 'json',
         cache: false,
-        success: function (data, /*status*/) {
+        success: function (data/*, /*status*/) {
             $('#UserOnline').html('<div class="badge bg-primary text-wrap">' + data[0].COUNT + '</div>');
             if (typeof data.user !== 'undefined') {
                 $.each(data.user, function (index, value) {
