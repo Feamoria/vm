@@ -19,37 +19,37 @@
         $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
         $data['Desc'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
         die(json_encode($data, JSON_UNESCAPED_UNICODE));
-    }
-    ///var_dump($input);
-    if (isset($_GET['event'])) {
-        $data=json_decode($_POST["data"],true);
-       // var_dump($data);
-        $YearN=(int)$data['year'][0];
-        $YearE=(int)$data['year'][1];
-        if (!empty($data["mod"])) {
-            $mod = $data["mod"];// round(((int)$input["year"][1]-(int)$input["year"][0])/5);
-            $level = ceil((5.0001) - ($YearE - $YearN) / $mod);
-            $data['level'] = $level;
-            $data['mod'] = $mod;
-        } else {
-            $level = $data['level'];
-        }
-        //$level = 5;
-        $YearN=$YearN-1;
-        $YearE=$YearE+1;
-        $them_sql='';
-        $them=(int)$data["them"];
-        if ($them>0) {
-            $them_sql="and id in (SELECT idEvent from sci_theme_event where idTheme=$them)";
-        }
-        $SQL = "SELECT id,Name,DateN as `Date`,`doc`,importance as `level` FROM event
+    } elseif (isset($_GET['event'])) {
+        if (isset($_POST["data"])) {
+            $data = json_decode($_POST["data"], true);
+            // var_dump($data);
+            $YearN = (int)$data['year'][0];
+            $YearE = (int)$data['year'][1];
+            if (!empty($data["mod"])) {
+                $mod = $data["mod"];// round(((int)$input["year"][1]-(int)$input["year"][0])/5);
+                $level = ceil((5.0001) - ($YearE - $YearN) / $mod);
+                $data['level'] = $level;
+                $data['mod'] = $mod;
+            } else {
+                $level = $data['level'];
+            }
+            //$level = 5;
+            $YearN = $YearN - 1;
+            $YearE = $YearE + 1;
+            $them_sql = '';
+            $them = (int)$data["them"];
+            if ($them > 0) {
+                $them_sql = "and id in (SELECT idEvent from sci_theme_event where idTheme=$them)";
+            }
+            $SQL = "SELECT id,Name,DateN as `Date`,`doc`,importance as `level` FROM event
 			where importance <= $level
             and DateN between '$YearN' and '$YearE'
             $them_sql
 			order by DateN";
-        $data['SQL']=$SQL;
+            $data['SQL'] = $SQL;
+        } else die(json_encode(['err'=>'отсутствует POST параметр data '],JSON_UNESCAPED_UNICODE));
 
-    } elseif (isset($_POST['person'])) {
+    } elseif (isset($_GET['person'])) {
         // Выбрать ВСЮ инфу о персоналии
         $idPers=(int)$_POST['person'];
         $SQL="SELECT * from person where id=$idPers";
@@ -62,6 +62,16 @@
 			where id in (SELECT idEvent from person_event where idPerson=$idPers)
 			order by DateN";
     }
+    elseif (isset($_GET['personAll'])) {
+        // Выбрать ВСЮ инфу о персоналии
+        //$idPers=(int)$_POST['person'];
+        $SQL="SELECT * from person";
+        $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
+        $data['person'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
+        die(json_encode($data, JSON_UNESCAPED_UNICODE));
+    }
+        else
+            die(json_encode(['err'=>'не выбран метод'],JSON_UNESCAPED_UNICODE));
     $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
     $data['event'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
     foreach ($data['event'] as $i => $val) {
