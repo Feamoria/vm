@@ -1,5 +1,5 @@
 <?php
-
+    $profiling=false;
     ini_set('error_reporting', E_ALL);
     ini_set('display_errors', 1);
     ini_set('display_startup_errors', 1);
@@ -21,6 +21,7 @@
                     $where = " where create_user in (SELECT id from user where dep = '{$_SESSION['user']['dep']}')";
                 }
             }
+
         }
         $SQL = "SELECT * FROM event 
                 $where
@@ -76,6 +77,10 @@
                 }
             }
         }
+        if ($profiling) {
+           mysqli_query($db, 'set profiling=1');
+        }
+
         if (isset($_GET['term'])) {
             $term = mysqli_escape_string($db, $_GET['term']);
             $SQL = "SELECT id,CONCAT(F,' ',I,' ',O) as value FROM person 
@@ -85,6 +90,14 @@
             $res = mysqli_fetch_all($query, MYSQLI_ASSOC);
             die(json_encode($res, JSON_UNESCAPED_UNICODE));
         }
+        if (isset($_POST['select'])) {
+            $SQL = "SELECT `id`, CONCAT(F,' ',I,' ',O) as Name FROM person 
+                    order by F,I,O;";
+            $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
+            $res = mysqli_fetch_all($query, MYSQLI_ASSOC);
+            die(json_encode($res, JSON_UNESCAPED_UNICODE));
+        }
+
         $SQL = "SELECT `id`, CONCAT(F,' ',I,' ',O) as Name, F, I, O, COMMENT, DOL, DAYN, DAYD, CREATE_DATE, CREATE_USER,publications,awards 
                 FROM person 
                     $where
@@ -92,6 +105,12 @@
         $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
         $res = mysqli_fetch_all($query, MYSQLI_ASSOC);
 
+        if ($profiling) {
+            mysqli_query($db, 'set profiling=0');
+            $query=mysqli_query($db, 'show profiles');
+            $data['profiling']['main']=mysqli_fetch_all($query, MYSQLI_ASSOC);
+            mysqli_query($db, 'set profiling=1');
+        }
         foreach ($res as $i => $val) {
             //$i=$val['id'];
             $data[$i] = $val;
@@ -115,6 +134,13 @@
                     where file.id=file_person.idFile";
             $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
             $data[$i]['file'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
+
+            if ($profiling) {
+                mysqli_query($db, 'set profiling=0');
+                $query=mysqli_query($db, 'show profiles');
+                $data['profiling'][$i]=mysqli_fetch_all($query, MYSQLI_ASSOC);
+                //mysqli_query($db, 'set profiling=1');
+            }
         }
 
         die(json_encode($data, JSON_UNESCAPED_UNICODE));

@@ -161,10 +161,10 @@ $(document).ready(function () {
     })
     /*LOAD DATA*/
     let data_tag = load_tag();
-    let data_pers = load_person();
+    let data_pers = load_person('select');
     let data_sci_field = load_sci_field();
     let data_sci_department = load_sci_department();
-    let data_file = load_file();
+    //let data_file = load_file('select');
     let data_event = load_event();
 
     /*******************
@@ -1271,6 +1271,32 @@ function updatePerson(data) {
     $.each(data, function (i, v) {
        // console.log(i);
         if (i==='POST') {return;}
+        if (i==='profiling') {
+            let time={
+                tag:0,
+                sci_department:0,
+                sci_theme:0,
+                file:0
+            };
+            //console.log(v);
+            $.each(v,function (index, value) {
+                if (typeof value[1] !=='undefined') {
+                    time.tag+=parseFloat(value[1].Duration);
+                }
+                if (typeof value[2] !=='undefined') {
+                    time.sci_department+=parseFloat(value[2].Duration);
+                }
+                if (typeof value[3] !=='undefined') {
+                    time.sci_theme+=parseFloat(value[3].Duration);
+                }
+                if (typeof value[4] !=='undefined') {
+                    time.file+=parseFloat(value[4].Duration);
+                }
+            });
+            console.log(time);
+
+            return;
+        }
         let file = arrdata(v.file, true);
         let sci_department = arrdata(v.sci_department);
         let sci_theme = arrdata(v.sci_theme);
@@ -1611,6 +1637,7 @@ function load_person(search = null) {
         dataType: 'json',
         cache: false,
         success: function (data) {
+           // updatePerson(data);
             //console.log(data);
             // do something with ajax data
         }
@@ -1753,6 +1780,7 @@ function initTagAjax(elem, data) {
 
     $.each(data, function (i, v) {
         let SUMM = '';
+        //if (typeof v.SUMM !== 'undefined') {
         if (typeof v.SUMM !== 'undefined') {
             if (v.SUMM === null) v.SUMM = 0;
             SUMM = "(" + v.SUMM + ")"

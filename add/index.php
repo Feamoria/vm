@@ -528,19 +528,19 @@
 
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success">Время создания</span>
-				<input type="text" id='collectionItemTime' name='collectionItemTime' required aria-label="" class="form-control" placeholder="">
+				<input type="text" id='collectionItemTime' name='collectionItemTime'  aria-label="" class="form-control" placeholder="">
 			</div>
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success">Материал, техника</span>
-				<input type="text" id='collectionItemMaterial' name='collectionItemMaterial' required aria-label="" class="form-control" placeholder="">
+				<input type="text" id='collectionItemMaterial' name='collectionItemMaterial'  aria-label="" class="form-control" placeholder="">
 			</div>
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success">Размер</span>
-				<input type="text" id='collectionItemSize' name='collectionItemSize' required aria-label="" class="form-control" placeholder="">
+				<input type="text" id='collectionItemSize' name='collectionItemSize'  aria-label="" class="form-control" placeholder="">
 			</div>
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success text-wrap">Учетный номер (инвентарный и / или по книге поступления)</span>
-				<input type="text" id='collectionItemNom' name='collectionItemNom' required aria-label="" class="form-control" placeholder="">
+				<input type="text" id='collectionItemNom' name='collectionItemNom'  aria-label="" class="form-control" placeholder="">
 			</div>
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success">Направление науки</span>
