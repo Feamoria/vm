@@ -698,6 +698,7 @@ let chk = [];
                     let temp = $(this).val();
                     if (temp === '' || temp.length < 2) {
                         ret = true;
+                        $(this).focus();
                     }
                 }
             }
