@@ -3,5 +3,6 @@ img/
 collect/
 js/obj-viewer/
 js/obj-viewer-2/
+js/3DHOP/
 mount
 php_class/connect.php

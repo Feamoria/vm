@@ -1227,7 +1227,7 @@ function updateEvent(data) {
             '<td>' + v.DateN + '<br>' + v.DateK + '</td>' +
             '<td><textarea style="width: 100%" class="form-control">' + v.Desc + '</textarea></td>' +
             '<td>' + file + '</td>' +//Файлы
-            '<td>' + v.Doc + '</td>' +//Ссылка на архивный докумены
+            '<td><textarea style="width: 100%" class="form-control">' + v.Doc + '</textarea></td>' +//Ссылка на архивный докумены
             '<td>' + v.importance + '</td>' +//Важность
             '<td>' + pers + '</td>' +//Персоналии
             '<td>' + sci_department + '</td>' +//Структурное подразделение

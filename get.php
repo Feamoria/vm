@@ -28,6 +28,30 @@
             if ($idEvent <= 0) {
                 die(json_encode(['err' => '$_GET[event]=' . $idEvent], JSON_UNESCAPED_UNICODE));
             }
+            $SQL="SELECT id from event order by DateN,id";
+            $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
+            $arrId=[];
+            while ($row = mysqli_fetch_array($query, MYSQLI_ASSOC)) {
+                $arrId[]=$row['id'];
+            }
+            $data['next']=null;
+            $data['back']=null;
+            foreach ($arrId as $i =>$val){
+                if ($val==$idEvent){
+                    if (isset($arrId[$i+1])) {
+                        $data['next'] =$arrId[$i+1];
+                    }
+                    if (isset($arrId[$i-1])) {
+                        $data['back']=$arrId[$i-1];
+                    }
+                }
+            }
+            /*$SQL = "Select id from event where id > $idEvent order by id asc limit 1";
+            $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
+            $data['next'] =mysqli_fetch_all($query, MYSQLI_ASSOC);
+            $SQL = "Select id from event where id < $idEvent order by id desc limit 1";
+            $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
+            $data['back'] =mysqli_fetch_all($query, MYSQLI_ASSOC);*/
             $SQL = "SELECT * FROM event
 			where id = $idEvent";
         } else {

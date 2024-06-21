@@ -628,7 +628,7 @@
             {
                 protected const UploadDIR = "/vm/collect/"; // Куда загружать на сервере
                 protected const ClientPath = "/vm/collect/"; // откуда будет отображатся файл на клиенте
-                protected const RegExpFile = '/.*\.(jpg|jpeg)$/i'; //регулярка валидации файлов
+                protected const RegExpFile = '/.*\.(jpg|jpeg|ply)$/i'; //регулярка валидации файлов
                 protected const TYPE = 1; // тип файла  0-Обычные файлы, 1-Файлы для колекций
                 protected const HTMLINPUT = 'collectionItemFile'; //
 
