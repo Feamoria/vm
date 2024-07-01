@@ -850,6 +850,43 @@
             }
             die(json_encode($ret, JSON_UNESCAPED_UNICODE));
         }
+        if (isset($_GET['descEvent'])){
+            if (isset($_POST['data'])) {
+                $ret=[];
+                $data=json_decode($_POST['data'],true);
+                $db = (new BDconnect())->connect();
+                mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+                $id=(int)$data['id'];
+                if ($id<1 ) {
+                    die(json_encode(['err'=>'Пустые данные'], JSON_UNESCAPED_UNICODE));
+                }
+                $Name=$data['Name'];//mysqli_escape_string($db,$data['Name']);
+                $Desc=$data['Desc'];//mysqli_escape_string($db,$data['Desc']);
+                try {
+                    $SQL="UPDATE event 
+                    SET
+                        Name = ?,
+                        `Desc`= ?,
+                        moderated=1,
+                        moderated_user={$_SESSION['user']['id']},
+                        moderated_date=CURRENT_TIMESTAMP()
+                    where id=? ";
+                    $stmt=mysqli_prepare($db,$SQL);
+                    mysqli_stmt_bind_param($stmt,'ssi',$Name,$Desc,$id);
+                    mysqli_stmt_execute($stmt);
+                    $ret['ok']='ok';
+                } catch (mysqli_sql_exception $exception) {
+                    mysqli_rollback($db);
+                    $ret = [
+                        'errorSQL',
+                        'SQL' => $SQL,
+                        'exception' => $exception->getMessage(),
+                        'code' => $exception->getCode()
+                    ];
+                }
+                die(json_encode($ret, JSON_UNESCAPED_UNICODE));
+            }
+        }
     } else {
         die(json_encode(['err' => 'Сессия закрыта, обновите страницу', 'errCode' => 1], JSON_UNESCAPED_UNICODE));
     }

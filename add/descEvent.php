@@ -1,5 +1,17 @@
 <?php
-// TODO пРОВЕРКА НА ДОСТУП
+    // TODO пРОВЕРКА НА ДОСТУП
+    session_start([
+                      'cookie_lifetime' => 86400,
+                  ]);
+    //if ()
+    if (!isset($_SESSION['user']['site'])) {
+        header("Location: /vm/add/index.php");
+        die();
+	}
+    if ($_SESSION['user']['role'] =='3') {
+        http_response_code(403);
+        die('Forbidden');
+    }
 
 ?>
 <!DOCTYPE html>
@@ -54,9 +66,9 @@
 
 </head>
 <body>
+
 <div class="">
 	<div class="row">
-		<!-- название -->
 		<div class="input-group">
 			<label for="idEvent" class="input-group-text text-bg-success">ID события</label>
 			<input id="idEvent" readonly class="form-control">
@@ -64,26 +76,45 @@
 			<input id="dateEvent" readonly class="form-control">
 		</div>
 	</div>
-    <div class="row">
-        <!-- название -->
-        <div class="input-group">
-            <label for="name" class="input-group-text text-bg-success">Название события</label>
+	<div class="row">
+		<div class="input-group">
+			<label for="create_user" class="input-group-text text-bg-success">Создатель</label>
+			<input id="create_user" readonly class="form-control">
+			<label for="create_dep" class="input-group-text text-bg-success">Подразделение</label>
+			<input id="create_dep" readonly class="form-control">
+			<label for="create_date" class="input-group-text text-bg-success">Дата создания</label>
+			<input id="create_date" readonly class="form-control">
+		</div>
+	</div>
+	<div id="isModerated" class="row" style="display: none">
+		<div class="input-group">
+			<label for="moderated_user" class="input-group-text text-bg-success">Редактор</label>
+			<input id="moderated_user" readonly class="form-control">
+			<label for="moderated_dep" class="input-group-text text-bg-success">Подразделение</label>
+			<input id="moderated_dep" readonly class="form-control">
+			<label for="moderated_date" class="input-group-text text-bg-success">Дата редактирования</label>
+			<input id="moderated_date" readonly class="form-control">
+		</div>
+	</div>
+	<div class="row">
+		<!-- название -->
+		<div class="input-group">
+			<label for="name" class="input-group-text text-bg-success">Название события</label>
 			<textarea id="name" class="form-control"></textarea>
-        </div>
-    </div>
+		</div>
+	</div>
     <div class="row">
         <!-- описание -->
         <div class="col-12">
             <textarea id="disc" name="disc"></textarea>
         </div>
-
-
     </div>
+
     <div class="row">
         <!-- кнопки -->
         <div class="col-3 position-relative"> <button id="btnBack" class="btn btn-sm btn-primary position-absolute top-50 start-50 ">Назад</button> </div>
 		<div class="col-3 position-relative"> <button id="btnNext" class="btn btn-sm btn-primary position-absolute top-50 start-50 ">Вперёд</button></div>
-		<div class="col-3 position-relative"> <button class="btn btn-sm btn-success position-absolute top-50 start-50 ">Сохранить</button> </div>
+		<div class="col-3 position-relative"> <button id="btnSave" class="btn btn-sm btn-success position-absolute top-50 start-50 ">Сохранить</button> </div>
 		<div class="col-3 position-relative">
 			<div class="row position-absolute top-50 start-40 ">
 				<div class="col-6">
@@ -98,4 +129,4 @@
 
 </div>
 </body>
-<?php
+

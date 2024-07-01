@@ -790,6 +790,12 @@ function editEvent(id) {
     /** #eventID*/
     let data = load_event('s_id=' + id);
     let info = data[0];
+    if (info.moderated !=='0') {
+        alert('Событие проверено модератором, изменить нельзя.');
+        return;
+    }
+    console.log(info.moderated);
+    //if info.moder
     $('#eventID').val(info.id);
     $('#ev_Name').val(info.Name);
     let ev_n = info.DateN.split('.');
@@ -1216,10 +1222,19 @@ function updateEvent(data) {
         let sci_theme = arrdata(v.sci_theme);
         let tag = arrdata(v.tag);
         let pers = arrdata(v.pers);
+        let mod=v.moderated;
+        let str_mod='';
+        if (mod ==='0') {
+            str_mod='<div><div class="btn btn-warning" data-bs-toggle="tooltip" data-bs-placement="top" title="Модерация не пройдена. Можно вносить изменения"><i class="bi bi-unlock-fill"></i></div></div>'
+        }
+        if (mod ==='1') {
+            str_mod='<div><div class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Модерация пройдена. Внесение изменений невозможно!"><i class="bi bi-file-lock-fill"></i></div></div>'
+        }
          html+='<tr>' +
             '<td>' + v.id + '</td>' +
             '<td style="width: 20px">' +
             '<div class="d-flex flex-column">' +
+             '<div>'+str_mod+'</div>'+
             '<div><button type="button" class="btn btn-danger" onclick="delEvent(' + v.id + ')"><i class="bi bi-trash"></i></button></div>' +
             '<div><button type="button" class="btn btn-info" onclick="editEvent(' + v.id + ')"><i class="bi bi-pencil-square"></i></button></div>' +
             '</div></td>' +
@@ -1247,6 +1262,11 @@ function updateEvent(data) {
             filter_reset: '.reset'
         }*/
     });
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+
 
 }
 
@@ -1390,6 +1410,13 @@ function delCollection(id, answer = null){
     }
 }
 function delEvent(tag, answer = null) {
+    let data = load_event('s_id=' + tag);
+    let info = data[0];
+     if (info.moderated !=='0') {
+        alert('Событие проверено модератором, изменить нельзя.');
+        return;
+    }
+
     if (answer == null) {
         $('#dialog_del').dialog({
             buttons: {
