@@ -212,6 +212,7 @@
 				<span style="width: 20%" class="input-group-text text-bg-success" id="">Важность события<span style="color: red">*</span><i id="importance" class="bi bi-question-circle-fill"></i> </span>
 				<select id="ev_importance" name="ev_importance" required class="form-select" aria-label="">
 					<option selected value="">--</option>
+					<option value="0">0 уровень</option>
 					<option value="1">1 уровень</option>
 					<option value="2">2 уровень</option>
 					<option value="3">3 уровень</option>

@@ -66,6 +66,9 @@
 
     function checkPermition($table, $id): bool
     {
+        if ($_SESSION['user']['role'] == '1') {
+            return true;
+        }
         $db = (new BDconnect())->connect();
         $SQL = "SELECT create_user FROM $table where id = '$id'";
         $query = mysqli_query($db, $SQL) or
@@ -376,7 +379,7 @@
                 //  ЗАПРОС КТО СОЗДАЛ ЗАПИСЬ ЕСЛИ НЕ РАВЕН С СЕССИОН ID то иди нах
                 $text = 'ok';
                 if (!checkPermition('event', (int)$_POST['event'])) {
-                    die(json_encode(['err' => "Удалить чужое событие невозможно"]));
+                    die(json_encode(['err' => "Удалить чужое событие невозможно",'sessions'=>$_SESSION]));
                 }
                 $del = del('event', $_POST['event'], false);
                 if ($del !== false) {
@@ -425,7 +428,7 @@
                     } else {
                         //  ЗАПРОС КТО СОЗДАЛ ЗАПИСЬ ЕСЛИ НЕ РАВЕН С СЕССИОН ID то иди нах
                         if (!checkPermition('event', (int)$eventID)) {
-                            die(json_encode(['err' => "Изменить чужое событие невозможно"]));
+                            die(json_encode(['err' => "Изменить чужое событие невозможно",'sessions'=>$_SESSION]));
                         }
                         $SQL = "UPDATE event SET 
                                 Name='$Name',
