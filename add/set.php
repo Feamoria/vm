@@ -832,7 +832,7 @@
                         }
                         $InsertIdFile = $dataFile['setBD']['InsertIdFile'];
                         $dataFile['InsertIdFile'] = $dataFile['setBD']['InsertIdFile'];
-                        /*** ДОБАВИТЬ id файла колекции */
+                        /*** ДОБАВИТЬ id файла коллекции */
                         $SQL = "Update collectionItem set 
                                 idFile= $InsertIdFile
                                 where id=$InsertId";
@@ -864,7 +864,7 @@
                     die(json_encode(['err'=>'Пустые данные'], JSON_UNESCAPED_UNICODE));
                 }
                 $Name=$data['Name'];//mysqli_escape_string($db,$data['Name']);
-                $Desc=$data['Desc'];//mysqli_escape_string($db,$data['Desc']);
+                $Desc=$_POST['Desc'];//mysqli_escape_string($db,$data['Desc']);
                 try {
                     $SQL="UPDATE event 
                     SET
@@ -877,12 +877,58 @@
                     $stmt=mysqli_prepare($db,$SQL);
                     mysqli_stmt_bind_param($stmt,'ssi',$Name,$Desc,$id);
                     mysqli_stmt_execute($stmt);
+                    $ret['SQL']=$SQL;
                     $ret['ok']='ok';
                 } catch (mysqli_sql_exception $exception) {
                     mysqli_rollback($db);
                     $ret = [
                         'errorSQL',
                         'SQL' => $SQL,
+                        'exception' => $exception->getMessage(),
+                        'code' => $exception->getCode()
+                    ];
+                }
+                die(json_encode($ret, JSON_UNESCAPED_UNICODE));
+            }
+        }
+        if (isset($_GET['descPerson'])){
+            if (isset($_POST['data'])) {
+                $ret=[];
+                $data=json_decode($_POST['data'],true);
+                $ret['$_POST']=$_POST;
+                $db = (new BDconnect())->connect();
+                mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+                $id=(int)$data['id'];
+                $dol=$data['dol'];
+                if ($id<1 ) {
+                    die(json_encode(['err'=>'Пустые данные'], JSON_UNESCAPED_UNICODE));
+                }
+
+                $comment=$_POST['comment'];//mysqli_escape_string($db,$data['Desc']);
+                $awards=$_POST['awards'];
+                $publications=$_POST['publications'];
+                try {
+                    $SQL="UPDATE person
+                    SET
+                        dol = ?,
+                        `comment`= ?,
+                        `awards`= ?,
+                        `publications`= ?,
+                        moderated=1,
+                        moderated_user={$_SESSION['user']['id']},
+                        moderated_date=CURRENT_TIMESTAMP()
+                    where id=? ";
+                    $stmt=mysqli_prepare($db,$SQL);
+                    mysqli_stmt_bind_param($stmt,'ssssi',$dol,$comment,$awards,$publications,$id);
+                    mysqli_stmt_execute($stmt);
+                    $ret['SQL']=$SQL;
+                    $ret['ok']='ok';
+                } catch (mysqli_sql_exception $exception) {
+                    mysqli_rollback($db);
+                    $ret = [
+                        'errorSQL',
+                        'SQL' => $SQL,
+                        'data'=>$_POST,
                         'exception' => $exception->getMessage(),
                         'code' => $exception->getCode()
                     ];

@@ -17,83 +17,100 @@
      * eventDisc! Описание у эвента.
      */
     if (isset($_GET['eventDisc'])) {
-        $id = (int)$_POST["id"];
-        $SQL = "SELECT id,`Desc`,Name FROM event
+        $id = (int)$_GET["eventDisc"];
+        if ($id>0){
+            $SQL = "SELECT id,`Desc`,Name FROM event
 			where id=$id";
+            $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
+            $data['Desc'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
+            die(json_encode($data, JSON_UNESCAPED_UNICODE));
+        }
+        /**
+         * eventYears вывод минимум и максимум даты!
+         */
+    } elseif (isset($_GET['eventYears'])) {
+        $SQL="SELECT MAX(DateN) as MaxDate,MIN(DateN) as MinDate from event";
         $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
-        $data['Desc'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
+        $data['Date'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
         die(json_encode($data, JSON_UNESCAPED_UNICODE));
+    } elseif (isset($_GET['eventTag'])) {
+        $SQL="SELECT tag.id,tag.Name, count(tag_event.idEvent) as count from tag,tag_event 
+                where tag.id = tag_event.idTag
+            group by tag_event.idTag
+            order by count desc 
+        ";
+        $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
+        $data['eventTag'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
+        die(json_encode($data, JSON_UNESCAPED_UNICODE));
+    }
     /**
      * EVENT!
      */
-    } elseif (isset($_GET['event'])) {
+    elseif (isset($_GET['event'])) {
         /**
          * comment: Если у эвента есть id
          */
         if (!empty($_GET['event'])) {
-
             $idEvent = (int)$_GET['event'];
             if ($idEvent <= 0) {
                 die(json_encode(['err' => '$_GET[event]=' . $idEvent], JSON_UNESCAPED_UNICODE));
             }
-            $SQL="SELECT id from event order by DateN,id";
+
+            $SQL = "SELECT id from event order by DateN,id";
             $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
-            $arrId=[];
+            $arrId = [];
             while ($row = mysqli_fetch_array($query, MYSQLI_ASSOC)) {
-                $arrId[]=$row['id'];
+                $arrId[] = $row['id'];
             }
-            $data['next']=null;
-            $data['back']=null;
-            foreach ($arrId as $i =>$val){
-                if ($val==$idEvent){
-                    if (isset($arrId[$i+1])) {
-                        $data['next'] =$arrId[$i+1];
+            $data['next'] = null;
+            $data['back'] = null;
+            foreach ($arrId as $i => $val) {
+                if ($val == $idEvent) {
+                    if (isset($arrId[$i + 1])) {
+                        $data['next'] = $arrId[$i + 1];
                     }
-                    if (isset($arrId[$i-1])) {
-                        $data['back']=$arrId[$i-1];
+                    if (isset($arrId[$i - 1])) {
+                        $data['back'] = $arrId[$i - 1];
                     }
                 }
             }
+
             $SQL = "SELECT * FROM event
 			where id = $idEvent";
-        }
-        else /// Иначе выводим период
+        } else /// Иначе выводим период
         {
             if (isset($_POST["data"])) {
                 $data = json_decode($_POST["data"], true);
-                // var_dump($data);
                 $YearN = (int)$data['year'][0];
                 $YearE = (int)$data['year'][1];
-                if (!empty($data["mod"])) {
-                    $mod = $data["mod"];// round(((int)$input["year"][1]-(int)$input["year"][0])/5);
-                    $level = ceil((5.0001) - ($YearE - $YearN) / $mod);
-                    $data['level'] = $level;
-                    $data['mod'] = $mod;
-                } else {
-                    $level = $data['level'];
-                }
+                $level = $data['level'];
                 $them = (int)$data["them"];
-            } else {
-                $YearN = (int)$_POST['yearB'];
-                $YearE = (int)$_POST['yearN'];
-                $them = (int)$_POST['them'];
-                $level = (int)$_POST['level'];
-                $YearN = $YearN - 1;
-                $YearE = $YearE + 1;
-            }
+                $tag = (int)$data["tag"];
+            } else die(json_encode(['err'=>'отсутствует POST параметр data '],JSON_UNESCAPED_UNICODE));
             $them_sql = '';
             if ($them > 0) {
                 $them_sql = "and id in (SELECT idEvent from sci_theme_event where idTheme=$them)";
             }
-            $SQL = "SELECT id,Name,DateN as `Date`,DateK,`doc`,importance as `level` FROM event
+            $tag_sql = '';
+            if ($tag > 0) {
+                $tag_sql = "and id in (SELECT idEvent from tag_event where idTag=$tag)";
+            }
+            $SQL = "SELECT id,Name,DateN as `Date`,DateK,`doc`,importance as `level`,create_user FROM event
 			where importance <= $level
             and DateN between '$YearN' and '$YearE'
             $them_sql
+            $tag_sql
 			order by DateN";
         }
         $data['SQL'] = $SQL;
-        //} else die(json_encode(['err'=>'отсутствует POST параметр data '],JSON_UNESCAPED_UNICODE));
+        //
 
+    }
+     elseif (isset($_GET['sci_theme'])) {
+         $SQL = "SELECT * from sci_theme";
+         $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
+         $data['sci_theme'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
+         die(json_encode($data, JSON_UNESCAPED_UNICODE));
     }
     /**
      * department
@@ -109,7 +126,7 @@
              *
              */
             $idDepartment = (int)$_GET['department'];
-            if  ($idDepartment > 0) {
+            if ($idDepartment > 0) {
                 $SQL = "SELECT * from sci_department where id=$idDepartment";
                 $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
                 $data['department'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
@@ -124,18 +141,20 @@
                                 select idPerson from sci_department_person 
                                 where idSciDepartment=$idDepartment )";
                 $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
-                $data['person']= mysqli_fetch_all($query, MYSQLI_ASSOC);
+                $data['person'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
 
                 $SQL = "SELECT * from file where id in (
                                 select idFile from sci_department_file 
                                 where idSciDepartment=$idDepartment )";
                 $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
-                $data['file']= mysqli_fetch_all($query, MYSQLI_ASSOC);
+                $data['file'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
 
                 $SQL = "SELECT * from event where id in (
                                 select idEvent from sci_department_event 
                                 where idSciDepartment=$idDepartment )";
-            } else die(json_encode(['err'=>'idDepartment is not found'], JSON_UNESCAPED_UNICODE));
+            } else {
+                die(json_encode(['err' => 'idDepartment is not found'], JSON_UNESCAPED_UNICODE));
+            }
         } else {
             /** Вывод списка подразделений*/
             $SQL = "SELECT * from sci_department ";
@@ -143,14 +162,13 @@
             $data['department'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
             die(json_encode($data, JSON_UNESCAPED_UNICODE));
         }
-    }
-    /**
+    } /**
      * collection
      */
     elseif (isset($_GET['collection'])) {
         $idCollection = (int)$_GET['collection'];
-        if  ($idCollection > 0) {
-            $SQL="SELECT * from collection where id = $idCollection";
+        if ($idCollection > 0) {
+            $SQL = "SELECT * from collection where id = $idCollection";
             $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
             $data['collection'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
             $SQL = "SELECT * from collectionItem
@@ -158,7 +176,7 @@
             $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
             $data['collectionItem'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
             foreach ($data['collectionItem'] as $i => $val) {
-                $idItem=(int)$val['id'];
+                $idItem = (int)$val['id'];
                 //person
                 $SQL = "SELECT * from person where id in (
                                 select idPerson from person_collectionItem 
@@ -170,28 +188,78 @@
                                 select idSciDepartment from sci_theme_collectionItem 
                                 where idCollectionItem=$idItem )";
                 $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
-                $data['collectionItem'][$i]['sci_theme']= mysqli_fetch_all($query, MYSQLI_ASSOC);
+                $data['collectionItem'][$i]['sci_theme'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
                 //sci_theme
                 $SQL = "SELECT * from tag where id in (
                                 select idTag from tag_collectionItem 
                                 where idCollectionItem=$idItem )";
                 $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
-                $data['collectionItem'][$i]['tag']=mysqli_fetch_all($query, MYSQLI_ASSOC);
+                $data['collectionItem'][$i]['tag'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
                 //file
-                $SQL = "SELECT * from file where id =".$val['idFile'];
+                $SQL = "SELECT * from file where id =" . $val['idFile'];
                 $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
-                $data['collectionItem'][$i]['file']=mysqli_fetch_all($query, MYSQLI_ASSOC);
-
+                $data['collectionItem'][$i]['file'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
             }
             die(json_encode($data, JSON_UNESCAPED_UNICODE));
-        } else die(json_encode(['err'=>'idCollection is not found'], JSON_UNESCAPED_UNICODE));
-    }
-    /**
+        } else {
+            die(json_encode(['err' => 'idCollection is not found'], JSON_UNESCAPED_UNICODE));
+        }
+    } /**
      * Выбрать ВСЮ инфу о персоналии
      */
     elseif (isset($_GET['person'])) {
 
-        $idPers = (int)$_POST['person'];
+        if (empty($_GET['person'])) {
+            $idPers = (int)$_POST['person'];
+        } else $idPers= (int)$_GET['person'];
+
+        if (isset($_GET['mod'])) {
+            $SQL = "SELECT id from person order by id";
+            $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
+            $arrId = [];
+            while ($row = mysqli_fetch_array($query, MYSQLI_ASSOC)) {
+                $arrId[] = $row['id'];
+            }
+            $data['next'] = null;
+            $data['back'] = null;
+            foreach ($arrId as $i => $val) {
+                if ($val == $idPers) {
+                    if (isset($arrId[$i + 1])) {
+                        $data['next'] = $arrId[$i + 1];
+                    }
+                    if (isset($arrId[$i - 1])) {
+                        $data['back'] = $arrId[$i - 1];
+                    }
+                }
+            }
+            $SQL = "SELECT * from person where id=$idPers";
+            $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
+            $data['person'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
+            foreach ($data['person'] as $i=>$val) {
+                /** Создатель и модератор **/
+                $SQL = "SELECT FIO,dep FROM user where id=" . $val['create_user'];
+                $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
+                $user = mysqli_fetch_all($query, MYSQLI_ASSOC);
+                $data['person'][$i]['create_user'] = [
+                    'id' => $val['create_user'],
+                    'fio' => $user[0]['FIO'],
+                    'dep' => $user[0]['dep']
+                ];
+                if (!empty($val['moderated_user'])) {
+                    $SQL = "SELECT FIO,dep FROM user where id=" . $val['moderated_user'];
+                    $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
+                    $user = mysqli_fetch_all($query, MYSQLI_ASSOC);
+                    $data['person'][$i]['moderated_user'] = [
+                        'id' => $val['moderated_user'],
+                        'fio' => $user[0]['FIO'],
+                        'dep' => $user[0]['dep']
+                    ];;
+                }
+            }
+            die(json_encode($data, JSON_UNESCAPED_UNICODE));
+
+        }
+
         $SQL = "SELECT * from person where id=$idPers";
         $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
         $data['person'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
@@ -217,15 +285,23 @@
     $data['event'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
     foreach ($data['event'] as $i => $val) {
         /** Создатель и модератор **/
-        $SQL="SELECT FIO,dep FROM user where id=".$val['create_user'];
+        $SQL = "SELECT FIO,dep FROM user where id=" . $val['create_user'];
         $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
-        $user=mysqli_fetch_all($query, MYSQLI_ASSOC);
-        $data['event'][$i]['create_user']=['id'=>$val['create_user'],'fio'=>$user[0]['FIO'],'dep'=>$user[0]['dep']];
-        if (!empty($val['moderated_user'])){
-            $SQL="SELECT FIO FROM user where id=".$val['moderated_user'];
+        $user = mysqli_fetch_all($query, MYSQLI_ASSOC);
+        $data['event'][$i]['create_user'] = [
+            'id' => $val['create_user'],
+            'fio' => $user[0]['FIO'],
+            'dep' => $user[0]['dep']
+        ];
+        if (!empty($val['moderated_user'])) {
+            $SQL = "SELECT FIO,dep FROM user where id=" . $val['moderated_user'];
             $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
-            $user=mysqli_fetch_all($query, MYSQLI_ASSOC);
-            $data['event'][$i]['moderated_user']=['id'=>$val['moderated_user'],'fio'=>$user[0]['FIO'],'dep'=>$user[0]['dep']];;
+            $user = mysqli_fetch_all($query, MYSQLI_ASSOC);
+            $data['event'][$i]['moderated_user'] = [
+                'id' => $val['moderated_user'],
+                'fio' => $user[0]['FIO'],
+                'dep' => $user[0]['dep']
+            ];;
         }
         /** person */
         $SQL = "

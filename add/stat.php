@@ -110,6 +110,37 @@
         }
         echo "</table>";
 
+
+        echo "<h1>Модерация</h1>
+            <table border='1'>
+            <tr>
+                <th>События</th>
+                <th>Персоналии</th>
+            </tr>";
+        $SQL = "SELECT `ALL`.`count`,`MOD`.countMOD from (Select count(*) as `countMOD` FROM event where moderated=1) as `MOD`, 
+                (Select count(*) as `count` FROM event ) as `ALL`
+                ";
+        $query = mysqli_query($db, $SQL);
+        $data = mysqli_fetch_all($query,MYSQLI_ASSOC);
+        $Ecount=$data[0]['count'];
+        $Emod=$data[0]['countMOD'];
+        $Eproc=round(($Emod/$Ecount)*10000)/100;
+
+        $SQL = "SELECT `ALL`.`count`,`MOD`.countMOD from (Select count(*) as `countMOD` FROM person where moderated=1) as `MOD`, 
+                (Select count(*) as `count` FROM person ) as `ALL`
+                ";
+        $query = mysqli_query($db, $SQL);
+        $data = mysqli_fetch_all($query,MYSQLI_ASSOC);
+        $Pcount=$data[0]['count'];
+        $Pmod=$data[0]['countMOD'];
+        $Pproc=round(($Pmod/$Pcount)*10000)/100;
+            echo "<tr>
+                    <td>$Emod из $Ecount ($Eproc %)</td>
+                    <td>$Pmod из $Pcount ($Pproc %)</td>
+                    </tr></table>";
+
+
+
     } catch (mysqli_sql_exception $exception) {
        // mysqli_rollback($db);
         $ret = [

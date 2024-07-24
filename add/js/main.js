@@ -869,7 +869,16 @@ function editPerson(id) {
     /**  #persID*/
     let data = load_person('s_id=' + id);
     let info = data[0];
+    if (info.moderated !=='0') {
+        alert('Событие проверено модератором, изменить нельзя.');
+        return;
+    }
     $('#persID').val(info.id);
+
+
+
+    console.log(info.moderated);
+
 
     //console.log(info);
     $('#pers_F').val(info.F);
@@ -1314,7 +1323,7 @@ function updatePerson(data) {
                     time.file+=parseFloat(value[4].Duration);
                 }
             });
-            console.log(time);
+            //console.log(time);
 
             return;
         }
@@ -1322,10 +1331,23 @@ function updatePerson(data) {
         let sci_department = arrdata(v.sci_department);
         let sci_theme = arrdata(v.sci_theme);
         let tag = arrdata(v.tag);
+        /*mod*/
+        let mod=v.moderated;
+        //console.log(v);
+        let str_mod='';
+        if (mod ==='0') {
+            str_mod='<div><div class="btn btn-warning" data-bs-toggle="tooltip" data-bs-placement="top" title="Модерация не пройдена. Можно вносить изменения"><i class="bi bi-unlock-fill"></i></div></div>'
+        }
+        if (mod ==='1') {
+            str_mod='<div><div class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Модерация пройдена. Внесение изменений невозможно!"><i class="bi bi-file-lock-fill"></i></div></div>'
+        }
+
+
         html+='<tr>' +
             '<td>' + v.id + '</td>' +
             '<td style="width: 20px">' +
             '<div class="d-flex flex-column">' +
+            '<div>'+str_mod+'</div>'+
             '<div><button type="button" class="btn btn-danger" onclick="delPerson(' + v.id + ')"><i class="bi bi-trash"></i></button></div>' +
             '<div><button type="button" class="btn btn-info" onclick="editPerson(' + v.id + ')"><i class="bi bi-pencil-square"></i></button></div>' +
             '</div></td>' +
@@ -1476,6 +1498,13 @@ function delFile(tag, answer = null) {
 }
 
 function delPerson(tag, answer = null) {
+    let data = load_person('s_id=' + tag);
+    let info = data[0];
+    if (info.moderated !=='0') {
+        alert('Событие проверено модератором, изменить нельзя.');
+        return;
+    }
+
     if (answer == null) {
         $('#dialog_del').dialog({
             buttons: {

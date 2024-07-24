@@ -61,7 +61,7 @@
     <script src="../js/tinymce/tinymce.min.js"></script>
 
     <!-- MY -->
-    <script src="js/desc.js?<?php
+    <script src="js/descEvent.js?<?php
         echo time(); ?>"></script>
 
 </head>

@@ -1,17 +1,20 @@
 function save() {
-    /*
-    Систематическое изучение сельскохозяйственных возможностей и природных богатств Печорского края связано с именем А.В. Журавского, который стал одним из первых исследователей края, привлекающим внимание правительственных и научных организаций к нуждам северных территорий. В его работах «Печорская естественно-историческая станция при Императорской Академии наук. Её задачи и история возникновения», «Приполярная Россия в связи с разрешением общегосударственного аграрного и финансового кризиса (экономический потенциал Севера)», «Приполярная Россия. Нефть в бассейне Печоры», «К проблеме колонизации Печорского края» подняты важные вопросы социально-экономического развития Севера. А.В. Журавский сотрудничал с органами землеустройства Российской империи по вопросам выявления земельных потенциалов нижнепечорских земель, по выработке принципов научного обоснования разделения России на физико-географические районы, по вопросам землеустройства в северных губерниях, подготовке и экспедиционном исследовании Печорского края. Именно А.В. Журавскому мы обязаны тем, что на берегу Печоры, в 1905-1906 гг. была заложена академическая наука на территории Республики Коми.
-     */
-    let event={}
-    event.id=$('#idEvent').val();
-    event.Desc =encodeURIComponent(tinymce.get("disc").getContent());
-    event.Name=$('#name').val();
-    console.log(event);
+
+    let Person={}
+    Person.id=$('#idPerson').val();
+    Person.dol=$('#dol').val();
+    let comment=encodeURIComponent(tinymce.get("comment").getContent());
+    let awards=encodeURIComponent(tinymce.get("awards").getContent());
+    let publications=encodeURIComponent(tinymce.get("publications").getContent());
+    //console.log(Person);
     $.ajax({
         type: 'POST',
-        url: 'set.php?descEvent',
+        url: 'set.php?descPerson',
         //data: JSON.stringify(parameters),
-        data: 'data='+JSON.stringify(event),
+        data: 'data='+JSON.stringify(Person)+
+            '&comment='+comment+
+            '&awards='+awards+
+            '&publications='+publications,
         dataType: 'json',
         cache: false,
         success: function(data) {
@@ -37,7 +40,7 @@ function load(id) {
     //https://www.tiny.cloud/blog/how-to-get-content-and-set-content-in-tinymce/
     $.ajax({
         async:false,
-        url: '../get.php?event='+id,
+        url: '../get.php?mod&person='+id,
         dataType: 'json',
         cache: false,
         success: function(data) {
@@ -57,31 +60,25 @@ function load(id) {
                 })
             } else $('#btnBack').hide();
 
-            //console.log(next,back);
-            let Desc= data.event[0].Desc;
-            let Name= data.event[0].Name;
-            let id = data.event[0].id;
-           // dateEvent
-            //console.log(data.event[0]);
-           // console.log(Desc);
-            tinymce.get("disc").setContent(Desc, { format: "html" });
-            $('#idEvent').val(id);
-            $('#name').val(Name);
-            $('#dateEvent').val(data.event[0].DateN);
-            $('#create_user').val(data.event[0].create_user.fio)
-            $('#create_dep').val(data.event[0].create_user.dep)
-            $('#create_date').val(data.event[0].create_date)
-            /*create_user
-            create_dep
-            create_date*/
+            console.log(data.person[0]);
+            let pers=data.person[0];
+            tinymce.get("comment").setContent(pers.comment, { format: "html" });
+            tinymce.get("awards").setContent(pers.awards, { format: "html" });
+            tinymce.get("publications").setContent(pers.publications, { format: "html" });
+            $('#idPerson').val(pers.id);
+            $('#FIO').val(pers.F+' '+pers.I+' '+pers.O);
+            $('#dol').val(pers.dol);
+            $('#create_user').val(pers.create_user.fio)
+            $('#create_dep').val(pers.create_user.dep)
+            $('#create_date').val(pers.create_date)
+
             $('#isModerated').hide();
-            if (data.event[0].moderated !=='0') {
-                $('#moderated_user').val(data.event[0].moderated_user.fio);
-                $('#moderated_dep').val(data.event[0].moderated_user.dep);
-                $('#moderated_date').val(data.event[0].moderated_date);
+            if (pers.moderated !=='0') {
+                $('#moderated_user').val(pers.moderated_user.fio);
+                $('#moderated_dep').val(pers.moderated_user.dep);
+                $('#moderated_date').val(pers.moderated_date);
                 $('#isModerated').show();
             }
-           // isModerated
         }
     });
 
@@ -103,7 +100,7 @@ $(document).ready(function () {
         save();
     })
     tinymce.init({
-        selector: '#disc',  // change this value according to the HTML
+        selector: '#comment,#publications,#awards',  // change this value according to the HTML
         menubar: 'edit format',
         language: 'ru',
         license_key: 'gpl',
@@ -115,7 +112,7 @@ $(document).ready(function () {
         //toolbar: 'numlist bullist',
         setup: function (editor) {
             editor.on('init', function (e) {
-                load(504)
+                load(5)
                 //editor.setContent('<p>Hello world!</p>');
             });
         },

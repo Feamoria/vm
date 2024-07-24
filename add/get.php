@@ -98,7 +98,7 @@
             die(json_encode($res, JSON_UNESCAPED_UNICODE));
         }
 
-        $SQL = "SELECT `id`, CONCAT(F,' ',I,' ',O) as Name, F, I, O, COMMENT, DOL, DAYN, DAYD, CREATE_DATE, CREATE_USER,publications,awards 
+        $SQL = "SELECT `id`, CONCAT(F,' ',I,' ',O) as Name, F, I, O, COMMENT, DOL, DAYN, DAYD, CREATE_DATE, CREATE_USER,publications,awards ,moderated,moderated_date,moderated_user
                 FROM person 
                     $where
                     order by `id` desc";
