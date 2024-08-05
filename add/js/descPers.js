@@ -62,9 +62,16 @@ function load(id) {
 
             console.log(data.person[0]);
             let pers=data.person[0];
-            tinymce.get("comment").setContent(pers.comment, { format: "html" });
-            tinymce.get("awards").setContent(pers.awards, { format: "html" });
-            tinymce.get("publications").setContent(pers.publications, { format: "html" });
+            if (pers.comment !== null)
+            {
+                tinymce.get("comment").setContent(pers.comment, {format: "html"});
+            } else tinymce.get("comment").setContent('', {format: "html"});
+            if (pers.awards !== null) {
+                tinymce.get("awards").setContent(pers.awards, {format: "html"});
+            } else tinymce.get("awards").setContent('', {format: "html"});
+            if (pers.publications !== null) {
+                tinymce.get("publications").setContent(pers.publications, { format: "html" });
+            } else tinymce.get("publications").setContent('', {format: "html"});
             $('#idPerson').val(pers.id);
             $('#FIO').val(pers.F+' '+pers.I+' '+pers.O);
             $('#dol').val(pers.dol);

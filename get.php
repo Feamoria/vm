@@ -8,6 +8,7 @@
      * ?event&tag=[]&year=[]&them=[]&dep=[]
      * ?person&tag=[]&year=[]&them=[]&dep=[]
      * */
+    header('Content-Type: application/json; charset=utf-8');
     require_once 'php_class/connect.php';
     $db = (new BDconnect())->connect();
     $data = [];
@@ -95,7 +96,9 @@
             if ($tag > 0) {
                 $tag_sql = "and id in (SELECT idEvent from tag_event where idTag=$tag)";
             }
-            $SQL = "SELECT id,Name,DateN as `Date`,DateK,`doc`,importance as `level`,create_user FROM event
+            $SQL = "SELECT id,Name,DateN as `Date`,DateK,importance as `level`,create_user 
+            
+            FROM event
 			where importance <= $level
             and DateN between '$YearN' and '$YearE'
             $them_sql
@@ -160,6 +163,14 @@
             $SQL = "SELECT * from sci_department ";
             $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
             $data['department'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
+            foreach ($data['department'] as $i=>$val) {
+                $idDepartment=$val['id'];
+                $SQL = "SELECT * from file where id in (
+                                select idFile from sci_department_file 
+                                where idSciDepartment=$idDepartment )";
+                $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
+                $data['department'][$i]['file'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
+            }
             die(json_encode($data, JSON_UNESCAPED_UNICODE));
         }
     } /**
@@ -266,7 +277,7 @@
         $SQL = "SELECT file.id,file.Name,file.pathWeb,file.disc from file where id in (SELECT idFile from file_person where idPerson=$idPers)";
         $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
         $data['personFile'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
-        $SQL = "SELECT id,Name,DateN as `Date`,`doc`,importance as `level` FROM event
+        $SQL = "SELECT id,Name,DateN as `Date`,`doc`,importance as `level`,create_user,create_date,moderated_user,moderated_date FROM event
 			where id in (SELECT idEvent from person_event where idPerson=$idPers)
 			order by DateN";
     } elseif (isset($_GET['personAll'])) {
@@ -277,6 +288,12 @@
         $SQL = "SELECT * from person";
         $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
         $data['person'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
+        foreach ( $data['person'] as $i => $val) {
+            $idPers=$val['id'];
+            $SQL = "SELECT file.id,file.Name,file.pathWeb,file.disc from file where id in (SELECT idFile from file_person where idPerson=$idPers)";
+            $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
+            $data['person'][$i]['file'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
+        }
         die(json_encode($data, JSON_UNESCAPED_UNICODE));
     } else {
         die(json_encode(['err' => 'не выбран метод'], JSON_UNESCAPED_UNICODE));
