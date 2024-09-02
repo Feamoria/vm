@@ -638,6 +638,42 @@
                 public function setBD($POST): array
                 {
                     $ret = [];
+                    if (empty($this->FileArray)) {
+                        $ret['err'] = 'FileArray empty';
+                    }
+                    foreach ($this->FileArray as $i=>$fCol) {
+                        if ($fCol['ok'] == '1') {
+                            $data = $fCol;
+                            //var_dump($data);
+                            $name = $POST['collectionItemName'];
+                            mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+                            mysqli_begin_transaction($this->connect);
+                            try {
+                                $SQL = "insert into file (name, pathServ, pathWeb,   create_user,type)  values 
+                                ('$name','{$data['serv_path']}',
+                                 '{$data['client_path']}',                         
+                                '{$_SESSION['user']['id']}',$this->type );";
+                                mysqli_query($this->connect, $SQL);
+                                $InsertId = mysqli_insert_id($this->connect);
+
+                                $ret[$i]['InsertIdFile'] = $InsertId;
+                                $ret[$i]['ok'] = 'ok';
+                                mysqli_commit($this->connect);
+                            } catch (mysqli_sql_exception $exception) {
+                                mysqli_rollback($this->connect);
+                                $ret = [
+                                    'errorSQL',
+                                    'SQL' => $SQL,
+                                    'exception' => $exception->getMessage(),
+                                    'code' => $exception->getCode()
+                                ];
+                            }
+                           // return $ret;
+                        } else {
+                            $ret[$i]['err'] = "FileArray[$i] is not ok";
+                        }
+                    }
+                    /*
                     if (isset($this->FileArray[$this->HtmlInput])) {
                         if ($this->FileArray[$this->HtmlInput]['ok'] == '1') {
                             $data = $this->FileArray[$this->HtmlInput];
@@ -651,7 +687,7 @@
                                 '{$_SESSION['user']['id']}',$this->type );";
                                 mysqli_query($this->connect, $SQL);
                                 $InsertId = mysqli_insert_id($this->connect);
-                                /*Персоналии -file_pers*/
+
                                 $ret['InsertIdFile'] = $InsertId;
                                 $ret['ok'] = 'ok';
                                 mysqli_commit($this->connect);
@@ -670,7 +706,7 @@
                         }
                     } else {
                         $ret['err'] = 'FileArray empty';
-                    }
+                    }*/
                     return $ret;
                 }
 
@@ -830,13 +866,24 @@
                             $ret['_FILES'] = $_FILES;
                             die(json_encode($ret, JSON_UNESCAPED_UNICODE));
                         }
-                        $InsertIdFile = $dataFile['setBD']['InsertIdFile'];
-                        $dataFile['InsertIdFile'] = $dataFile['setBD']['InsertIdFile'];
+                        //die(json_encode($dataFile, JSON_UNESCAPED_UNICODE));
+
+                        $InsertIdFile = $dataFile['setBD']['collectionItemFile']['InsertIdFile'];
+                        //$dataFile['InsertIdFile'] = $dataFile['setBD']['InsertIdFile'];
+
                         /*** ДОБАВИТЬ id файла коллекции */
                         $SQL = "Update collectionItem set 
                                 idFile= $InsertIdFile
                                 where id=$InsertId";
                         mysqli_query($db, $SQL);
+                        if (isset($dataFile['setBD']['collectionItemFileModel'])) {
+                            $InsertIdFile = $dataFile['setBD']['collectionItemFileModel']['InsertIdFile'];
+                            $SQL = "Update collectionItem set 
+                                idFileModel= $InsertIdFile
+                                where id=$InsertId";
+                            mysqli_query($db, $SQL);
+                        }
+
                         $ret['FILE'] = $dataFile;
                     }
                     mysqli_commit($db);
@@ -846,6 +893,7 @@
                     $ret = [
                         'errorSQL',
                         'SQL' => $SQL,
+                        'dataFile'=>$dataFile,
                         'exception' => $exception->getMessage(),
                         'code' => $exception->getCode()
                     ];

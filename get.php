@@ -145,7 +145,13 @@
                                 where idSciDepartment=$idDepartment )";
                 $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
                 $data['person'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
-
+                //$data['person']['file']=null;
+                foreach ($data['person'] as $i => $person) {
+                    $idPers = $person['id'];
+                    $SQL = "SELECT file.id,file.Name,file.pathWeb,file.disc from file where id in (SELECT idFile from file_person where idPerson=$idPers)";
+                    $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
+                    $data['person'][$i]['file'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
+                }
                 $SQL = "SELECT * from file where id in (
                                 select idFile from sci_department_file 
                                 where idSciDepartment=$idDepartment )";
@@ -173,7 +179,8 @@
             }
             die(json_encode($data, JSON_UNESCAPED_UNICODE));
         }
-    } /**
+    }
+    /**
      * collection
      */
     elseif (isset($_GET['collection'])) {
@@ -210,6 +217,10 @@
                 $SQL = "SELECT * from file where id =" . $val['idFile'];
                 $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
                 $data['collectionItem'][$i]['file'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
+                //fileModel
+                $SQL = "SELECT * from file where id =" . $val['idFileModel'];
+                $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
+                $data['collectionItem'][$i]['fileModel'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
             }
             die(json_encode($data, JSON_UNESCAPED_UNICODE));
         } else {

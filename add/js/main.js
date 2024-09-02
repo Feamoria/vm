@@ -7,31 +7,31 @@ let cache_pers = {};
 $(document).ready(function () {
     if (!test)
         timerId = setInterval(GetOnline, 0);
-    $( '#file_doc,#ev_doc,#ev_Name,#ev_Y_n,#ev_Desc,#div_ev_file,' +
-        '#pers_Desc,#pers_awards,#pers_publications,#div_persFio,#pers_date1,#pers_dol' ).tooltip({
+    $('#file_doc,#ev_doc,#ev_Name,#ev_Y_n,#ev_Desc,#div_ev_file,' +
+        '#pers_Desc,#pers_awards,#pers_publications,#div_persFio,#pers_date1,#pers_dol').tooltip({
         position: {
             my: "center bottom-20",
             at: "left top",
-            using: function( position, feedback ) {
-                $( this ).css( position );
-                $( "<div>" )
-                    .addClass( "arrow" )
-                    .addClass( feedback.vertical )
-                    .addClass( feedback.horizontal )
-                    .appendTo( this );
+            using: function (position, feedback) {
+                $(this).css(position);
+                $("<div>")
+                    .addClass("arrow")
+                    .addClass(feedback.vertical)
+                    .addClass(feedback.horizontal)
+                    .appendTo(this);
             }
         }
     });
-    $('#my_event').on('click',function (e,ui){
-        updateEvent(load_event('dep='+$(this).prop('checked')));
+    $('#my_event').on('click', function (e, ui) {
+        updateEvent(load_event('dep=' + $(this).prop('checked')));
     })
-    $('#my_pers').on('click',function (e,ui){
-        updatePerson(load_person('dep='+$(this).prop('checked')));
+    $('#my_pers').on('click', function (e, ui) {
+        updatePerson(load_person('dep=' + $(this).prop('checked')));
     })
-    $('#my_file').on('click',function (e,ui){
-        let search=null;
+    $('#my_file').on('click', function (e, ui) {
+        let search = null;
         if ($(this).prop('checked') === true) {
-            search='dep='+$(this).prop('checked');
+            search = 'dep=' + $(this).prop('checked');
         }
         updateFile(load_file(search));
     })
@@ -46,7 +46,7 @@ $(document).ready(function () {
         autoOpen: false,
         width: 1000,
     });
-    $('#importance').on('click',function () {
+    $('#importance').on('click', function () {
         $('#dialogImportance').dialog('open');
     })
     let dialog = $('#dialog_file').dialog({
@@ -147,11 +147,11 @@ $(document).ready(function () {
                 initmultiselect('collectionItem_pers');
 
                 // TODO
-                let coll=load_collection();
-                let select=$('#collectionItemColl');
+                let coll = load_collection();
+                let select = $('#collectionItemColl');
                 select.empty().append('<option disabled value="" selected>--</option>')
-                $.each(coll,function (index, value) {
-                    select.append('<option value="'+this.id+'">'+this.value+'</option>')
+                $.each(coll, function (index, value) {
+                    select.append('<option value="' + this.id + '">' + this.value + '</option>')
                 });
                 updateCollectionItem(load_collectionItem());
 
@@ -204,39 +204,40 @@ $(document).ready(function () {
     /*Форма выбора файла*/
     $('#btn_open_file').on('click', function (e) {
         e.preventDefault();
-/*
-let chk = [];
-                let text = $('#ev_file_text');
-                text.html('');
-                let sel = $('#ev_file');
-                sel.html('');
-                $('#dialog_file_cont .form-check-input').each(function () {
-                    if ($(this).prop('checked')) {
-                        let id = $(this).val();
-                        chk.push(id);
-                        text.append("<a target='_blank' href='" + data_file.GET[id].pathWeb + "'>[" + data_file.GET[id].name + "] </a>  ")
-                        sel.append('<option value="' + id + '">' + id + '</option>');
-                    }
 
-                })
-                sel.val(chk);
-* */
+        /*
+        let chk = [];
+                        let text = $('#ev_file_text');
+                        text.html('');
+                        let sel = $('#ev_file');
+                        sel.html('');
+                        $('#dialog_file_cont .form-check-input').each(function () {
+                            if ($(this).prop('checked')) {
+                                let id = $(this).val();
+                                chk.push(id);
+                                text.append("<a target='_blank' href='" + data_file.GET[id].pathWeb + "'>[" + data_file.GET[id].name + "] </a>  ")
+                                sel.append('<option value="' + id + '">' + id + '</option>');
+                            }
+
+                        })
+                        sel.val(chk);
+        * */
         function load(search = null) {
             data_file = load_file(search);
 
             let sel = $('#ev_file');
-            let ev_file_val=sel.val()
+            let ev_file_val = sel.val()
             let cont = $('#dialog_file_cont').html('');
             $.each(data_file.GET, function (index, value) {
                 let chk = '';
-                if (ev_file_val.indexOf( value.id ) !== -1){
-                    chk=' checked ';
+                if (ev_file_val.indexOf(value.id) !== -1) {
+                    chk = ' checked ';
                 }
                 let html = '<div class="card" style="width: 18rem;">' +
                     '<img style="height: 200px;width: max-content;" src="' + value.pathWeb + '" class="card-img-top" alt=""' +
                     '<div class="card-body">' +
                     '<h5 class="card-title">' +
-                    '<input value="' + value.id + '"  id="chk_' + value.id + '" name="chk[]" type="checkbox" class="form-check-input" '+chk+'>' +
+                    '<input value="' + value.id + '"  id="chk_' + value.id + '" name="chk[]" type="checkbox" class="form-check-input" ' + chk + '>' +
                     '<label class="" for="chk_' + value.id + '">' + value.name + '</label></h5>' +
                     '<p class="card-text">' + value.disc + '</p>' +
 
@@ -248,9 +249,10 @@ let chk = [];
                 cont.append(html);
             });
         }
-        let search =''
+
+        let search = ''
         if ($('#my_Efile').prop('checked')) {
-            search='dep=true';
+            search = 'dep=true';
         }
         load(search);
         dialog.dialog("open");
@@ -264,11 +266,11 @@ let chk = [];
         initTagAjax('#s_pers', data_pers);
 
         $('#s_Name,#s_tg,#s_tem,#s_pers,#my_Efile').on('change keyup', function () {
-            search='';
+            search = '';
             if ($('#my_Efile').prop('checked')) {
-                search='&dep=true';
+                search = '&dep=true';
             }
-            load($('#s_form').serialize()+search);
+            load($('#s_form').serialize() + search);
 
         })
         /**/
@@ -549,6 +551,46 @@ let chk = [];
     initTagAjax('#file_tem', data_sci_field);
     initTagAjax('#file_pers', data_pers);
     initTagAjax('#file_sci_department', data_sci_department);
+    /// Титульные фото.
+    $('#file_MainId').multiselect({
+        buttonWidth: '500px', // (integer | string | 'auto' | null) Sets the min/max/exact width of the button.
+        menuWidth: '500px', // (integer | string | 'auto' | null) If a number is provided, sets the exact menu width.
+        multiple: false,
+        //header: ['Всё', 'Ничего'],
+        //noneSelectedText: ariaLabel,
+        selectedText: '#',
+        selectedList: 5,
+        click: function (/*event, ui*/) {
+            // search_status(elem)
+        },
+        checkAll: function () {
+            // search_status(elem)
+        },
+        uncheckAll: function () {
+            // search_status(elem)
+        },
+        open: function () {
+            // $('.ui-multiselect-menu').css({'z-index': '999999', 'width': '200px'});
+        },
+    }).change(function () {
+        //  $("#" + z_table)[0].triggerToolbar();
+    }).multiselect('refresh').multiselectfilter({
+        width: '400px'
+    });
+
+    $('#file_MainType').on('change', function () {
+        // при изменениии менять содержимоей 2го селекта
+       // console.log(typeof $(this).val(), $(this).val());
+
+        if ($(this).val() === '0') {
+            initTagAjax('#file_MainId', data_pers)
+        } else if ($(this).val() === '1') {
+            initTagAjax('#file_MainId', data_sci_department)
+        } else if ($(this).val() === '-1'){
+            $('#file_MainId').html('').multiselect('refresh');
+        }
+
+    })
     $('#file_tag_add').autocomplete({
         minLength: 1,
         source: AutocompleteSourceTag,
@@ -598,7 +640,7 @@ let chk = [];
         /**/
         datepic.datepicker("option", "dateFormat", "yy-mm-dd");
         let form = $('#file')[0];
-        let my_file =$('#my_file').prop('checked');
+        let my_file = $('#my_file').prop('checked');
         $.ajax({
             type: 'POST',
             url: 'set.php?file',
@@ -613,14 +655,14 @@ let chk = [];
                     updateFile(data);
                     $('#file').trigger("reset");
                     $('#id_file').val('');
+                    $('#file_MainId').html('').multiselect('refresh');
                     $('#file_F').prop('disabled', false);
-                    $('#my_file').prop('checked',my_file);
+                    $('#my_file').prop('checked', my_file);
                 } else alert(data.err);
             }
         });
         datepic.datepicker("option", "dateFormat", "dd.mm.yy");
     })
-
 
 
     /***********************
@@ -663,7 +705,6 @@ let chk = [];
             }
         });
     });
-
 
 
     /***********************
@@ -721,12 +762,14 @@ let chk = [];
                     $('#collectionItem')[0].reset();
                     $('#collectionItemId').val('');
                     $('#collectionItemFile').prop('disabled', false);
+                    $('#collectionItemFileModel').prop('disabled', false);
                     updateCollectionItem(load_collectionItem())
                 } else alert(data.err);
             }
         });
     });
 })
+
 function AutocompleteSourcePers(request, response) {
     let term = request.term;
     if (term in cache_pers) {
@@ -738,6 +781,7 @@ function AutocompleteSourcePers(request, response) {
         response(data);
     });
 }
+
 function AutocompleteSourceTag(request, response) {
     let term = request.term;
     if (term in cache_tag) {
@@ -790,7 +834,7 @@ function editEvent(id) {
     /** #eventID*/
     let data = load_event('s_id=' + id);
     let info = data[0];
-    if (info.moderated !=='0') {
+    if (info.moderated !== '0') {
         alert('Событие проверено модератором, изменить нельзя.');
         return;
     }
@@ -849,7 +893,7 @@ function editEvent(id) {
     $('#ev_pers').val(pers).multiselect('refresh');
     // ev_file - file
     let file = [];
-    let ev_file=$('#ev_file');
+    let ev_file = $('#ev_file');
     ev_file.html('');
     if (info.file.length > 0) {
         let dt = info.file;
@@ -857,7 +901,7 @@ function editEvent(id) {
         text.html('');
         $.each(dt, function (index, value) {
             file.push(value.id)
-            ev_file.append('<option value="'+value.id+'">'+value.id+'</option>')
+            ev_file.append('<option value="' + value.id + '">' + value.id + '</option>')
             text.append("<a target='_blank' href='" + value.pathWeb + "'>[" + value.name + "] </a>  ")
         });
     }
@@ -869,12 +913,11 @@ function editPerson(id) {
     /**  #persID*/
     let data = load_person('s_id=' + id);
     let info = data[0];
-    if (info.moderated !=='0') {
+    if (info.moderated !== '0') {
         alert('Событие проверено модератором, изменить нельзя.');
         return;
     }
     $('#persID').val(info.id);
-
 
 
     console.log(info.moderated);
@@ -922,6 +965,7 @@ function editPerson(id) {
     $('#pers_tag').val(tag).multiselect('refresh');
     $(window).scrollTop($('#UserOnline').offset().top);
 }
+
 function editCollection(id) {
     let data = load_collection('s_id=' + id);
     let info = data[0];
@@ -945,6 +989,7 @@ function editCollection(id) {
 
 function editCollectionItem(id) {
     $('#collectionItemFile').prop('disabled', true);
+    $('#collectionItemFileModel').prop('disabled', true);
     let data = load_collectionItem('s_id=' + id);
     let info = data.GET[0];
     console.log(info);
@@ -1037,8 +1082,31 @@ function editFile(id) {
         });
     }
     $('#file_tag').val(tag).multiselect('refresh');
+    //
+    console.log(info)
+    let MainId= $('#file_MainId');
+    let MainType=$('#file_MainType')
+    MainType.val('-1');
+    MainId.html('').multiselect('refresh')
+    if (info.mainType !== null) {
+        MainType.val(info.mainType);
+        if (info.mainType === '0') {
+            initTagAjax('#file_MainId', load_person())
+            MainId.val(info.mainId).multiselect('refresh');
+        } else if (info.mainType === '1') {
+            initTagAjax('#file_MainId', load_sci_department());
+            MainId.val(info.mainId).multiselect('refresh');
+        } else if (info.mainType === '-1'){
+            MainId.html('').multiselect('refresh');
+        }
+
+        console.log(info.mainType,info.mainId);
+    }
+
+    //
     $(window).scrollTop($('#UserOnline').offset().top);
 }
+
 function arrdata(data, href = false) {
     let ret = '';
     if (typeof data !== 'undefined')
@@ -1055,7 +1123,7 @@ function arrdata(data, href = false) {
 }
 
 function updateFile(data) {
-    let html='<table id="tbl_file" class="table table-bordered border-primary"><thead><tr>' +
+    let html = '<table id="tbl_file" class="table table-bordered border-primary"><thead><tr>' +
         '<th>ID</th>' +
         '<th class="filter-false sorter-false"></th>' +
         '<th>Дата файла</th>' +
@@ -1073,7 +1141,7 @@ function updateFile(data) {
         let sci_theme = arrdata(v.sci_theme);
         let tag = arrdata(v.tag);
         let person = arrdata(v.person);
-        html+='<tr>' +
+        html += '<tr>' +
             '<td>' + v.id + '</td>' +
             '<td style="width: 20px">' +
             '<div class="d-flex flex-column"><div>' +
@@ -1094,21 +1162,22 @@ function updateFile(data) {
             '</td>' +
             '</tr>';
     })
-    html+='</tbody></table>';
+    html += '</tbody></table>';
     $("#div_tbl_file").html(html);
     $('#tbl_file').tablesorter({
         //theme : 'blue',
         //widthFixed: true,
-        widgets : [ 'zebra', 'filter' ],
+        widgets: ['zebra', 'filter'],
         /*widgetOptions : {
             filter_external: 'input.search',
             filter_reset: '.reset'
         }*/
     });
 }
+
 function updateCollectionItem(data) {
     //console.log(data);
-    let html='<table id="tbl_CollectionItem" class="table table-bordered border-primary"><thead><tr>' +
+    let html = '<table id="tbl_CollectionItem" class="table table-bordered border-primary"><thead><tr>' +
         '<th>ID</th>' +
         '<th class="filter-false sorter-false"></th>' +
         '<th>CollectionName</th>' +
@@ -1121,7 +1190,7 @@ function updateCollectionItem(data) {
         '<th>Учетный номер</th>' +
         '<th>Координаты</th>' +
         '<th>Файл</th>' +
-        '<th>Направление науки</th>'+
+        '<th>Направление науки</th>' +
         '<th>Ключевые слова</th>' +
         '<th>Авторство</th>' +
         '</tr></thead><tbody>';
@@ -1129,7 +1198,7 @@ function updateCollectionItem(data) {
         let sci_theme = arrdata(v.sci_theme);
         let tag = arrdata(v.tag);
         let person = arrdata(v.person);
-        html+='<tr>' +
+        html += '<tr>' +
             '<td style="width: 20px">' + v.CollectionItemId + '</td>' +
             '<td style="width: 20px">' +
             '<div class="d-flex flex-column">' +
@@ -1144,30 +1213,31 @@ function updateCollectionItem(data) {
             '<td>' + v.Material + '</td>' +
             '<td>' + v.Size + '</td>' +
             '<td>' + v.Nom + '</td>' +
-            '<td>' + v.latitude+'/'+v.longitude + '</td>' +
+            '<td>' + v.latitude + '/' + v.longitude + '</td>' +
             '<td>' +
             '<a target="_blank" href="' + v.pathWeb + '">[Файл:' + v.Name + ']</a>' +
-            '<img src="' + v.pathWeb + '" width="100px">'+
+            '<img src="' + v.pathWeb + '" width="100px">' +
             '</td>' +
             '<td>' + sci_theme + '</td>' +
             '<td>' + tag + '</td>' +
             '<td>' + person + '</td>' +
             '</tr>';
     })
-    html+='</tbody></table>';
+    html += '</tbody></table>';
     $("#div_tbl_collectionItem").html(html);
     $('#tbl_CollectionItem').tablesorter({
         //theme : 'blue',
         //widthFixed: true,
-        widgets : [ 'zebra', 'filter' ],
+        widgets: ['zebra', 'filter'],
         /*widgetOptions : {
             filter_external: 'input.search',
             filter_reset: '.reset'
         }*/
     });
 }
+
 function updateCollection(data) {
-    let html='<table id="tbl_Collection" class="table table-bordered border-primary"><thead><tr>' +
+    let html = '<table id="tbl_Collection" class="table table-bordered border-primary"><thead><tr>' +
         '<th>ID</th>' +
         '<th class="filter-false sorter-false"></th>' +
         '<th>Название колекции</th>' +
@@ -1177,11 +1247,11 @@ function updateCollection(data) {
         '</tr></thead><tbody>';
     $.each(data, function (i, v) {
         let sci_department = arrdata(v.sci_department);
-        let url='<a target="_blank" href="' + v.url + '">Ссылка</a>'
+        let url = '<a target="_blank" href="' + v.url + '">Ссылка</a>'
         if ((v.url === null) || (v.url === '')) {
-            url='';
+            url = '';
         }
-        html+='<tr>' +
+        html += '<tr>' +
             '<td style="width: 20px">' + v.id + '</td>' +
             '<td style="width: 20px">' +
             '<div class="d-flex flex-column"><div>' +
@@ -1190,16 +1260,16 @@ function updateCollection(data) {
             '</td>' +
             '<td>' + v.Name + '</td>' +
             '<td><textarea style="width: 100%" class="form-control">' + v.collection_Desc + '</textarea></td>' +
-            '<td>'+url+'</td>' +
+            '<td>' + url + '</td>' +
             '<td>' + sci_department + '</td>' +
             '</tr>';
     })
-    html+='</tbody></table>';
+    html += '</tbody></table>';
     $("#div_tbl_collection").html(html);
     $('#tbl_Collection').tablesorter({
         //theme : 'blue',
         //widthFixed: true,
-        widgets : [ 'zebra', 'filter' ],
+        widgets: ['zebra', 'filter'],
         /*widgetOptions : {
             filter_external: 'input.search',
             filter_reset: '.reset'
@@ -1208,9 +1278,9 @@ function updateCollection(data) {
 }
 
 function updateEvent(data) {
-   // let tbl = $("#div_tbl_event");
+    // let tbl = $("#div_tbl_event");
     //console.log(data);
-    let html='<table id="tbl_event" class="table table-bordered border-primary"><thead><tr>' +
+    let html = '<table id="tbl_event" class="table table-bordered border-primary"><thead><tr>' +
         '<th>ID</th>' +
         '<th class="filter-false sorter-false"></th>' +
         '<th>Название события</th>' +
@@ -1231,19 +1301,19 @@ function updateEvent(data) {
         let sci_theme = arrdata(v.sci_theme);
         let tag = arrdata(v.tag);
         let pers = arrdata(v.pers);
-        let mod=v.moderated;
-        let str_mod='';
-        if (mod ==='0') {
-            str_mod='<div><div class="btn btn-warning" data-bs-toggle="tooltip" data-bs-placement="top" title="Модерация не пройдена. Можно вносить изменения"><i class="bi bi-unlock-fill"></i></div></div>'
+        let mod = v.moderated;
+        let str_mod = '';
+        if (mod === '0') {
+            str_mod = '<div><div class="btn btn-warning" data-bs-toggle="tooltip" data-bs-placement="top" title="Модерация не пройдена. Можно вносить изменения"><i class="bi bi-unlock-fill"></i></div></div>'
         }
-        if (mod ==='1') {
-            str_mod='<div><div class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Модерация пройдена. Внесение изменений невозможно!"><i class="bi bi-file-lock-fill"></i></div></div>'
+        if (mod === '1') {
+            str_mod = '<div><div class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Модерация пройдена. Внесение изменений невозможно!"><i class="bi bi-file-lock-fill"></i></div></div>'
         }
-         html+='<tr>' +
+        html += '<tr>' +
             '<td>' + v.id + '</td>' +
             '<td style="width: 20px">' +
             '<div class="d-flex flex-column">' +
-             '<div>'+str_mod+'</div>'+
+            '<div>' + str_mod + '</div>' +
             '<div><button type="button" class="btn btn-danger" onclick="delEvent(' + v.id + ')"><i class="bi bi-trash"></i></button></div>' +
             '<div><button type="button" class="btn btn-info" onclick="editEvent(' + v.id + ')"><i class="bi bi-pencil-square"></i></button></div>' +
             '</div></td>' +
@@ -1260,12 +1330,12 @@ function updateEvent(data) {
             //'<td><a target="_blank" href="' + v.pathWeb + '">' + v.name + '</a></td>' +
             '</tr>'
     })
-    html+="</tbody></table>";
+    html += "</tbody></table>";
     $("#div_tbl_event").html(html);
     $('#tbl_event').tablesorter({
         //theme : 'blue',
         //widthFixed: true,
-        widgets : [ 'zebra', 'filter' ],
+        widgets: ['zebra', 'filter'],
         /*widgetOptions : {
             filter_external: 'input.search',
             filter_reset: '.reset'
@@ -1283,12 +1353,12 @@ function updatePerson(data) {
     initTagAjax('#ev_pers', data);
     initTagAjax('#file_pers', data);
 
-    let html='<table id="tbl_person" class="table table-bordered border-primary"><thead><tr>' +
+    let html = '<table id="tbl_person" class="table table-bordered border-primary"><thead><tr>' +
         '<th>ID</th>' +
         '<th class="filter-false sorter-false"></th>' +
         '<th>ФИО</th>' +
         //'<th>Имя</th>' +
-       // '<th>Отчество</th>' +
+        // '<th>Отчество</th>' +
         '<th>Должность</th>' +
         '<th>Даты жизни</th>' +
         '<th>Аннотация</th>' +
@@ -1299,28 +1369,30 @@ function updatePerson(data) {
         '</tr></thead><tbody>';
 
     $.each(data, function (i, v) {
-       // console.log(i);
-        if (i==='POST') {return;}
-        if (i==='profiling') {
-            let time={
-                tag:0,
-                sci_department:0,
-                sci_theme:0,
-                file:0
+        // console.log(i);
+        if (i === 'POST') {
+            return;
+        }
+        if (i === 'profiling') {
+            let time = {
+                tag: 0,
+                sci_department: 0,
+                sci_theme: 0,
+                file: 0
             };
             //console.log(v);
-            $.each(v,function (index, value) {
-                if (typeof value[1] !=='undefined') {
-                    time.tag+=parseFloat(value[1].Duration);
+            $.each(v, function (index, value) {
+                if (typeof value[1] !== 'undefined') {
+                    time.tag += parseFloat(value[1].Duration);
                 }
-                if (typeof value[2] !=='undefined') {
-                    time.sci_department+=parseFloat(value[2].Duration);
+                if (typeof value[2] !== 'undefined') {
+                    time.sci_department += parseFloat(value[2].Duration);
                 }
-                if (typeof value[3] !=='undefined') {
-                    time.sci_theme+=parseFloat(value[3].Duration);
+                if (typeof value[3] !== 'undefined') {
+                    time.sci_theme += parseFloat(value[3].Duration);
                 }
-                if (typeof value[4] !=='undefined') {
-                    time.file+=parseFloat(value[4].Duration);
+                if (typeof value[4] !== 'undefined') {
+                    time.file += parseFloat(value[4].Duration);
                 }
             });
             //console.log(time);
@@ -1332,27 +1404,27 @@ function updatePerson(data) {
         let sci_theme = arrdata(v.sci_theme);
         let tag = arrdata(v.tag);
         /*mod*/
-        let mod=v.moderated;
+        let mod = v.moderated;
         //console.log(v);
-        let str_mod='';
-        if (mod ==='0') {
-            str_mod='<div><div class="btn btn-warning" data-bs-toggle="tooltip" data-bs-placement="top" title="Модерация не пройдена. Можно вносить изменения"><i class="bi bi-unlock-fill"></i></div></div>'
+        let str_mod = '';
+        if (mod === '0') {
+            str_mod = '<div><div class="btn btn-warning" data-bs-toggle="tooltip" data-bs-placement="top" title="Модерация не пройдена. Можно вносить изменения"><i class="bi bi-unlock-fill"></i></div></div>'
         }
-        if (mod ==='1') {
-            str_mod='<div><div class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Модерация пройдена. Внесение изменений невозможно!"><i class="bi bi-file-lock-fill"></i></div></div>'
+        if (mod === '1') {
+            str_mod = '<div><div class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Модерация пройдена. Внесение изменений невозможно!"><i class="bi bi-file-lock-fill"></i></div></div>'
         }
 
 
-        html+='<tr>' +
+        html += '<tr>' +
             '<td>' + v.id + '</td>' +
             '<td style="width: 20px">' +
             '<div class="d-flex flex-column">' +
-            '<div>'+str_mod+'</div>'+
+            '<div>' + str_mod + '</div>' +
             '<div><button type="button" class="btn btn-danger" onclick="delPerson(' + v.id + ')"><i class="bi bi-trash"></i></button></div>' +
             '<div><button type="button" class="btn btn-info" onclick="editPerson(' + v.id + ')"><i class="bi bi-pencil-square"></i></button></div>' +
             '</div></td>' +
-            '<td>' + v.F +' '+v.I +' '+ v.O + '</td>' +
-           //'<td>' + v.I + '</td>' +
+            '<td>' + v.F + ' ' + v.I + ' ' + v.O + '</td>' +
+            //'<td>' + v.I + '</td>' +
             //'<td>' + v.O + '</td>' +
             '<td>' + v.DOL + '</td>' +
             '<td>c ' + v.DAYN + ' по ' + v.DAYD + '</td>' +
@@ -1363,19 +1435,20 @@ function updatePerson(data) {
             '<td style="width: 10%" class="text-wrap">' + file + '</td>' +
             '</tr>'
     })
-    html+='</tbody></table>';
+    html += '</tbody></table>';
     $("#div_tbl_person").html(html);
     $('#tbl_person').tablesorter({
         //theme : 'blue',
         //widthFixed: true,
-        widgets : [ 'zebra', 'filter' ],
+        widgets: ['zebra', 'filter'],
         /*widgetOptions : {
             filter_external: 'input.search',
             filter_reset: '.reset'
         }*/
     });
 }
-function delCollectionItem(id, answer = null){
+
+function delCollectionItem(id, answer = null) {
     if (answer == null) {
         $('#dialog_del').dialog({
             buttons: {
@@ -1403,7 +1476,8 @@ function delCollectionItem(id, answer = null){
         })
     }
 }
-function delCollection(id, answer = null){
+
+function delCollection(id, answer = null) {
     if (answer == null) {
         $('#dialog_del').dialog({
             buttons: {
@@ -1431,10 +1505,11 @@ function delCollection(id, answer = null){
         })
     }
 }
+
 function delEvent(tag, answer = null) {
     let data = load_event('s_id=' + tag);
     let info = data[0];
-     if (info.moderated !=='0') {
+    if (info.moderated !== '0') {
         alert('Событие проверено модератором, изменить нельзя.');
         return;
     }
@@ -1482,10 +1557,10 @@ function delFile(tag, answer = null) {
         }).dialog("open");
     } else if (answer === true) {
         $.ajax({
-            async:true,
+            async: true,
             type: 'POST',
             url: 'set.php?file&del',
-            data: 'file=' + tag+'&dep=true',
+            data: 'file=' + tag + '&dep=true',
             dataType: 'json',
             cache: false,
             success: function (data) {
@@ -1500,7 +1575,7 @@ function delFile(tag, answer = null) {
 function delPerson(tag, answer = null) {
     let data = load_person('s_id=' + tag);
     let info = data[0];
-    if (info.moderated !=='0') {
+    if (info.moderated !== '0') {
         alert('Событие проверено модератором, изменить нельзя.');
         return;
     }
@@ -1645,7 +1720,7 @@ function load_event(search = null) {
         data_search = search;
     } else {
         if ($('#my_event').prop('checked')) {
-            data_search='dep=true';
+            data_search = 'dep=true';
         }
     }
     return $.ajax({
@@ -1683,7 +1758,7 @@ function load_person(search = null) {
         data_search = search;
     } else {
         if ($('#my_pers').prop('checked')) {
-            data_search='dep=true';
+            data_search = 'dep=true';
         }
     }
     return $.ajax({
@@ -1694,13 +1769,14 @@ function load_person(search = null) {
         dataType: 'json',
         cache: false,
         success: function (data) {
-           // updatePerson(data);
+            // updatePerson(data);
             //console.log(data);
             // do something with ajax data
         }
     }).responseJSON;
 }
-function load_collectionItem(search = null){
+
+function load_collectionItem(search = null) {
     let data_search = '';
     if (search !== null) {
         data_search = search;
@@ -1718,6 +1794,7 @@ function load_collectionItem(search = null){
         }
     }).responseJSON;
 }
+
 function load_collection(search = null) {
     let data_search = '';
     if (search !== null) {
@@ -1773,7 +1850,7 @@ function load_file(search = null) {
         data_search = search;
     } else {
         if ($('#my_file').prop('checked')) {
-            data_search='dep=true';
+            data_search = 'dep=true';
         }
     }
     return $.ajax({
@@ -1810,12 +1887,12 @@ function inittag(elem) {
     $('#' + elem + '_tag_add_btn').on('click', function (e) {
         e.preventDefault();
         let tag = $('#' + elem + '_tag_add');
-        if (tag.val()==='') {
+        if (tag.val() === '') {
             alert('Пустое ключевое!');
             return false;
         }
-        let tag_sel=$('#' + elem + '_tag');
-        let val_tag=tag_sel.val();
+        let tag_sel = $('#' + elem + '_tag');
+        let val_tag = tag_sel.val();
         val_tag.push(tag.val());
         tag_sel
             .prepend('<option>' + tag.val() + '</option>')

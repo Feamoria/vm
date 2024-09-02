@@ -398,6 +398,17 @@
 				<button class="btn btn-primary" id='file_tag_add'>Новое</button>
 			</div>
 			<div class="input-group">
+				<span style="width: 20%" class="input-group-text text-bg-success">Титульное фото для:</span>
+				<select id="file_MainType" name="MainType" class="form-select" aria-label="">
+					<option value="-1">---</option>
+					<option value="0">Персоналии</option>
+					<option value="1">Структурного подразделения</option>
+				</select>
+				<select  id="file_MainId" name="MainId" class="form-select" aria-label="">
+
+				</select>
+			</div>
+			<div class="input-group">
 				<button class="btn btn-primary" id='file_btn_send'>Сохранить файл</button>
 			</div>
 
@@ -509,6 +520,11 @@
 				<input id="id_file" name="id_file" type="hidden">
 				<span style="width: 20%" class="input-group-text text-bg-success text-wrap">Цифровое изображение (фотография)<span style="color: red">*</span></span>
 				<input id="collectionItemFile" name="collectionItemFile" required type="file" class="form-control" placeholder="" aria-label="">
+			</div>
+			<div class="input-group">
+				<input id="id_fileModel" name="id_fileModel" type="hidden">
+				<span style="width: 20%" class="input-group-text text-bg-success text-wrap">Цифровое изображение (3d модель)</span>
+				<input id="collectionItemFileModel" name="collectionItemFileModel" type="file" class="form-control" placeholder="" accept=".ply" aria-label="">
 			</div>
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success">Аннотация (описание)</span>

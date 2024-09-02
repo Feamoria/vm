@@ -123,6 +123,17 @@
             $name = $data['file_name'];
             $Desc = $data['file_Desc'];
             $doc = $data['file_doc'];
+            $MainType='';
+            $MainId='';
+            if (isset($data['MainType'])) {
+                $MainType = $data['MainType'];
+                if ($MainType >= 0) {
+                    $MainType = $data['MainType'];
+                    $MainId = $data['MainId'];
+                } else {
+                    $MainType='';
+                }
+            }
             $ret = [];
             /*Основа // И вообще оберёнм в транзацию ибо нех*/
             mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
@@ -134,6 +145,8 @@
                     `date`='$date',
                     `disc`='$Desc',
                     `doc`='$doc',
+                    mainType = '$MainType',
+                    mainId = '$MainId',
                     `type`=$this->type
                 WHERE id=$id;";
                 mysqli_query($this->connect, $SQL);
@@ -320,12 +333,12 @@
 
         public function getBD($id = null, $search = null): array
         {
-            $SQL = "SELECT id, cast(date as DATE ) as `date` , name, disc, doc, pathServ, pathWeb, type, create_date, create_user 
+            $SQL = "SELECT id, cast(date as DATE ) as `date` , name, disc, doc, pathServ, pathWeb, type, create_date, create_user,mainId,mainType   
                     FROM file 
                     where type = $this->type
                     order by date";
             if ($id != null) {
-                $SQL = "SELECT id, cast(date as DATE ) as `date` , name, disc, doc, pathServ, pathWeb, type, create_date, create_user  
+                $SQL = "SELECT id, cast(date as DATE ) as `date` , name, disc, doc, pathServ, pathWeb, type, create_date, create_user,mainId,mainType  
                         FROM file 
                         where id=$id";
             }
@@ -363,7 +376,7 @@
                     $Where .= " $and id in (SELECT `idFile` from `tag_file` where `idTag` in ($s))";
                 }
 
-                $SQL = "SELECT id, cast(date as DATE ) as `date` , name, disc, doc, pathServ, pathWeb, type, create_date, create_user 
+                $SQL = "SELECT id, cast(date as DATE ) as `date` , name, disc, doc, pathServ, pathWeb, type, create_date, create_user ,mainId,mainType  
                         FROM file 
                         where $Where";
             }
