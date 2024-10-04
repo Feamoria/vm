@@ -317,6 +317,39 @@ $(document).ready(function () {
     /***********************
      /*PERS
      /***********************/
+
+    tinymce.init({
+        selector: '#pers_Desc,#pers_publications,#pers_awards',  // change this value according to the HTML
+        //inline: true,
+        width: "80%",
+        menubar: 'edit format',
+        language: 'ru',
+        license_key: 'gpl',
+        browser_spellcheck: true,
+        contextmenu: false,
+        plugins:['wordcount','searchreplace','lists','link', 'autolink','quickbars','visualchars'],
+        link_default_target: '_blank',
+        //quickbars_selection_toolbar:'bold italic | blocks | quicklink blockquote | numlist bullist',
+        //toolbar: 'numlist bullist',
+        /*setup: function (editor) {
+            editor.on('init', function (e) {
+                load(5)
+                //editor.setContent('<p>Hello world!</p>');
+            });
+        },*/
+        /*menu: {
+            file: { title: 'File', items: 'newdocument restoredraft | preview | importword exportpdf exportword | print | deleteallconversations' },
+            edit: { title: 'Edit', items: 'undo redo | cut copy paste pastetext | selectall | searchreplace' },
+            view: { title: 'View', items: 'code revisionhistory | visualaid visualchars visualblocks | spellchecker | preview fullscreen | showcomments' },
+            insert: { title: 'Insert', items: 'image link media addcomment pageembed codesample inserttable | math | charmap emoticons hr | pagebreak nonbreaking anchor tableofcontents | insertdatetime' },
+            format: { title: 'Format', items: 'bold italic underline strikethrough superscript subscript codeformat | styles blocks fontfamily fontsize align lineheight | forecolor backcolor | language | removeformat' },
+            tools: { title: 'Tools', items: 'spellchecker spellcheckerlanguage | a11ycheck code wordcount' },
+            table: { title: 'Table', items: 'inserttable | cell row column | advtablesort | tableprops deletetable' },
+            help: { title: 'Help', items: 'help' }
+        }*/
+        toolbar: 'undo redo | styles | bold italic | alignleft aligncenter alignright alignjustify | outdent indent | numlist bullist | link | visualchars'
+    });
+
     $('#pers_date1,#pers_date2').datepicker({
         showOtherMonths: true,
         selectOtherMonths: true,
@@ -382,6 +415,32 @@ $(document).ready(function () {
         datepic.datepicker("option", "dateFormat", "yy-mm-dd");
         let data = $('#pers').serialize();
         datepic.datepicker("option", "dateFormat", "dd.mm.yy");
+
+
+        let comment=encodeURIComponent(tinymce.get("pers_Desc").getContent());
+        let awards=encodeURIComponent(tinymce.get("pers_awards").getContent());
+        let publications=encodeURIComponent(tinymce.get("pers_publications").getContent());
+        data+="&pers_Desc="+comment;
+        data+="&pers_awards="+awards;
+        data+="&pers_publications="+publications;
+        //console.log(data);
+        /*
+        * tinymce.get("pers_Desc").setContent(info.COMMENT, {format: "html"});
+    //$('#pers_Desc').val(info.COMMENT);
+    tinymce.get("pers_publications").setContent(info.publications, {format: "html"});
+    //$('#pers_publications').val(info.publications);
+    tinymce.get("pers_awards").setContent(info.awards, {format: "html"});
+    //$('#pers_awards').val(info.awards);
+
+    // SQVE
+    //let comment=encodeURIComponent(tinymce.get("comment").getContent());
+    //     let awards=encodeURIComponent(tinymce.get("awards").getContent());
+    //     let publications=encodeURIComponent(tinymce.get("publications").getContent());
+        * */
+
+
+
+        //return;
         $.ajax({
             type: 'POST',
             url: 'set.php?pers',
@@ -834,11 +893,12 @@ function editEvent(id) {
     /** #eventID*/
     let data = load_event('s_id=' + id);
     let info = data[0];
+    console.log(info.moderated);
     if (info.moderated !== '0') {
         alert('Событие проверено модератором, изменить нельзя.');
         return;
     }
-    console.log(info.moderated);
+
     //if info.moder
     $('#eventID').val(info.id);
     $('#ev_Name').val(info.Name);
@@ -933,9 +993,18 @@ function editPerson(id) {
     $('#pers_date2').val(info.DAYD);
     DT.datepicker("option", "dateFormat", "dd.mm.yy");
     $('#pers_dol').val(info.DOL);
-    $('#pers_Desc').val(info.COMMENT);
-    $('#pers_publications').val(info.publications);
-    $('#pers_awards').val(info.awards);
+
+    tinymce.get("pers_Desc").setContent(info.COMMENT, {format: "html"});
+    //$('#pers_Desc').val(info.COMMENT);
+    tinymce.get("pers_publications").setContent(info.publications, {format: "html"});
+    //$('#pers_publications').val(info.publications);
+    tinymce.get("pers_awards").setContent(info.awards, {format: "html"});
+    //$('#pers_awards').val(info.awards);
+
+    // SQVE
+    //let comment=encodeURIComponent(tinymce.get("comment").getContent());
+    //     let awards=encodeURIComponent(tinymce.get("awards").getContent());
+    //     let publications=encodeURIComponent(tinymce.get("publications").getContent());
     //pers_sci_department  - sci_department
     let sci_department = [];
     if (info.sci_department.length > 0) {
@@ -1158,7 +1227,7 @@ function updateFile(data) {
             '<td class="text-wrap">' + tag + '</td>' +
             '<td>' +
             '<a target="_blank" href="' + v.pathWeb + '">' + v.name + '</a><br>' +
-            '<img src="' + v.pathWeb + '" width="100px">' +
+            //'<img src="' + v.pathWeb + '" width="100px">' +
             '</td>' +
             '</tr>';
     })

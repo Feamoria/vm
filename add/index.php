@@ -103,7 +103,8 @@
 
 	<!-- tablesorter widget file - loaded after the plugin -->
 	<script src="../js/tablesorter/js/jquery.tablesorter.widgets.js"></script>
-
+	<!--tinymce -->
+	<script src="../js/tinymce/tinymce.min.js"></script>
 
 	<!-- MY -->
 	<script src="js/main.js?<?php
@@ -294,7 +295,7 @@
 				<input id="pers_dol" name="pers_dol" required type="text" class="form-control" placeholder="" aria-label="" title="Обязательное поле с указанием ученой степени (кандидат/доктор (каких?) наук), должности (заведующий лабораторией и т.д.)">
 			</div>
 			<div class="input-group">
-				<span style="width: 20%" class="input-group-text text-bg-success">Биографические данные (кратко)</span>
+				<span style="width: 20%" class="input-group-text text-bg-success text-wrap">Биографические данные (кратко)</span>
 				<textarea id="pers_Desc" name="pers_Desc" class="form-control" aria-label="" title="Пример: Окончил историко-филологический факультет Коми государственного пединститута (1971). С 1971 г. работает в ИЯЛИ Коми НЦ УрО РАН: до 1976 г. – лаборант, с 1976 г. – младший научный сотрудник, с 1982 г. по 1985 г.−  ученый секретарь, с 1985 г. по 1987 г. – заведующий сектором языка, с 1987 г. по 1997 г. – старший научный сотрудник, с 1997 г. по 2004 г. – ведущий научный сотрудник, с 2004 по настоящее время – главный научный сотрудник."></textarea>
 				<span class="input-group-text" id="pers_Desc_short_COUNT"></span>
 			</div>
@@ -353,7 +354,7 @@
 			</div>
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success">Дата</span>
-				<input id="file_date" name="file_date" type="text" class="form-control" placeholder="1947.01.01 или 1947.02.01  если неизвестна точная дата или месяц" aria-label="">
+				<input id="file_date" name="file_date" type="text" class="form-control" placeholder="01.01.1947 или 01.02.1947  если неизвестна точная дата или месяц" aria-label="">
 			</div>
 			<div class="input-group">
 				<span style="width: 20%" class="input-group-text text-bg-success">Название файла<span style="color: red">*</span></span>
