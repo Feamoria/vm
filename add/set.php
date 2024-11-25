@@ -913,17 +913,20 @@
                 }
                 $Name=$data['Name'];//mysqli_escape_string($db,$data['Name']);
                 $Desc=$_POST['Desc'];//mysqli_escape_string($db,$data['Desc']);
+                $Doc=$_POST['Doc'];//mysqli_escape_string($db,$data['Desc']);
+                $type=(int)$_GET['type'];
                 try {
                     $SQL="UPDATE event 
                     SET
                         Name = ?,
                         `Desc`= ?,
-                        moderated=1,
+                        `Doc`= ?,
+                        moderated=$type,
                         moderated_user={$_SESSION['user']['id']},
                         moderated_date=CURRENT_TIMESTAMP()
                     where id=? ";
                     $stmt=mysqli_prepare($db,$SQL);
-                    mysqli_stmt_bind_param($stmt,'ssi',$Name,$Desc,$id);
+                    mysqli_stmt_bind_param($stmt,'sssi',$Name,$Desc,$Doc,$id);
                     mysqli_stmt_execute($stmt);
                     $ret['SQL']=$SQL;
                     $ret['ok']='ok';
@@ -955,6 +958,8 @@
                 $comment=$_POST['comment'];//mysqli_escape_string($db,$data['Desc']);
                 $awards=$_POST['awards'];
                 $publications=$_POST['publications'];
+                $type=(int) $_GET['type'];
+                //158
                 try {
                     $SQL="UPDATE person
                     SET
@@ -962,7 +967,7 @@
                         `comment`= ?,
                         `awards`= ?,
                         `publications`= ?,
-                        moderated=1,
+                        moderated=$type,
                         moderated_user={$_SESSION['user']['id']},
                         moderated_date=CURRENT_TIMESTAMP()
                     where id=? ";

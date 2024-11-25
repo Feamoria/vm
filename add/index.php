@@ -17,13 +17,20 @@
 
         if ($data['pass'] === hash('sha512', $_POST['password']))//Авторизация пройдена
         {
-            $_SESSION['user']['id'] = $data['id'];
-            $_SESSION['user']['site'] = 'vm';
-            $_SESSION['user']['dep'] = $data['dep'];
-            $_SESSION['user']['role'] = $data['role'];
-            $_SESSION['user']['FIO'] = $data['FIO'];
-            $_SESSION['user']['login'] = $data['login'];
-            $_SESSION['user']['pass'] = $data['pass'];
+            if ((int)$data['role'] == 3) {
+                $_SESSION['mess'] = 'Система закрыта для внесения изменений. В случае необходимости редактирования данных, размещения фотоконтента просьба обращаться к модераторам:<br>
+<a href="mailto:secr.hist@mail.illhkomisc.ru">secr.hist@mail.illhkomisc.ru</a> // Горинова Наталья Васильевна,<br>
+<a href="mailto:musanov@mail.illhkomisc.ru">musanov@mail.illhkomisc.ru</a> // Мусанов Алексей Геннадьевич.';
+               // header("Location: /vm/add/index.php");
+			} else {
+                $_SESSION['user']['id'] = $data['id'];
+                $_SESSION['user']['site'] = 'vm';
+                $_SESSION['user']['dep'] = $data['dep'];
+                $_SESSION['user']['role'] = $data['role'];
+                $_SESSION['user']['FIO'] = $data['FIO'];
+                $_SESSION['user']['login'] = $data['login'];
+                $_SESSION['user']['pass'] = $data['pass'];
+            }
             # Обновляем страницу с данными авторизации
 
         } else//Авторизация отклонена
@@ -35,12 +42,12 @@
         if (!isset($_SESSION['user']['site'])) {
             $mess = '';
             if (isset($_SESSION['mess'])) {
-                $mess = $_SESSION['mess'];
+                $mess ='<div style="position: fixed;top: 250px;background: #f0f0f0;border: 1px #0a0a0a"><P style="color: red;">'. $_SESSION['mess'].'</P></div>';
                 $_SESSION['mess'] = null;
             }
             $html = '<h1 style="color: red;" align="center">Не авторизовано</h1>
 			<h2 align="center">Авторизуйтесь в системе</h2>
-			<div style="position: fixed;top: 180px;left: 50%;width: 250px; height:80px; background: #f0f0f0;transform: translate(-50%, 0%);padding: 15px;">
+			<div style="position: fixed;top: 120px;left: 50%;width: 250px; height:80px; background: #f0f0f0;transform: translate(-50%, 0%);padding: 15px;">
 			<form method="POST" class="" action="index.php?auth"  >
 			<div style="padding-bottom:10px;">
 				<label for="login">Логин</label>
@@ -50,11 +57,10 @@
 				<label for="password">Пароль</label>
 				<input name="password" style="float:right;width:140px;" type="password">
 			</div>
-			<div style="margin:auto;padding:10px;width:50px;">
-			    <P style="color: red">' . $mess . '</P>
+			<div style="margin:auto;width:50px;">
 				<input name="submit" value="Войти" type="submit">
 			</div>
-			</form></div>';
+			</form></div>'.$mess.'';
             die($html);
         }
     }
@@ -197,8 +203,10 @@
 				<input type="text" id='ev_D_e' name="ev_D_e" aria-label="" class="form-control" placeholder="День (1-31)">
 			</div>
 			<div class="input-group">
-				<span style="width: 20%" class="input-group-text text-bg-success">Полное описание события</span>
-				<textarea id="ev_Desc" name="ev_Desc" class="form-control" aria-label="" title="Расширенная версия события в научном стиле"></textarea>
+				<span style="width: 20%" class="input-group-text text-bg-success">Полное описание события
+					<i id="ev_Desc_op" class="bi bi-question-circle-fill" title="Расширенная версия события в научном стиле"></i>
+				</span>
+				<textarea id="ev_Desc" name="ev_Desc" class="form-control" aria-label=""></textarea>
 			</div>
 			<div id="div_ev_file" class="input-group" title="Фотографии, связанная с событием">
 				<span style="width: 20%" class="input-group-text text-bg-success">Файл</span>
@@ -291,23 +299,31 @@
 				<input id="pers_date2" name="pers_date2" type="text" class="form-control" placeholder="по" aria-label="">
 			</div>
 			<div class="input-group">
-				<span style="width: 20%" class="input-group-text text-bg-success">Ученая степень/должность<span style="color: red">*</span></span>
-				<input id="pers_dol" name="pers_dol" required type="text" class="form-control" placeholder="" aria-label="" title="Обязательное поле с указанием ученой степени (кандидат/доктор (каких?) наук), должности (заведующий лабораторией и т.д.)">
+				<span style="width: 20%" class="input-group-text text-bg-success">Ученая степень/должность<span  style="color: red">*</span>
+					<i id="pers_dol_q" class="bi bi-question-circle-fill" title="Обязательное поле с указанием ученой степени (кандидат/доктор (каких?) наук), должности (заведующий лабораторией и т.д.)"></i>
+				</span>
+				<input id="pers_dol" name="pers_dol" required type="text" class="form-control" placeholder="" aria-label="" >
 			</div>
 			<div class="input-group">
-				<span style="width: 20%" class="input-group-text text-bg-success text-wrap">Биографические данные (кратко)</span>
-				<textarea id="pers_Desc" name="pers_Desc" class="form-control" aria-label="" title="Пример: Окончил историко-филологический факультет Коми государственного пединститута (1971). С 1971 г. работает в ИЯЛИ Коми НЦ УрО РАН: до 1976 г. – лаборант, с 1976 г. – младший научный сотрудник, с 1982 г. по 1985 г.−  ученый секретарь, с 1985 г. по 1987 г. – заведующий сектором языка, с 1987 г. по 1997 г. – старший научный сотрудник, с 1997 г. по 2004 г. – ведущий научный сотрудник, с 2004 по настоящее время – главный научный сотрудник."></textarea>
+				<span style="width: 20%" class="input-group-text text-bg-success text-wrap">Биографические данные (кратко)
+					<i id="pers_Desc_q" class="bi bi-question-circle-fill" title="Пример: Окончил историко-филологический факультет Коми государственного пединститута (1971). С 1971 г. работает в ИЯЛИ Коми НЦ УрО РАН: до 1976 г. – лаборант, с 1976 г. – младший научный сотрудник, с 1982 г. по 1985 г.−  ученый секретарь, с 1985 г. по 1987 г. – заведующий сектором языка, с 1987 г. по 1997 г. – старший научный сотрудник, с 1997 г. по 2004 г. – ведущий научный сотрудник, с 2004 по настоящее время – главный научный сотрудник."></i>
+				</span>
+				<textarea id="pers_Desc" name="pers_Desc" class="form-control" aria-label="" ></textarea>
 				<span class="input-group-text" id="pers_Desc_short_COUNT"></span>
 			</div>
 			<!--Основные публикации -->
 			<div class="input-group">
-				<span style="width: 20%" class="input-group-text text-bg-success">Основные публикации</span>
-				<textarea id="pers_publications" name="pers_publications" class="form-control" aria-label="" title="не более 10; по ГОСТу Р 7.0.5–2008"></textarea>
+				<span style="width: 20%" class="input-group-text text-bg-success">Основные публикации
+					<i id="pers_publications_q" class="bi bi-question-circle-fill" title="не более 10; по ГОСТу Р 7.0.5–2008"></i>
+				</span>
+				<textarea id="pers_publications" name="pers_publications" class="form-control" aria-label="" ></textarea>
 			</div>
 			<!--Награды, звания -->
 			<div class="input-group">
-				<span style="width: 20%" class="input-group-text text-bg-success">Награды, звания</span>
-				<textarea id="pers_awards" name="pers_awards" class="form-control" aria-label="" title="от федеральных к региональным и ведомственным. Для примера:Почетная грамота Республики Коми (2002)."></textarea>
+				<span style="width: 20%" class="input-group-text text-bg-success">Награды, звания
+				<i id="pers_awards_q" class="bi bi-question-circle-fill" title="от федеральных к региональным и ведомственным. Для примера:Почетная грамота Республики Коми (2002)."></i>
+				</span>
+				<textarea id="pers_awards" name="pers_awards" class="form-control" aria-label=""></textarea>
 			</div>
 			<!--Структурное подразделение -->
 			<div class="col-auto input-group">

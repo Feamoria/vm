@@ -66,8 +66,8 @@
                     $OFileName = $file['name'][0];
                     $OFileTemp = $file['tmp_name'][0];
                 }
-                $origname = str_replace(' ', '_', $OFileName);
-                $info = pathinfo($origname);
+                $info = pathinfo($OFileName);
+                //$origname = str_replace(' ', '_', $OFileName);
                 $resp[$j]['info2'] = $info;
                 $file_nameFull = trim(
                     str_replace('.' . $info['extension'], '', $OFileName) . '-' . rand(
@@ -75,6 +75,7 @@
                         999
                     ) . '.' . $info['extension']
                 );
+                $file_nameFull = str_replace(' ', '_', $file_nameFull);
                 $file_name = $OFileName;
                 if (preg_match($this->regExpFile, $file_name)) {
                     if (move_uploaded_file($OFileTemp, "$uploadDir/$file_nameFull")) {

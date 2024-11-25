@@ -7,8 +7,8 @@ let cache_pers = {};
 $(document).ready(function () {
     if (!test)
         timerId = setInterval(GetOnline, 0);
-    $('#file_doc,#ev_doc,#ev_Name,#ev_Y_n,#ev_Desc,#div_ev_file,' +
-        '#pers_Desc,#pers_awards,#pers_publications,#div_persFio,#pers_date1,#pers_dol').tooltip({
+    $('#file_doc,#ev_doc,#ev_Name,#ev_Y_n,#ev_Desc_op,#div_ev_file,' +
+        '#pers_Desc_q,#pers_awards_q,#pers_publications_q,#div_persFio,#pers_date1,#pers_dol_q').tooltip({
         position: {
             my: "center bottom-20",
             at: "left top",
@@ -893,12 +893,12 @@ function editEvent(id) {
     /** #eventID*/
     let data = load_event('s_id=' + id);
     let info = data[0];
-    console.log(info.moderated);
+   /* console.log(info.moderated);
     if (info.moderated !== '0') {
         alert('Событие проверено модератором, изменить нельзя.');
         return;
     }
-
+*/
     //if info.moder
     $('#eventID').val(info.id);
     $('#ev_Name').val(info.Name);
@@ -973,10 +973,11 @@ function editPerson(id) {
     /**  #persID*/
     let data = load_person('s_id=' + id);
     let info = data[0];
+    /*
     if (info.moderated !== '0') {
         alert('Событие проверено модератором, изменить нельзя.');
         return;
-    }
+    }*/
     $('#persID').val(info.id);
 
 

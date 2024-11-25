@@ -19,7 +19,7 @@
 <head>
     <meta http-equiv='Content-Type' content='text/html; charset=utf-8'/>
     <meta http-equiv='X-UA-Compatible' content='IE=edge'/>
-    <title>Добавление данных</title>
+    <title>Модерация:События</title>
     <link rel="icon" type="image/png" href="favicon.ico"/>
     <script src="../js/jquery/jquery-3.7.1.min.js"></script>
     <script src="../js/jquery/jquery.form.js"></script>
@@ -66,7 +66,21 @@
 
 </head>
 <body>
+<script>
+	var curent=<?php
+    ini_set('error_reporting', E_ALL);
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
+    require_once '../php_class/connect.php';
+    $db = (new BDconnect())->connect();
 
+    $SQL ="SELECT ID from event where moderated=0 order by DateN,id limit 1";
+    $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
+    while ($row = mysqli_fetch_array($query, MYSQLI_ASSOC)) {
+        echo $row['ID'];
+    }
+	?>;
+</script>
 <div class="">
 	<div class="row">
 		<div class="input-group">
@@ -106,15 +120,26 @@
     <div class="row">
         <!-- описание -->
         <div class="col-12">
+			<label for="disc" class="input-group-text text-bg-success">Описание</label>
             <textarea id="disc" name="disc"></textarea>
         </div>
     </div>
+	<div class="row">
+		<!-- Документы -->
+		<div class="col-12">
+			<label for="doc" class="input-group-text text-bg-success">Документы</label>
+			<textarea id="doc" name="doc"></textarea>
+		</div>
+	</div>
 
     <div class="row">
         <!-- кнопки -->
         <div class="col-3 position-relative"> <button id="btnBack" class="btn btn-sm btn-primary position-absolute top-50 start-50 ">Назад</button> </div>
 		<div class="col-3 position-relative"> <button id="btnNext" class="btn btn-sm btn-primary position-absolute top-50 start-50 ">Вперёд</button></div>
-		<div class="col-3 position-relative"> <button id="btnSave" class="btn btn-sm btn-success position-absolute top-50 start-50 ">Сохранить</button> </div>
+		<div class="col-3 position-relative">
+			<button id="btnPublic" class="btn btn-sm btn-success position-absolute top-50 start-25">Опубликовать</button>
+			<button id="btnSave" class="btn btn-sm btn-success position-absolute top-50 start-50 ">Сохранить</button>
+		</div>
 		<div class="col-3 position-relative">
 			<div class="row position-absolute top-50 start-40 ">
 				<div class="col-6">

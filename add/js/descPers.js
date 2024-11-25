@@ -1,4 +1,4 @@
-function save() {
+function save(type) {
 
     let Person={}
     Person.id=$('#idPerson').val();
@@ -9,7 +9,7 @@ function save() {
     //console.log(Person);
     $.ajax({
         type: 'POST',
-        url: 'set.php?descPerson',
+        url: 'set.php?descPerson&type='+type,
         //data: JSON.stringify(parameters),
         data: 'data='+JSON.stringify(Person)+
             '&comment='+comment+
@@ -60,7 +60,7 @@ function load(id) {
                 })
             } else $('#btnBack').hide();
 
-            console.log(data.person[0]);
+            //console.log(data.person[0]);
             let pers=data.person[0];
             if (pers.comment !== null)
             {
@@ -86,6 +86,8 @@ function load(id) {
                 $('#moderated_date').val(pers.moderated_date);
                 $('#isModerated').show();
             }
+            $(window).scrollTop($('#idPerson').offset().top);
+            //idEvent
         }
     });
 
@@ -104,7 +106,10 @@ $(document).ready(function () {
         } //else console.log(isInt(Step))
     })
     $('#btnSave').on('click',function (){
-        save();
+        save(0);
+    })
+    $('#btnPublic').on('click',function (){
+        save(1);
     })
     tinymce.init({
         selector: '#comment,#publications,#awards',  // change this value according to the HTML
@@ -115,11 +120,11 @@ $(document).ready(function () {
         contextmenu: false,
         plugins:['wordcount','searchreplace','lists','link', 'autolink','quickbars','visualchars'],
         link_default_target: '_blank',
-        quickbars_selection_toolbar:'bold italic | blocks | quicklink blockquote | numlist bullist',
+        quickbars_selection_toolbar:'bold italic | blocks | quicklink blockquote | numlist bullist | removeformat',
         //toolbar: 'numlist bullist',
         setup: function (editor) {
             editor.on('init', function (e) {
-                load(5)
+                load(curent)
                 //editor.setContent('<p>Hello world!</p>');
             });
         },
@@ -133,7 +138,7 @@ $(document).ready(function () {
             table: { title: 'Table', items: 'inserttable | cell row column | advtablesort | tableprops deletetable' },
             help: { title: 'Help', items: 'help' }
         }*/
-        toolbar: 'undo redo | styles | bold italic | alignleft aligncenter alignright alignjustify | outdent indent | numlist bullist | link | visualchars'
+        toolbar: 'undo redo | styles | bold italic | alignleft aligncenter alignright alignjustify | outdent indent | numlist bullist | link | visualchars codeformat removeformat'
     });
 
     //load(2);
