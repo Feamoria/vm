@@ -48,8 +48,6 @@
             $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
             $data['Tag'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
             die(json_encode($data, JSON_UNESCAPED_UNICODE));
-
-
     }
     /**
      * eventYears вывод минимум и максимум даты!
@@ -58,19 +56,6 @@
         $SQL="SELECT MAX(DateN) as MaxDate,MIN(DateN) as MinDate from event";
         $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
         $data['Date'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
-        die(json_encode($data, JSON_UNESCAPED_UNICODE));
-    }
-    /**
-     * eventTag
-     */
-    elseif (isset($_GET['eventTag'])) {
-        $SQL="SELECT tag.id,tag.Name, count(tag_event.idEvent) as count from tag,tag_event 
-                where tag.id = tag_event.idTag
-            group by tag_event.idTag
-            order by count desc 
-        ";
-        $query = mysqli_query($db, $SQL) or die($SQL . "|Couldn't execute query." . mysqli_error($db));
-        $data['eventTag'] = mysqli_fetch_all($query, MYSQLI_ASSOC);
         die(json_encode($data, JSON_UNESCAPED_UNICODE));
     }
     /**
@@ -111,9 +96,12 @@
         {
             if (isset($_POST["data"])) {
                 $data = json_decode($_POST["data"], true);
+                if (($data === null) or ($data === false)) {
+                    die(['err'=>'[data] incorrect']);
+                }
                 $YearN = (int)$data['year'][0];
                 $YearE = (int)$data['year'][1];
-                $level = $data['level'];
+                $level = (int)$data['level'];
                 $them = null;
                 if (isset($data["them"]) and !empty($data["them"])) {
                     $them = $data["them"];
@@ -353,8 +341,11 @@
         $user = mysqli_fetch_all($query, MYSQLI_ASSOC);
         $data['person'][0]['create_user'] = [
             'id' => $data['person'][0]['create_user'],
-            'fio' => $user[0]['FIO'],
-            'dep' => $user[0]['dep']
+            /**
+             * Пока уберём это
+            */
+            //'fio' => $user[0]['FIO'],
+            //'dep' => $user[0]['dep']
         ];
         if (!empty($data['person'][0]['moderated_user'])) {
             $SQL = "SELECT FIO,dep FROM user where id=" . $data['person'][0]['moderated_user'];
@@ -362,8 +353,11 @@
             $user = mysqli_fetch_all($query, MYSQLI_ASSOC);
             $data['person'][0]['moderated_user'] = [
                 'id' => $data['person'][0]['moderated_user'],
-                'fio' => $user[0]['FIO'],
-                'dep' => $user[0]['dep']
+                /**
+                 * Пока уберём это
+                 */
+                /*'fio' => $user[0]['FIO'],
+                'dep' => $user[0]['dep']*/
             ];
         }
 
@@ -417,8 +411,11 @@
         $user = mysqli_fetch_all($query, MYSQLI_ASSOC);
         $data['event'][$i]['create_user'] = [
             'id' => $val['create_user'],
-            'fio' => $user[0]['FIO'],
-            'dep' => $user[0]['dep']
+            /**
+             * Пока уберём это
+             */
+            /*'fio' => $user[0]['FIO'],
+            'dep' => $user[0]['dep']*/
         ];
         if (!empty($val['moderated_user'])) {
             $SQL = "SELECT FIO,dep FROM user where id=" . $val['moderated_user'];
@@ -426,8 +423,11 @@
             $user = mysqli_fetch_all($query, MYSQLI_ASSOC);
             $data['event'][$i]['moderated_user'] = [
                 'id' => $val['moderated_user'],
-                'fio' => $user[0]['FIO'],
-                'dep' => $user[0]['dep']
+                /**
+                 * Пока уберём это
+                 */
+              /*  'fio' => $user[0]['FIO'],
+                'dep' => $user[0]['dep']*/
             ];
         }
         /** person */
